@@ -108,6 +108,34 @@ export interface TransactionInput {
   status?: TransactionStatus;
 }
 
+export interface MonthlyReportItem {
+  mes: string;
+  total_receitas: number;
+  total_despesas: number;
+  saldo: number;
+}
+
+export type GoalStatus = 'em_andamento' | 'concluida' | 'cancelada';
+
+export interface GoalResponse {
+  id_meta: number;
+  titulo: string;
+  descricao: string | null;
+  valor_objetivo: number;
+  valor_atual: number;
+  status: GoalStatus;
+  data_inicio: string | null;
+  data_fim: string | null;
+}
+
+export interface GoalInput {
+  titulo: string;
+  descricao?: string;
+  valor_objetivo: number;
+  data_inicio?: string;
+  data_fim?: string;
+}
+
 export const api = {
   register(input: { fullName: string; email: string; password: string }): Promise<UserResponse> {
     return request<UserResponse>('/users/register', {
@@ -189,5 +217,27 @@ export const api = {
 
   deleteTransaction(id: number): Promise<void> {
     return authRequest<void>(`/transactions/${id}`, { method: 'DELETE' });
+  },
+
+  getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
+    return authRequest<MonthlyReportItem[]>(`/reports/monthly?ano=${ano}`, { method: 'GET' });
+  },
+
+  listGoals(): Promise<GoalResponse[]> {
+    return authRequest<GoalResponse[]>('/goals', { method: 'GET' });
+  },
+
+  createGoal(input: GoalInput): Promise<GoalResponse> {
+    return authRequest<GoalResponse>('/goals', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  },
+
+  contributeGoal(id: number, valor: number): Promise<GoalResponse> {
+    return authRequest<GoalResponse>(`/goals/${id}/contribute`, {
+      method: 'POST',
+      body: JSON.stringify({ valor }),
+    });
   },
 };
