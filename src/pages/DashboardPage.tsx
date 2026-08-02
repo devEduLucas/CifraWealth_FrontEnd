@@ -1,71 +1,114 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Clock, Plus, Minus, Settings, TrendingDown, TrendingUp } from 'lucide-react';
 import { session } from '../lib/session';
-import { api, ApiError, type DashboardResponse } from '../lib/api';
-import { PrimaryButton } from '../components/PrimaryButton/PrimaryButton';
+import {
+  mockBalance,
+  mockChartData,
+  mockGoals,
+  mockSummary,
+  mockTransactions,
+} from '../lib/mockDashboard';
+import { formatCurrency } from '../utils/validation';
+import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
+import { DashboardHeader } from '../components/DashboardHeader/DashboardHeader';
+import { BalanceCard } from '../components/BalanceCard/BalanceCard';
+import { SummaryCard } from '../components/SummaryCard/SummaryCard';
+import { QuickActionButton } from '../components/QuickActionButton/QuickActionButton';
+import { FinanceChart } from '../components/FinanceChart/FinanceChart';
+import { TransactionList } from '../components/TransactionList/TransactionList';
+import { GoalCard } from '../components/GoalCard/GoalCard';
 
 export function DashboardPage() {
-  const navigate = useNavigate();
   const user = session.getUser();
-  const [summary, setSummary] = useState<DashboardResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api
-      .getDashboard()
-      .then(setSummary)
-      .catch((err: unknown) => {
-        if (err instanceof ApiError) setError(err.message);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  function handleLogout() {
-    session.clear();
-    navigate('/login');
-  }
+  const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Eduardo M.';
+  const firstName = fullName.split(' ')[0];
+  const initials = fullName
+    .split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-[#0B1020] px-6 text-white">
-      <p className="text-lg text-slate-300">
-        Olá, <span className="font-semibold text-emerald-400">{user?.nome ?? 'usuário'}</span>.
-      </p>
+    <DashboardLayout userName={fullName}>
+      <DashboardHeader firstName={firstName} initials={initials} />
 
-      {loading && <p className="text-slate-400">Carregando resumo financeiro...</p>}
-      {error && <p className="text-red-400">{error}</p>}
+      <BalanceCard total={mockBalance.total} variacaoPercentual={mockBalance.variacaoPercentual} />
 
-      {summary && (
-        <div className="grid w-full max-w-md grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#202634] bg-[#121827] p-4 text-center">
-            <p className="text-xs text-slate-400">Saldo</p>
-            <p className="text-lg font-bold text-emerald-400">R$ {summary.saldo.toFixed(2)}</p>
-          </div>
-          <div className="rounded-xl border border-[#202634] bg-[#121827] p-4 text-center">
-            <p className="text-xs text-slate-400">Receitas</p>
-            <p className="text-lg font-bold text-white">R$ {summary.total_receitas.toFixed(2)}</p>
-          </div>
-          <div className="rounded-xl border border-[#202634] bg-[#121827] p-4 text-center">
-            <p className="text-xs text-slate-400">Despesas</p>
-            <p className="text-lg font-bold text-white">R$ {summary.total_despesas.toFixed(2)}</p>
-          </div>
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <SummaryCard
+          label="Receitas"
+          value={formatCurrency(mockSummary.receitas)}
+          icon={TrendingUp}
+          iconClassName="bg-emerald-500/15 text-emerald-400"
+          footnote="↑ Este mês"
+          footnoteClassName="text-emerald-400"
+        />
+        <SummaryCard
+          label="Despesas"
+          value={formatCurrency(mockSummary.despesas)}
+          icon={TrendingDown}
+          iconClassName="bg-red-500/15 text-red-400"
+          footnote={`↓ ${mockSummary.despesasVariacaoPercentual}% vs mês anterior`}
+          footnoteClassName="text-red-400"
+        />
+        <SummaryCard
+          label="Economia"
+          value={formatCurrency(mockSummary.economia)}
+          icon={Clock}
+          iconClassName="bg-sky-500/15 text-sky-400"
+          footnote={`${mockSummary.economiaPercentualDaReceita}% da receita`}
+          footnoteClassName="text-sky-400"
+        />
+      </div>
+
+      <div className="mt-6">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Ações Rápidas
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <QuickActionButton
+            label="Adicionar Receita"
+            icon={Plus}
+            iconClassName="bg-emerald-500/15 text-emerald-400"
+          />
+          <QuickActionButton
+            label="Adicionar Despesa"
+            icon={Minus}
+            iconClassName="bg-red-500/15 text-red-400"
+          />
+          <QuickActionButton
+            label="Criar Meta"
+            icon={Settings}
+            iconClassName="bg-sky-500/15 text-sky-400"
+          />
         </div>
-      )}
-
-      <div className="flex gap-4">
-        <Link to="/categories" className="text-sm text-emerald-400 hover:underline">
-          Categorias
-        </Link>
-        <Link to="/transactions" className="text-sm text-emerald-400 hover:underline">
-          Transações
-        </Link>
       </div>
 
-      <div className="w-full max-w-xs">
-        <PrimaryButton onClick={handleLogout} type="button">
-          Sair
-        </PrimaryButton>
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <FinanceChart data={mockChartData} year={2025} />
+        <TransactionList transactions={mockTransactions} />
       </div>
-    </div>
+
+      <div className="mt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-white">Metas Financeiras</h2>
+            <p className="mt-0.5 text-xs text-slate-400">{mockGoals.length} metas em andamento</p>
+          </div>
+          <button
+            type="button"
+            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-400"
+          >
+            + Nova meta
+          </button>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {mockGoals.map((goal) => (
+            <GoalCard key={goal.id} goal={goal} />
+          ))}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
