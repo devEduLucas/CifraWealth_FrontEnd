@@ -80,6 +80,7 @@ export function formatCurrency(value: number): string {
     currency: 'BRL',
     minimumFractionDigits: 2,
   });
+<<<<<<< HEAD
 }
 
 export function formatRelativeDate(isoDate: string): string {
@@ -109,3 +110,6 @@ export const SHORT_MONTH_LABELS = [
   'Nov',
   'Dez',
 ];
+=======
+}
+>>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
