@@ -1,4 +1,9 @@
-import type { RegisterFormData, RegisterFormErrors } from '../types/form.types';
+import type {
+  LoginFormData,
+  LoginFormErrors,
+  RegisterFormData,
+  RegisterFormErrors,
+} from '../types/form.types';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -46,6 +51,22 @@ export function validateRegisterForm(data: RegisterFormData): RegisterFormErrors
 
   if (!data.acceptTerms) {
     errors.acceptTerms = 'Você precisa aceitar os termos para continuar.';
+  }
+
+  return errors;
+}
+
+export function validateLoginForm(data: LoginFormData): LoginFormErrors {
+  const errors: LoginFormErrors = {};
+
+  if (!isRequired(data.email)) {
+    errors.email = 'Informe seu e-mail.';
+  } else if (!isValidEmail(data.email)) {
+    errors.email = 'Informe um e-mail válido.';
+  }
+
+  if (!isRequired(data.password)) {
+    errors.password = 'Informe sua senha.';
   }
 
   return errors;

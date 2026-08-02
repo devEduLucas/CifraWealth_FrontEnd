@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { RegisterFormData, RegisterFormErrors } from '../types/form.types';
 import { validateRegisterForm } from '../utils/validation';
+import { api, ApiError } from '../lib/api';
 
 const initialData: RegisterFormData = {
   fullName: '',
@@ -17,6 +18,8 @@ export function useRegisterForm() {
   const [data, setData] = useState<RegisterFormData>(initialData);
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [touched, setTouched] = useState<TouchedState>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const setField = useCallback(
     <K extends keyof RegisterFormData>(field: K, value: RegisterFormData[K]) => {
@@ -36,7 +39,7 @@ export function useRegisterForm() {
   }, [data]);
 
   const handleSubmit = useCallback(
-    (onValid: (data: RegisterFormData) => void) => (event: FormEvent) => {
+    (onSuccess: (userId: number) => void) => (event: FormEvent) => {
       event.preventDefault();
       setTouched({
         fullName: true,
@@ -45,9 +48,17 @@ export function useRegisterForm() {
         confirmPassword: true,
         acceptTerms: true,
       });
-      if (validate()) {
-        onValid(data);
-      }
+      setSubmitError(null);
+      if (!validate()) return;
+
+      setSubmitting(true);
+      api
+        .register({ fullName: data.fullName, email: data.email, password: data.password })
+        .then((user) => onSuccess(user.id_usuario))
+        .catch((error: unknown) => {
+          setSubmitError(error instanceof ApiError ? error.message : 'Erro de conexão com o servidor.');
+        })
+        .finally(() => setSubmitting(false));
     },
     [data, validate]
   );
@@ -59,7 +70,18 @@ export function useRegisterForm() {
     data.password === data.confirmPassword &&
     data.acceptTerms;
 
-  return { data, errors, touched, setField, setFieldTouched, validate, handleSubmit, isValid };
+  return {
+    data,
+    errors,
+    touched,
+    setField,
+    setFieldTouched,
+    validate,
+    handleSubmit,
+    isValid,
+    submitting,
+    submitError,
+  };
 }
 
 function isRequiredValid(value: string): boolean {
