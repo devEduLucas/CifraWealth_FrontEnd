@@ -9,11 +9,7 @@ export function DashboardHeader({ firstName, initials }: DashboardHeaderProps) {
   return (
     <header className="mb-6 flex items-center justify-between">
       <div>
-<<<<<<< HEAD
-        <h1 className="text-2xl font-bold text-white">Olá, {firstName} 👋</h1>
-=======
         <h1 className="text-2xl font-bold text-white">Olá, {firstName}</h1>
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
         <p className="mt-0.5 text-sm text-slate-400">Bem-vindo de volta.</p>
       </div>
 

@@ -5,10 +5,7 @@ import { formatCurrency } from '../../utils/validation';
 interface FinanceChartProps {
   data: ChartPoint[];
   year: number;
-<<<<<<< HEAD
   subtitle: string;
-=======
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
 }
 
 const WIDTH = 700;
@@ -37,31 +34,20 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
   return d;
 }
 
-<<<<<<< HEAD
 export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
-=======
-export function FinanceChart({ data, year }: FinanceChartProps) {
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const allValues = data.flatMap((point) => [point.receitas, point.despesas]);
-<<<<<<< HEAD
   const hasData = data.length >= 2 && allValues.some((value) => value > 0);
   const maxValue = Math.max(...allValues, 1) * 1.15;
-=======
-  const maxValue = Math.max(...allValues) * 1.15;
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
   const minValue = 0;
 
   const usableWidth = WIDTH - PADDING_X * 2;
   const usableHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
   function xFor(index: number): number {
-<<<<<<< HEAD
     if (data.length <= 1) return PADDING_X;
-=======
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
     return PADDING_X + (index / (data.length - 1)) * usableWidth;
   }
 
@@ -92,11 +78,7 @@ export function FinanceChart({ data, year }: FinanceChartProps) {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-semibold text-white">Receitas x Despesas</h2>
-<<<<<<< HEAD
           <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>
-=======
-          <p className="mt-0.5 text-xs text-slate-400">Últimos 6 meses</p>
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
         </div>
         <span className="rounded-lg border border-[#262F40] bg-[#161F32] px-3 py-1 text-xs font-medium text-slate-300">
           {year}
@@ -106,7 +88,6 @@ export function FinanceChart({ data, year }: FinanceChartProps) {
       <div
         ref={containerRef}
         className="relative mt-4 h-56"
-<<<<<<< HEAD
         onMouseMove={hasData ? handleMouseMove : undefined}
         onMouseLeave={() => setActiveIndex(null)}
       >
@@ -120,12 +101,6 @@ export function FinanceChart({ data, year }: FinanceChartProps) {
           preserveAspectRatio="none"
           className={`h-full w-full ${hasData ? '' : 'opacity-30'}`}
         >
-=======
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => setActiveIndex(null)}
-      >
-        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" className="h-full w-full">
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
           <defs>
             <linearGradient id="receitasGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#00d68f" stopOpacity="0.35" />
@@ -163,11 +138,7 @@ export function FinanceChart({ data, year }: FinanceChartProps) {
           ))}
         </svg>
 
-<<<<<<< HEAD
         {hasData && active && activeIndex !== null && (
-=======
-        {active && activeIndex !== null && (
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
           <div
             className="pointer-events-none absolute top-0 z-10 w-40 -translate-x-1/2 rounded-xl border border-[#262F40] bg-[#1a2233] p-3 text-xs shadow-lg shadow-black/40"
             style={{

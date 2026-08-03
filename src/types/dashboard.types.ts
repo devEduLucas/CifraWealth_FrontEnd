@@ -11,7 +11,6 @@ export interface ChartPoint {
   despesas: number;
 }
 
-<<<<<<< HEAD
 export interface TransactionItem {
   id: number;
   descricao: string;
@@ -25,32 +24,6 @@ export interface TransactionItem {
 export interface GoalItem {
   id: number;
   nome: string;
-=======
-export type TransactionCategory =
-  | 'mercado'
-  | 'salario'
-  | 'ifood'
-  | 'energia'
-  | 'freelance'
-  | 'academia';
-
-export interface TransactionItem {
-  id: string;
-  descricao: string;
-  categoriaLabel: string;
-  categoria: TransactionCategory;
-  valor: number;
-  tipo: 'receita' | 'despesa';
-  data: string;
-}
-
-export type GoalIcon = 'notebook' | 'viagem' | 'reserva';
-
-export interface GoalItem {
-  id: string;
-  nome: string;
-  icone: GoalIcon;
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
   valorAtual: number;
   valorAlvo: number;
 }

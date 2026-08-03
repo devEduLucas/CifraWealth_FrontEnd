@@ -4,16 +4,7 @@ import { formatCurrency } from '../../utils/validation';
 
 interface BalanceCardProps {
   total: number;
-<<<<<<< HEAD
-}
-
-export function BalanceCard({ total }: BalanceCardProps) {
-  const [visible, setVisible] = useState(true);
-
-  return (
-    <div className="rounded-2xl border border-[#202634] bg-[#121827] p-6">
-=======
-  variacaoPercentual: number;
+  variacaoPercentual?: number;
 }
 
 export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
@@ -21,7 +12,6 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#202634] bg-[#121827] p-6">
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
       <div className="flex items-center gap-2">
         <p className="text-sm text-slate-400">Saldo Total</p>
         <button
@@ -34,19 +24,17 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
         </button>
       </div>
 
-<<<<<<< HEAD
       <p className={`mt-2 text-4xl font-bold tracking-tight ${total < 0 ? 'text-red-400' : 'text-white'}`}>
         {visible ? formatCurrency(total) : 'R$ ••••••'}
       </p>
-=======
-      <p className="mt-2 text-4xl font-bold tracking-tight text-white">
-        {visible ? formatCurrency(total) : 'R$ ••••••'}
-      </p>
 
-      <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
-        ↑ +{variacaoPercentual.toString().replace('.', ',')}%
-        <span className="font-normal text-emerald-400/80">em relação ao mês anterior</span>
-      </span>
+      {variacaoPercentual !== undefined && (
+        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+          {variacaoPercentual >= 0 ? '↑' : '↓'} {variacaoPercentual >= 0 ? '+' : ''}
+          {variacaoPercentual.toString().replace('.', ',')}%
+          <span className="font-normal text-emerald-400/80">em relação ao mês anterior</span>
+        </span>
+      )}
 
       <svg
         viewBox="0 0 160 60"
@@ -61,7 +49,6 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
           strokeLinecap="round"
         />
       </svg>
->>>>>>> 94ba038d6f9275755fb8722d3a2f850b01cd5691
     </div>
   );
 }
