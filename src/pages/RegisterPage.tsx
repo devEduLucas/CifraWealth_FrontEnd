@@ -10,11 +10,11 @@ export function RegisterPage() {
     <Layout
       left={
         <div className="flex flex-col gap-8">
-          <Logo />
+          <Logo showTagline />
 
           <div className="flex max-w-md flex-col gap-4">
             <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-              Comece hoje a <span className="text-emerald-400">transformar</span> sua vida
+              Comece hoje a <span className="text-teal-400">transformar</span> sua vida
               financeira.
             </h1>
             <p className="max-w-sm text-base text-slate-400">
@@ -25,17 +25,17 @@ export function RegisterPage() {
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-emerald-400" />}
+              icon={<ShieldCheck size={20} className="text-teal-400" />}
               title="Segurança"
               description="Seus dados protegidos com criptografia de ponta a ponta."
             />
             <BenefitItem
-              icon={<TrendingUp size={20} className="text-emerald-400" />}
+              icon={<TrendingUp size={20} className="text-teal-400" />}
               title="Crescimento"
               description="Visualize sua evolução financeira com clareza."
             />
             <BenefitItem
-              icon={<Target size={20} className="text-emerald-400" />}
+              icon={<Target size={20} className="text-teal-400" />}
               title="Objetivos"
               description="Defina metas e acompanhe seu progresso em tempo real."
             />

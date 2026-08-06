@@ -1,4 +1,4 @@
-import { LayoutDashboard, List, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
+import { LayoutDashboard, List, Tag, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Logo } from '../Logo/Logo';
 import type { NavItem } from '../../types/dashboard.types';
@@ -6,6 +6,7 @@ import type { NavItem } from '../../types/dashboard.types';
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
   { key: 'transactions', label: 'Transações', path: '/transactions', icon: 'transactions' },
+  { key: 'categories', label: 'Categorias', path: '/categories', icon: 'categories' },
   { key: 'goals', label: 'Metas', path: '/goals', icon: 'goals' },
   { key: 'reports', label: 'Relatórios', path: '/reports', icon: 'reports' },
   { key: 'profile', label: 'Perfil', path: '/profile', icon: 'profile' },
@@ -14,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
 const ICONS: Record<NavItem['icon'], typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
   transactions: List,
+  categories: Tag,
   goals: Target,
   reports: ReportsIcon,
   profile: User,
@@ -48,7 +50,7 @@ export function Sidebar({ userName }: SidebarProps) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-emerald-500/15 text-emerald-400'
+                      ? 'bg-teal-500/15 text-teal-400'
                       : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                   }`
                 }
@@ -62,7 +64,7 @@ export function Sidebar({ userName }: SidebarProps) {
       </div>
 
       <div className="flex items-center gap-3 px-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-slate-950">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-slate-950">
           {initials}
         </span>
         <span className="text-sm font-medium text-slate-200">{userName}</span>

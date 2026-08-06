@@ -1,7 +1,7 @@
 import type { UserResponse } from './api';
  
-const TOKEN_KEY = 'smartfinance:token';
-const USER_KEY = 'smartfinance:user';
+const TOKEN_KEY = 'cifrawealth:token';
+const USER_KEY = 'cifrawealth:user';
  
 export const session = {
   save(token: string, user: UserResponse): void {

@@ -114,11 +114,11 @@ export function RegisterForm() {
           label={
             <>
               Aceito os{' '}
-              <a href="/termos-de-uso" className="text-emerald-400 hover:underline">
+              <a href="/termos-de-uso" className="text-teal-400 hover:underline">
                 Termos de Uso
               </a>{' '}
               e{' '}
-              <a href="/politica-de-privacidade" className="text-emerald-400 hover:underline">
+              <a href="/politica-de-privacidade" className="text-teal-400 hover:underline">
                 Política de Privacidade
               </a>
             </>
@@ -150,7 +150,7 @@ export function RegisterForm() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Já possui conta?{' '}
-        <Link to="/login" className="font-medium text-emerald-400 hover:underline">
+        <Link to="/login" className="font-medium text-teal-400 hover:underline">
           Entrar
         </Link>
       </p>

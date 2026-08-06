@@ -77,7 +77,7 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Não possui conta?{' '}
-        <Link to="/register" className="font-medium text-emerald-400 hover:underline">
+        <Link to="/register" className="font-medium text-teal-400 hover:underline">
           Criar conta
         </Link>
       </p>

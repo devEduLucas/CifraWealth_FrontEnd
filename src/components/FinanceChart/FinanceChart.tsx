@@ -148,7 +148,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
             }}
           >
             <p className="font-semibold text-white">{active.month}</p>
-            <p className="mt-1.5 flex items-center justify-between gap-3 text-emerald-400">
+            <p className="mt-1.5 flex items-center justify-between gap-3 text-teal-400">
               <span>Receitas</span>
               <span className="font-semibold">{formatCurrency(active.receitas)}</span>
             </p>
@@ -166,7 +166,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
           Despesas
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="h-2 w-2 rounded-full bg-teal-400" />
           Receitas
         </span>
       </div>

@@ -1,10 +1,11 @@
-import { LayoutDashboard, List, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
+import { LayoutDashboard, List, Tag, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import type { NavItem } from '../../types/dashboard.types';
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
   { key: 'transactions', label: 'Transações', path: '/transactions', icon: 'transactions' },
+  { key: 'categories', label: 'Categorias', path: '/categories', icon: 'categories' },
   { key: 'goals', label: 'Metas', path: '/goals', icon: 'goals' },
   { key: 'reports', label: 'Relatórios', path: '/reports', icon: 'reports' },
   { key: 'profile', label: 'Perfil', path: '/profile', icon: 'profile' },
@@ -13,6 +14,7 @@ const NAV_ITEMS: NavItem[] = [
 const ICONS: Record<NavItem['icon'], typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
   transactions: List,
+  categories: Tag,
   goals: Target,
   reports: ReportsIcon,
   profile: User,
@@ -29,7 +31,7 @@ export function BottomNav() {
             to={item.path}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
-                isActive ? 'text-emerald-400' : 'text-slate-500'
+                isActive ? 'text-teal-400' : 'text-slate-500'
               }`
             }
           >

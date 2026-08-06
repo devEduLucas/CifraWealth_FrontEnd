@@ -57,7 +57,7 @@ export function CategoriesPage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Categorias</h1>
-          <Link to="/dashboard" className="text-sm text-emerald-400 hover:underline">
+          <Link to="/dashboard" className="text-sm text-teal-400 hover:underline">
             Voltar ao dashboard
           </Link>
         </div>

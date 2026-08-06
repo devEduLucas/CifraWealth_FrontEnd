@@ -81,7 +81,7 @@ export function TransactionsPage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Transações</h1>
-          <Link to="/dashboard" className="text-sm text-emerald-400 hover:underline">
+          <Link to="/dashboard" className="text-sm text-teal-400 hover:underline">
             Voltar ao dashboard
           </Link>
         </div>
@@ -123,7 +123,12 @@ export function TransactionsPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-400">Categoria</label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-slate-400">Categoria</label>
+              <Link to="/categories" className="text-xs font-medium text-teal-400 hover:underline">
+                + Nova categoria
+              </Link>
+            </div>
             <select
               value={idCategoria}
               onChange={(event) => setIdCategoria(Number(event.target.value) || '')}
@@ -153,11 +158,11 @@ export function TransactionsPage() {
           </div>
         </form>
 
-        {categories.length === 0 && !loading && (
+        {categoriasFiltradas.length === 0 && !loading && (
           <p className="mb-4 text-sm text-slate-400">
-            Cadastre uma categoria antes de criar transações.{' '}
-            <Link to="/categories" className="text-emerald-400 hover:underline">
-              Ir para categorias
+            Nenhuma categoria de {tipo === 'receita' ? 'receita' : 'despesa'} cadastrada ainda.{' '}
+            <Link to="/categories" className="text-teal-400 hover:underline">
+              Cadastrar categoria
             </Link>
           </p>
         )}
@@ -186,7 +191,7 @@ export function TransactionsPage() {
                 <div className="flex items-center gap-4">
                   <span
                     className={
-                      transaction.tipo === 'receita' ? 'text-emerald-400' : 'text-red-400'
+                      transaction.tipo === 'receita' ? 'text-teal-400' : 'text-red-400'
                     }
                   >
                     {transaction.tipo === 'receita' ? '+' : '-'}R$ {transaction.valor.toFixed(2)}

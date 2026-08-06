@@ -15,7 +15,7 @@ export function Checkbox({ label, error, id, className, ...rest }: CheckboxProps
         <input
           id={inputId}
           type="checkbox"
-          className={`mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[#353A47] bg-[#161F32] accent-emerald-500 ${
+          className={`mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[#353A47] bg-[#161F32] accent-teal-500 ${
             className ?? ''
           }`}
           aria-invalid={Boolean(error)}

@@ -2,7 +2,7 @@ export interface NavItem {
   key: string;
   label: string;
   path: string;
-  icon: 'dashboard' | 'transactions' | 'goals' | 'reports' | 'profile';
+  icon: 'dashboard' | 'transactions' | 'categories' | 'goals' | 'reports' | 'profile';
 }
 
 export interface ChartPoint {

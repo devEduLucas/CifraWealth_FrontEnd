@@ -9,7 +9,7 @@ interface BenefitItemProps {
 export function BenefitItem({ icon, title, description }: BenefitItemProps) {
   return (
     <div className="flex items-start gap-4">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10">
         {icon}
       </span>
       <div className="flex flex-col gap-0.5 pt-1">

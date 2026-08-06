@@ -109,3 +109,9 @@ export const SHORT_MONTH_LABELS = [
   'Nov',
   'Dez',
 ];
+
+export function niceMax(value: number): number {
+  if (value <= 0) return 20000;
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  return Math.ceil(value / magnitude) * magnitude;
+}

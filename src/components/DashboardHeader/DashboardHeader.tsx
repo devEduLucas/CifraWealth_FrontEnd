@@ -23,7 +23,7 @@ export function DashboardHeader({ firstName, initials }: DashboardHeaderProps) {
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
         </button>
 
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-slate-950">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-sm font-bold text-slate-950">
           {initials}
         </span>
       </div>

@@ -18,7 +18,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {label}
         </label>
         <div
-          className={`flex h-[52px] items-center gap-3 rounded-xl border bg-[#161F32] px-4 transition-colors duration-200 focus-within:border-emerald-400/60 ${
+          className={`flex h-[52px] items-center gap-3 rounded-xl border bg-[#161F32] px-4 transition-colors duration-200 focus-within:border-teal-400/60 ${
             error ? 'border-red-500/60' : 'border-[#262F40]'
           } ${className ?? ''}`}
         >

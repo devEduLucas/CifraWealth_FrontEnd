@@ -5,6 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { TransactionsPage } from './pages/TransactionsPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { ReportsPage } from './pages/ReportsPage';
+import { GoalsPage } from './pages/GoalsPage';
 import { session } from './lib/session';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -41,6 +44,30 @@ export function App() {
         element={
           <ProtectedRoute>
             <TransactionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <ReportsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/goals"
+        element={
+          <ProtectedRoute>
+            <GoalsPage />
           </ProtectedRoute>
         }
       />

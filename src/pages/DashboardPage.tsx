@@ -134,9 +134,9 @@ export function DashboardPage() {
               label="Receitas"
               value={formatCurrency(receitasMes)}
               icon={TrendingUp}
-              iconClassName="bg-emerald-500/15 text-emerald-400"
+              iconClassName="bg-teal-500/15 text-teal-400"
               footnote="Este mês"
-              footnoteClassName="text-emerald-400"
+              footnoteClassName="text-teal-400"
             />
             <SummaryCard
               label="Despesas"
@@ -168,7 +168,7 @@ export function DashboardPage() {
               <QuickActionButton
                 label="Adicionar Receita"
                 icon={Plus}
-                iconClassName="bg-emerald-500/15 text-emerald-400"
+                iconClassName="bg-teal-500/15 text-teal-400"
                 to="/transactions"
               />
               <QuickActionButton
@@ -200,7 +200,7 @@ export function DashboardPage() {
               </div>
               <button
                 type="button"
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-emerald-400"
+                className="rounded-xl bg-teal-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-teal-400"
               >
                 + Nova meta
               </button>

@@ -29,10 +29,10 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
       </p>
 
       {variacaoPercentual !== undefined && (
-        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-teal-400">
           {variacaoPercentual >= 0 ? '↑' : '↓'} {variacaoPercentual >= 0 ? '+' : ''}
           {variacaoPercentual.toString().replace('.', ',')}%
-          <span className="font-normal text-emerald-400/80">em relação ao mês anterior</span>
+          <span className="font-normal text-teal-400/80">em relação ao mês anterior</span>
         </span>
       )}
 

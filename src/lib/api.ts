@@ -234,6 +234,17 @@ export const api = {
     });
   },
 
+  updateGoal(id: number, input: Partial<GoalInput>): Promise<GoalResponse> {
+    return authRequest<GoalResponse>(`/goals/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    });
+  },
+
+  deleteGoal(id: number): Promise<void> {
+    return authRequest<void>(`/goals/${id}`, { method: 'DELETE' });
+  },
+
   contributeGoal(id: number, valor: number): Promise<GoalResponse> {
     return authRequest<GoalResponse>(`/goals/${id}/contribute`, {
       method: 'POST',
