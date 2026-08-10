@@ -181,6 +181,7 @@ export function DashboardPage() {
                 label="Criar Meta"
                 icon={Settings}
                 iconClassName="bg-sky-500/15 text-sky-400"
+                to="/goals"
               />
             </div>
           </div>
