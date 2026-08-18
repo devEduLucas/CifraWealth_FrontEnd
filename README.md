@@ -1,4 +1,4 @@
-# SmartFinance — Tela de Cadastro
+# CifraWealth — Tela de Cadastro
 
 Recriação em React + TypeScript da tela de cadastro do SmartFinance, com fidelidade visual ao design de referência.
 
