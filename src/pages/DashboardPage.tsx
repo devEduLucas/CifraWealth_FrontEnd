@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Clock, Plus, Minus, Settings, TrendingDown, TrendingUp } from 'lucide-react';
 import { session } from '../lib/session';
 import {
@@ -64,8 +64,17 @@ export function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const categoriesById = new Map(categories.map((category) => [category.id_categoria, category]));
-
+  const categoriesById = useMemo(
+    () =>
+      new Map(
+        categories.map((category) => [
+          category.id_categoria,
+          category,
+        ])
+      ),
+    [categories]
+  );
+  
   const currentMonthItem = monthly[CURRENT_MONTH_INDEX];
   const previousMonthItem = CURRENT_MONTH_INDEX > 0 ? monthly[CURRENT_MONTH_INDEX - 1] : undefined;
 
@@ -90,21 +99,26 @@ export function DashboardPage() {
   });
   const chartSubtitle = chartSlice.length <= 1 ? 'Este mês' : `Últimos ${chartSlice.length} meses`;
 
-  const recentTransactions: TransactionItem[] = [...transactions]
-    .sort((a, b) => b.data_transacao.localeCompare(a.data_transacao))
-    .slice(0, 6)
-    .map((transaction) => {
-      const category = categoriesById.get(transaction.id_categoria);
-      return {
-        id: transaction.id_transacao,
-        descricao: transaction.descricao,
-        categoriaNome: category?.nome ?? 'Sem categoria',
-        tipo: transaction.tipo,
-        cor: category?.cor ?? null,
-        valor: transaction.valor,
-        data: formatRelativeDate(transaction.data_transacao),
-      };
-    });
+  const recentTransactions: TransactionItem[] = useMemo(
+    () =>
+      [...transactions]
+        .sort((a, b) => b.data_transacao.localeCompare(a.data_transacao))
+        .slice(0, 6)
+        .map((transaction) => {
+          const category = categoriesById.get(transaction.id_categoria);
+  
+          return {
+            id: transaction.id_transacao,
+            descricao: transaction.descricao,
+            categoriaNome: category?.nome ?? 'Sem categoria',
+            tipo: transaction.tipo,
+            cor: category?.cor ?? null,
+            valor: transaction.valor,
+            data: formatRelativeDate(transaction.data_transacao),
+          };
+        }),
+    [transactions, categoriesById]
+  );
 
   const activeGoals = goals.filter((goal) => goal.status === 'em_andamento');
   const goalItems: GoalItem[] = activeGoals.map((goal) => ({
