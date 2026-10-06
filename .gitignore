@@ -4,3 +4,7 @@ dist
 *.local
 .env
 *.tsbuildinfo
+
+# Browser test artifacts
+test-results/
+playwright-report/
