@@ -9,7 +9,7 @@ interface ReportsHistoryTableProps {
 export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps) {
   return (
     <div className="rounded-2xl border border-[#202634] bg-[#121827] p-5 sm:p-6">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Histórico de Relatórios</p>
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Resumo mensal do período</p>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-left text-sm">

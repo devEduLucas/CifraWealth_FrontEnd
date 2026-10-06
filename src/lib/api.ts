@@ -1,4 +1,5 @@
 import { session } from './session';
+import type { DetailedReportResponse } from '../types/reports.types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
@@ -138,6 +139,10 @@ export interface GoalInput {
 }
 
 export const api = {
+  getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
+    const params = new URLSearchParams({ data_inicio: start, data_fim: end });
+    return authRequest<DetailedReportResponse>(`/reports/detailed?${params}`, { method: 'GET', signal });
+  },
   register(input: { fullName: string; email: string; password: string }): Promise<UserResponse> {
     return request<UserResponse>('/users/register', {
       method: 'POST',

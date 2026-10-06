@@ -15,13 +15,13 @@ const OPTIONS: { value: ReportPeriod; label: string }[] = [
 
 export function ReportPeriodFilter({ value, onChange }: ReportPeriodFilterProps) {
   return (
-    <div className="relative flex items-center gap-2 rounded-xl border border-[#262F40] bg-[#161F32] py-2.5 pl-3.5 pr-8 text-sm font-medium text-slate-200">
-      <Calendar size={16} className="shrink-0 text-slate-400" />
+    <div className="field-shell h-11">
+      <Calendar size={16} className="pointer-events-none absolute left-3.5 text-slate-400" />
       <select
         value={value}
         onChange={(event) => onChange(event.target.value as ReportPeriod)}
         aria-label="Selecionar período do relatório"
-        className="appearance-none bg-transparent text-sm font-medium text-slate-200 outline-none"
+        className="appearance-none pl-10 pr-9 text-sm font-medium text-slate-200"
       >
         {OPTIONS.map((option) => (
           <option key={option.value} value={option.value} className="bg-[#161F32] text-slate-200">

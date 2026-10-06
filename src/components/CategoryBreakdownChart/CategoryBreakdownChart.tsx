@@ -57,9 +57,9 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
               <li key={item.id} className="flex items-center justify-between gap-3 text-sm">
                 <span className="flex items-center gap-2 text-slate-300">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.cor }} />
-                  {item.nome}
+                  {item.nome} · {formatCurrency(item.total)}
                 </span>
-                <span className="font-semibold text-white">{item.percentual}%</span>
+                <span className="font-semibold text-white">{item.percentual.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
               </li>
             ))}
           </ul>
@@ -67,9 +67,9 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
       ) : (
         <div className="mt-6 flex flex-col items-center gap-2 py-8 text-center">
           <span className="h-16 w-16 rounded-full border-2 border-dashed border-[#2c3648]" />
-          <p className="mt-2 text-sm font-medium text-slate-300">Nenhuma categoria registrada ainda.</p>
+          <p className="mt-2 text-sm font-medium text-slate-300">Nenhuma despesa confirmada neste período.</p>
           <p className="text-xs text-slate-500">
-            Cadastre categorias e registre despesas para ver a distribuição aqui.
+            Registre uma despesa ou selecione outras datas para ver a distribuição.
           </p>
         </div>
       )}

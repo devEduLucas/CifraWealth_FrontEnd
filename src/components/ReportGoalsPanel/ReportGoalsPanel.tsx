@@ -13,10 +13,10 @@ export function ReportGoalsPanel({ goals }: ReportGoalsPanelProps) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-white">Desempenho das Metas</h2>
-          <p className="mt-0.5 text-xs text-slate-400">Progresso acumulado</p>
+          <p className="mt-0.5 text-xs text-slate-400">Situação atual · independente do período selecionado</p>
         </div>
         <Link
-          to="/goals"
+          to="/goals?new=1"
           className="shrink-0 rounded-xl bg-teal-500 px-4 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-teal-400"
         >
           + Nova meta
@@ -27,7 +27,7 @@ export function ReportGoalsPanel({ goals }: ReportGoalsPanelProps) {
         <ul className="mt-5 flex flex-col gap-5">
           {goals.map((goal) => {
             const progress =
-              goal.valorAlvo > 0 ? Math.min(Math.round((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
+              goal.valorAlvo > 0 ? Math.min(Math.floor((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
             return (
               <li key={goal.id}>
                 <div className="flex items-center gap-3">
