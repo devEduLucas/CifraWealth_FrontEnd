@@ -92,7 +92,6 @@ export function TransactionsPage() {
         >
           <Input
             label="Descrição"
-            icon={<span />}
             placeholder="Ex: Supermercado"
             value={descricao}
             onChange={(event) => setDescricao(event.target.value)}
@@ -100,7 +99,6 @@ export function TransactionsPage() {
 
           <Input
             label="Valor"
-            icon={<span />}
             placeholder="0,00"
             inputMode="decimal"
             value={valor}
@@ -145,7 +143,6 @@ export function TransactionsPage() {
 
           <Input
             label="Data"
-            icon={<span />}
             type="date"
             value={dataTransacao}
             onChange={(event) => setDataTransacao(event.target.value)}

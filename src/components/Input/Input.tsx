@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   error?: string;
 }
 
@@ -18,15 +18,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {label}
         </label>
         <div
-          className={`flex h-[52px] items-center gap-3 rounded-xl border bg-[#161F32] px-4 transition-colors duration-200 focus-within:border-teal-400/60 ${
+          className={`field-shell ${
             error ? 'border-red-500/60' : 'border-[#262F40]'
           } ${className ?? ''}`}
         >
-          <span className="shrink-0 text-slate-500">{icon}</span>
+          {icon && <span className="pointer-events-none absolute left-4 text-slate-500">{icon}</span>}
           <input
             ref={ref}
             id={inputId}
-            className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+            className={`px-4 text-sm text-slate-100 placeholder:text-slate-500 ${icon ? 'pl-11' : ''}`}
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
             {...rest}

@@ -69,7 +69,6 @@ export function CategoriesPage() {
           <div className="flex-1">
             <Input
               label="Nome da categoria"
-              icon={<span />}
               placeholder="Ex: Alimentação"
               value={nome}
               onChange={(event) => setNome(event.target.value)}
