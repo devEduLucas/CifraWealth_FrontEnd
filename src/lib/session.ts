@@ -15,7 +15,7 @@ export const session = {
  
   getUser(): UserResponse | null {
     const raw = localStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as UserResponse) : null;
+    try { return raw ? (JSON.parse(raw) as UserResponse) : null; } catch { return null; }
   },
  
   clear(): void {
