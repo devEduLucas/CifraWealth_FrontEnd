@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { Clock, Plus, Minus, Settings, TrendingDown, TrendingUp } from 'lucide-react';
 import { session } from '../lib/session';
@@ -213,12 +214,12 @@ export function DashboardPage() {
                   {goalItems.length} {goalItems.length === 1 ? 'meta em andamento' : 'metas em andamento'}
                 </p>
               </div>
-              <button
-                type="button"
+              <Link
+                to="/goals?new=1"
                 className="rounded-xl bg-teal-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-teal-400"
               >
                 + Nova meta
-              </button>
+              </Link>
             </div>
 
             {goalItems.length === 0 ? (

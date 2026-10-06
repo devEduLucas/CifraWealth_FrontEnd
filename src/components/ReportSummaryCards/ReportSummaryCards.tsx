@@ -7,18 +7,18 @@ interface ReportSummaryCardsProps {
   summary: ReportSummary;
 }
 
-function formatVariation(value: number | null): { text: string; className: string } {
+function formatVariation(value: number | null, lowerIsBetter = false): { text: string; className: string } {
   if (value === null) {
-    return { text: 'Sem histórico ainda.', className: 'text-slate-500' };
+    return { text: 'Sem base no período anterior.', className: 'text-slate-500' };
   }
   const arrow = value >= 0 ? '↑' : '↓';
-  const className = value >= 0 ? 'text-teal-400' : 'text-red-400';
-  return { text: `${arrow} ${Math.abs(value)}% vs mês ant.`, className };
+  const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-teal-400' : 'text-red-400';
+  return { text: `${arrow} ${Math.abs(value)}% vs período anterior`, className };
 }
 
 export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
   const receitas = formatVariation(summary.variacaoReceitas);
-  const despesas = formatVariation(summary.variacaoDespesas);
+  const despesas = formatVariation(summary.variacaoDespesas, true);
   const saldo = formatVariation(summary.variacaoSaldo);
   const taxa = formatVariation(summary.variacaoTaxaEconomia);
 
@@ -41,7 +41,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         footnoteClassName={despesas.className}
       />
       <SummaryCard
-        label="Saldo Atual"
+        label="Saldo do Período"
         value={formatCurrency(summary.saldo)}
         icon={Wallet}
         iconClassName="bg-sky-500/15 text-sky-400"

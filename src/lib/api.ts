@@ -1,4 +1,5 @@
 import { session } from './session';
+import type { DetailedReportResponse } from '../types/reports.types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
@@ -73,6 +74,7 @@ export interface DashboardResponse {
 export type CategoryType = 'receita' | 'despesa';
 
 export interface CategoryResponse {
+  editavel: boolean;
   id_categoria: number;
   nome: string;
   tipo: CategoryType;
@@ -130,13 +132,17 @@ export interface GoalResponse {
 
 export interface GoalInput {
   titulo: string;
-  descricao?: string;
+  descricao?: string | null;
   valor_objetivo: number;
-  data_inicio?: string;
-  data_fim?: string;
+  data_inicio?: string | null;
+  data_fim?: string | null;
 }
 
 export const api = {
+  getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
+    const params = new URLSearchParams({ data_inicio: start, data_fim: end });
+    return authRequest<DetailedReportResponse>(`/reports/detailed?${params}`, { method: 'GET', signal });
+  },
   register(input: { fullName: string; email: string; password: string }): Promise<UserResponse> {
     return request<UserResponse>('/users/register', {
       method: 'POST',

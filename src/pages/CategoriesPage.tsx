@@ -69,7 +69,6 @@ export function CategoriesPage() {
           <div className="flex-1">
             <Input
               label="Nome da categoria"
-              icon={<span />}
               placeholder="Ex: Alimentação"
               value={nome}
               onChange={(event) => setNome(event.target.value)}
@@ -116,12 +115,12 @@ export function CategoriesPage() {
                     {category.tipo === 'receita' ? 'Receita' : 'Despesa'}
                   </p>
                 </div>
-                <button
+                {category.editavel && <button
                   onClick={() => handleDelete(category.id_categoria)}
                   className="text-sm text-red-400 hover:underline"
                 >
                   Excluir
-                </button>
+                </button>}
               </li>
             ))}
           </ul>

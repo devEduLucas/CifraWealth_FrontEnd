@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .env
+*.tsbuildinfo
+
+# Browser test artifacts
+test-results/
+playwright-report/

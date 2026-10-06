@@ -1,3 +1,4 @@
+import { localDateOnly } from '../utils/reports';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -20,7 +21,7 @@ export function TransactionsPage() {
   const [valor, setValor] = useState('');
   const [tipo, setTipo] = useState<CategoryType>('despesa');
   const [idCategoria, setIdCategoria] = useState<number | ''>('');
-  const [dataTransacao, setDataTransacao] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dataTransacao, setDataTransacao] = useState(() => localDateOnly());
   const [saving, setSaving] = useState(false);
 
   function loadData() {
@@ -92,7 +93,6 @@ export function TransactionsPage() {
         >
           <Input
             label="Descrição"
-            icon={<span />}
             placeholder="Ex: Supermercado"
             value={descricao}
             onChange={(event) => setDescricao(event.target.value)}
@@ -100,7 +100,6 @@ export function TransactionsPage() {
 
           <Input
             label="Valor"
-            icon={<span />}
             placeholder="0,00"
             inputMode="decimal"
             value={valor}
@@ -145,7 +144,6 @@ export function TransactionsPage() {
 
           <Input
             label="Data"
-            icon={<span />}
             type="date"
             value={dataTransacao}
             onChange={(event) => setDataTransacao(event.target.value)}

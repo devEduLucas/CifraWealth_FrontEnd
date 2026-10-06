@@ -19,16 +19,16 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           {label}
         </label>
         <div
-          className={`flex h-[52px] items-center gap-3 rounded-xl border bg-[#161F32] px-4 transition-colors duration-200 focus-within:border-teal-400/60 ${
+          className={`field-shell ${
             error ? 'border-red-500/60' : 'border-[#262F40]'
           } ${className ?? ''}`}
         >
-          <Lock size={18} className="shrink-0 text-slate-500" />
+          <Lock size={18} className="pointer-events-none absolute left-4 text-slate-500" />
           <input
             ref={ref}
             id={inputId}
             type={visible ? 'text' : 'password'}
-            className="w-full bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+            className="pl-11 pr-12 text-sm text-slate-100 placeholder:text-slate-500"
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
             {...rest}
@@ -36,7 +36,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           <button
             type="button"
             onClick={() => setVisible((current) => !current)}
-            className="shrink-0 text-slate-500 transition-colors duration-200 hover:text-slate-300"
+            className="absolute right-3 rounded-md p-1 text-slate-500 transition-colors duration-200 hover:text-slate-300"
             aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
           >
             {visible ? <EyeOff size={18} /> : <Eye size={18} />}
