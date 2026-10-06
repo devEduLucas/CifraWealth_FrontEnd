@@ -1,3 +1,4 @@
+import { localDateOnly } from '../utils/reports';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -20,7 +21,7 @@ export function TransactionsPage() {
   const [valor, setValor] = useState('');
   const [tipo, setTipo] = useState<CategoryType>('despesa');
   const [idCategoria, setIdCategoria] = useState<number | ''>('');
-  const [dataTransacao, setDataTransacao] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dataTransacao, setDataTransacao] = useState(() => localDateOnly());
   const [saving, setSaving] = useState(false);
 
   function loadData() {
