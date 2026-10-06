@@ -42,7 +42,9 @@ function deriveDisplayStatus(goal: GoalResponse): GoalDisplayStatus {
   if (goal.status !== 'em_andamento') return goal.status;
 
   if (goal.data_fim) {
-    const prazoVencido = new Date(goal.data_fim) < new Date();
+    const now = new Date();
+    const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+    const prazoVencido = goal.data_fim < today;
     if (prazoVencido && goal.valor_atual < goal.valor_objetivo) return 'atrasada';
   }
 
@@ -62,7 +64,7 @@ export function toGoalViewModel(goal: GoalResponse): GoalViewModel {
 }
 
 export function getGoalProgress(goal: { valorAtual: number; valorObjetivo: number }): number {
-  return goal.valorObjetivo > 0 ? Math.min(Math.round((goal.valorAtual / goal.valorObjetivo) * 100), 100) : 0;
+  return goal.valorObjetivo > 0 ? Math.min(Math.max(Math.floor((goal.valorAtual / goal.valorObjetivo) * 100), 0), 100) : 0;
 }
 
 export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; variant: BadgeVariant } {

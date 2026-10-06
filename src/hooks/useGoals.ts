@@ -3,84 +3,42 @@ import { api, ApiError } from '../lib/api';
 import { toGoalViewModel } from '../utils/goals';
 import type { GoalFormValues, GoalViewModel } from '../types/goals.types';
 
-interface UseGoalsResult {
-  goals: GoalViewModel[];
-  loading: boolean;
-  error: string | null;
-  saving: boolean;
-  formError: string | null;
-  createGoal: (values: GoalFormValues) => Promise<void>;
-  updateGoal: (id: number, values: GoalFormValues) => Promise<void>;
-  deleteGoal: (id: number) => Promise<void>;
-}
-
 function toGoalInput(values: GoalFormValues) {
-  return {
-    titulo: values.titulo.trim(),
-    descricao: values.descricao.trim() || undefined,
-    valor_objetivo: Number(values.valorObjetivo),
-    data_fim: values.dataFim || undefined,
-  };
+  return { titulo: values.titulo.trim(), descricao: values.descricao.trim() || null, valor_objetivo: Number(values.valorObjetivo), data_fim: values.dataFim || null };
 }
-
-export function useGoals(): UseGoalsResult {
+export function useGoals() {
   const [goals, setGoals] = useState<GoalViewModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const loadGoals = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    api
-      .listGoals()
-      .then((result) => setGoals(result.map(toGoalViewModel)))
-      .catch((err: unknown) => {
-        setError(err instanceof ApiError ? err.message : 'Erro ao carregar metas.');
-      })
-      .finally(() => setLoading(false));
+  useEffect(() => {
+    let active = true;
+    api.listGoals().then((items) => { if (active) setGoals(items.map(toGoalViewModel)); })
+      .catch((err: unknown) => { if (active) setError(err instanceof ApiError ? err.message : 'Erro ao carregar metas.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
-
-  useEffect(loadGoals, [loadGoals]);
-
-  async function createGoal(values: GoalFormValues) {
-    setSaving(true);
-    setFormError(null);
+  const clearFormError = useCallback(() => setFormError(null), []);
+  async function save(action: () => ReturnType<typeof api.createGoal>) {
+    setSaving(true); setFormError(null);
     try {
-      await api.createGoal(toGoalInput(values));
-      loadGoals();
+      const item = toGoalViewModel(await action());
+      setGoals((previous) => previous.some((goal) => goal.id === item.id) ? previous.map((goal) => goal.id === item.id ? item : goal) : [item, ...previous]);
+      return item;
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Erro ao criar meta.');
+      setFormError(err instanceof ApiError ? err.message : 'Não foi possível salvar. Tente novamente.');
       throw err;
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
-
-  async function updateGoal(id: number, values: GoalFormValues) {
-    setSaving(true);
-    setFormError(null);
-    try {
-      await api.updateGoal(id, toGoalInput(values));
-      loadGoals();
-    } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Erro ao atualizar meta.');
-      throw err;
-    } finally {
-      setSaving(false);
-    }
-  }
-
+  async function createGoal(values: GoalFormValues) { await save(() => api.createGoal(toGoalInput(values))); }
+  async function updateGoal(id: number, values: GoalFormValues) { await save(() => api.updateGoal(id, toGoalInput(values))); }
+  async function contributeGoal(id: number, value: number) { await save(() => api.contributeGoal(id, value)); }
   async function deleteGoal(id: number) {
-    try {
-      await api.deleteGoal(id);
-      loadGoals();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Erro ao excluir meta.');
-      throw err;
-    }
+    setSaving(true); setError(null);
+    try { await api.deleteGoal(id); setGoals((items) => items.filter((item) => item.id !== id)); }
+    catch (err) { setError(err instanceof ApiError ? err.message : 'Erro ao excluir meta.'); throw err; }
+    finally { setSaving(false); }
   }
-
-  return { goals, loading, error, saving, formError, createGoal, updateGoal, deleteGoal };
+  return { goals, loading, error, saving, formError, clearFormError, createGoal, updateGoal, contributeGoal, deleteGoal };
 }

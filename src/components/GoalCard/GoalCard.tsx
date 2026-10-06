@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { PiggyBank } from 'lucide-react';
 import type { GoalItem } from '../../types/dashboard.types';
 import { formatCurrency } from '../../utils/validation';
@@ -7,7 +8,7 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal }: GoalCardProps) {
-  const progress = goal.valorAlvo > 0 ? Math.min(Math.round((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
+  const progress = goal.valorAlvo > 0 ? Math.min(Math.floor((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
 
   return (
     <div className="rounded-2xl border border-[#202634] bg-[#121827] p-5">
@@ -28,6 +29,7 @@ export function GoalCard({ goal }: GoalCardProps) {
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[#1c2333]">
         <div className="h-full rounded-full bg-teal-400" style={{ width: `${progress}%` }} />
       </div>
+      <Link to={`/goals?contribute=${goal.id}`} className="mt-4 inline-block text-sm font-semibold text-teal-400 hover:underline">Registrar valor guardado</Link>
     </div>
   );
 }

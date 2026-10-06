@@ -1,4 +1,4 @@
-import { Calendar, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Pencil, Trash2, PiggyBank } from 'lucide-react';
 import { Card } from '../Card/Card';
 import { Badge } from '../Badge/Badge';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
@@ -16,10 +16,12 @@ import type { GoalViewModel } from '../../types/goals.types';
 interface GoalListCardProps {
   goal: GoalViewModel;
   onEdit: (goal: GoalViewModel) => void;
+  onContribute: (goal: GoalViewModel) => void;
+  disabled?: boolean;
   onDelete: (goal: GoalViewModel) => void;
 }
 
-export function GoalListCard({ goal, onEdit, onDelete }: GoalListCardProps) {
+export function GoalListCard({ goal, onEdit, onDelete, onContribute, disabled }: GoalListCardProps) {
   const Icon = getGoalIcon(goal.titulo);
   const progress = getGoalProgress(goal);
   const badge = getGoalStatusBadge(goal.status);
@@ -52,7 +54,10 @@ export function GoalListCard({ goal, onEdit, onDelete }: GoalListCardProps) {
         <ProgressBar value={progress} colorClassName={progressColor} />
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
+      {goal.status !== 'cancelada' && goal.status !== 'concluida' && (
+        <Button className="mt-4 w-full" icon={PiggyBank} disabled={disabled} onClick={() => onContribute(goal)}>Registrar valor guardado</Button>
+      )}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         {goal.dataFim ? (
           <span className="flex items-center gap-1.5 text-xs text-slate-500">
             <Calendar size={13} />
@@ -63,10 +68,10 @@ export function GoalListCard({ goal, onEdit, onDelete }: GoalListCardProps) {
         )}
 
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" icon={Pencil} onClick={() => onEdit(goal)}>
+          <Button variant="secondary" size="sm" icon={Pencil} disabled={disabled} onClick={() => onEdit(goal)}>
             Editar
           </Button>
-          <Button variant="danger" size="sm" icon={Trash2} onClick={() => onDelete(goal)}>
+          <Button variant="danger" size="sm" icon={Trash2} disabled={disabled} onClick={() => onDelete(goal)}>
             Excluir
           </Button>
         </div>

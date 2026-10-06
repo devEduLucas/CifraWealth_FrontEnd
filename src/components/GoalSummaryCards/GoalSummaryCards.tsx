@@ -30,7 +30,7 @@ export function GoalSummaryCards({
         value={formatCurrency(valorObjetivo)}
         icon={DollarSign}
         iconClassName="bg-sky-500/15 text-sky-400"
-        footnote="Soma de todas as metas"
+        footnote="Soma das metas não canceladas"
         footnoteClassName="text-slate-500"
       />
       <SummaryCard

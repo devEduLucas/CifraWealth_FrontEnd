@@ -131,10 +131,10 @@ export interface GoalResponse {
 
 export interface GoalInput {
   titulo: string;
-  descricao?: string;
+  descricao?: string | null;
   valor_objetivo: number;
-  data_inicio?: string;
-  data_fim?: string;
+  data_inicio?: string | null;
+  data_fim?: string | null;
 }
 
 export const api = {
