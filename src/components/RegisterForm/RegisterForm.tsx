@@ -28,7 +28,7 @@ export function RegisterForm() {
   const strength = usePasswordStrength(data.password);
 
   const [googleError, setGoogleError] = useState<string | null>(null);
-  const handleGoogleSuccess = useCallback(() => navigate('/dashboard'), [navigate]);
+  const handleGoogleSuccess = useCallback(() => navigate('/dashboard', { replace: true }), [navigate]);
   const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(handleGoogleSuccess, setGoogleError);
 
   function handleGoogleClick(): void {
@@ -56,7 +56,7 @@ export function RegisterForm() {
 
       <form
         className="mt-6 flex flex-col gap-4"
-        onSubmit={handleSubmit(() => navigate('/login'))}
+        onSubmit={handleSubmit(() => navigate('/login', { replace: true }))}
         noValidate
       >
         <Input

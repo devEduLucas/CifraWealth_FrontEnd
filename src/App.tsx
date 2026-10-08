@@ -14,6 +14,10 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+function PublicRoute({ children }: { children: ReactNode }) {
+  return session.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+}
+
 export function App() {
   return (
     <Routes>
@@ -21,8 +25,22 @@ export function App() {
         path="/"
         element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/register'} replace />}
       />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route
+      path="/register"
+      element={
+      <PublicRoute>
+      <RegisterPage />
+      </PublicRoute>
+      }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
       <Route
         path="/dashboard"
         element={

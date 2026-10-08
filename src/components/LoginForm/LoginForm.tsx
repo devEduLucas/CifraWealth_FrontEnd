@@ -15,7 +15,7 @@ export function LoginForm() {
     useLoginForm();
 
   const [googleError, setGoogleError] = useState<string | null>(null);
-  const handleGoogleSuccess = useCallback(() => navigate('/dashboard'), [navigate]);
+  const handleGoogleSuccess = useCallback(() => navigate('/dashboard', { replace: true }), [navigate]);
   const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(handleGoogleSuccess, setGoogleError);
 
   return (
@@ -31,7 +31,7 @@ export function LoginForm() {
 
       <form
         className="mt-6 flex flex-col gap-4"
-        onSubmit={handleSubmit(() => navigate('/dashboard'))}
+        onSubmit={handleSubmit(() => navigate('/dashboard', { replace: true }))}
         noValidate
       >
         <Input
