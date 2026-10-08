@@ -74,7 +74,6 @@ export interface DashboardResponse {
 export type CategoryType = 'receita' | 'despesa';
 
 export interface CategoryResponse {
-  editavel: boolean;
   id_categoria: number;
   nome: string;
   tipo: CategoryType;
