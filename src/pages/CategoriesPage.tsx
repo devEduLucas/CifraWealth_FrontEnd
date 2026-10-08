@@ -44,6 +44,7 @@ export function CategoriesPage() {
   }
 
   function handleDelete(id: number) {
+    setError(null);
     api
       .deleteCategory(id)
       .then(loadCategories)
@@ -115,12 +116,12 @@ export function CategoriesPage() {
                     {category.tipo === 'receita' ? 'Receita' : 'Despesa'}
                   </p>
                 </div>
-                {category.editavel && <button
+                <button
                   onClick={() => handleDelete(category.id_categoria)}
                   className="text-sm text-red-400 hover:underline"
                 >
                   Excluir
-                </button>}
+                </button>
               </li>
             ))}
           </ul>
