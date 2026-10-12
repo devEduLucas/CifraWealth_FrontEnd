@@ -1,28 +1,42 @@
-import { localDateOnly } from '../utils/reports';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { ArrowDownRight, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
 import {
   api,
   ApiError,
   type CategoryResponse,
-  type CategoryType,
   type TransactionResponse,
 } from '../lib/api';
-import { Input } from '../components/Input/Input';
-import { PrimaryButton } from '../components/PrimaryButton/PrimaryButton';
+import { session } from '../lib/session';
+import { formatCurrency, formatDate } from '../utils/format';
+import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
+import { PageHeader } from '../components/PageHeader/PageHeader';
+import { Button } from '../components/Button/Button';
+import {
+  TransactionFormModal,
+  type TransactionFormValues,
+} from '../components/TransactionFormModal/TransactionFormModal';
+import {
+  CategoryFormModal,
+  type CategoryFormValues,
+} from '../components/CategoryFormModal/CategoryFormModal';
 
 export function TransactionsPage() {
+  const user = session.getUser();
+  const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
+
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
 
-  const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState('');
-  const [tipo, setTipo] = useState<CategoryType>('despesa');
-  const [idCategoria, setIdCategoria] = useState<number | ''>('');
-  const [dataTransacao, setDataTransacao] = useState(() => localDateOnly());
+  const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categorySaving, setCategorySaving] = useState(false);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
 
   function loadData() {
     setLoading(true);
@@ -32,180 +46,169 @@ export function TransactionsPage() {
         setCategories(categoriesResult);
       })
       .catch((err: unknown) => {
-        if (err instanceof ApiError) setError(err.message);
+        setPageError(err instanceof ApiError ? err.message : 'Erro ao carregar transações.');
       })
       .finally(() => setLoading(false));
   }
 
   useEffect(loadData, []);
 
-  const categoriasFiltradas = categories.filter((category) => category.tipo === tipo);
+  const categoriesById = new Map(categories.map((category) => [category.id_categoria, category]));
+  const sortedTransactions = [...transactions].sort((a, b) =>
+    b.data_transacao.localeCompare(a.data_transacao)
+  );
 
-  function handleCreate(event: React.FormEvent) {
-    event.preventDefault();
-    const valorNumerico = Number(valor.replace(',', '.'));
-    if (!descricao.trim() || !idCategoria || !valorNumerico || valorNumerico <= 0) return;
+  function openModal() {
+    setModalError(null);
+    setSelectedCategory(null);
+    setModalOpen(true);
+  }
 
+  function closeModal() {
+    if (saving || categoryModalOpen) return;
+    setModalOpen(false);
+  }
+
+  function closeCategoryModal() {
+    if (categorySaving) return;
+    setCategoryModalOpen(false);
+  }
+
+  function handleCreate(values: TransactionFormValues) {
     setSaving(true);
-    setError(null);
+    setModalError(null);
     api
-      .createTransaction({
-        descricao,
-        valor: valorNumerico,
-        tipo,
-        id_categoria: idCategoria,
-        data_transacao: dataTransacao,
-      })
+      .createTransaction(values)
       .then(() => {
-        setDescricao('');
-        setValor('');
-        setIdCategoria('');
+        setModalOpen(false);
         loadData();
       })
       .catch((err: unknown) => {
-        setError(err instanceof ApiError ? err.message : 'Erro ao criar transação.');
+        setModalError(err instanceof ApiError ? err.message : 'Erro ao criar transação.');
       })
       .finally(() => setSaving(false));
   }
 
+  function handleCreateCategory(values: CategoryFormValues) {
+    setCategorySaving(true);
+    setCategoryError(null);
+    api
+      .createCategory(values)
+      .then((created) => {
+        setCategories((prev) => [...prev, created]);
+        setSelectedCategory(created);
+        setCategoryModalOpen(false);
+      })
+      .catch((err: unknown) => {
+        setCategoryError(err instanceof ApiError ? err.message : 'Erro ao criar categoria.');
+      })
+      .finally(() => setCategorySaving(false));
+  }
+
   function handleDelete(id: number) {
+    setPageError(null);
     api
       .deleteTransaction(id)
       .then(loadData)
       .catch((err: unknown) => {
-        setError(err instanceof ApiError ? err.message : 'Erro ao excluir transação.');
+        setPageError(err instanceof ApiError ? err.message : 'Erro ao excluir transação.');
       });
   }
 
   return (
-    <div className="min-h-screen bg-[#0B1020] px-6 py-10 text-white">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Transações</h1>
-          <Link to="/dashboard" className="text-sm text-teal-400 hover:underline">
-            Voltar ao dashboard
-          </Link>
+    <DashboardLayout userName={fullName}>
+      <PageHeader
+        title="Transações"
+        subtitle="Todas as suas receitas e despesas."
+        action={
+          <Button icon={Plus} onClick={openModal}>
+            Nova Transação
+          </Button>
+        }
+      />
+
+      {pageError && (
+        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+          {pageError}
+        </p>
+      )}
+
+      {loading ? (
+        <p className="text-sm text-slate-400">Carregando transações...</p>
+      ) : sortedTransactions.length === 0 ? (
+        <div className="rounded-2xl border border-[#202634] bg-[#121827] p-10 text-center">
+          <p className="text-sm text-slate-400">Nenhuma transação registrada ainda.</p>
         </div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {sortedTransactions.map((transaction) => {
+            const isReceita = transaction.tipo === 'receita';
+            const Icon = isReceita ? ArrowUpRight : ArrowDownRight;
+            const category = categoriesById.get(transaction.id_categoria);
 
-        <form
-          onSubmit={handleCreate}
-          className="mb-8 grid grid-cols-1 gap-4 rounded-2xl border border-[#202634] bg-[#121827] p-6 sm:grid-cols-2"
-        >
-          <Input
-            label="Descrição"
-            placeholder="Ex: Supermercado"
-            value={descricao}
-            onChange={(event) => setDescricao(event.target.value)}
-          />
-
-          <Input
-            label="Valor"
-            placeholder="0,00"
-            inputMode="decimal"
-            value={valor}
-            onChange={(event) => setValor(event.target.value)}
-          />
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-400">Tipo</label>
-            <select
-              value={tipo}
-              onChange={(event) => {
-                setTipo(event.target.value as CategoryType);
-                setIdCategoria('');
-              }}
-              className="h-[52px] rounded-xl border border-[#262F40] bg-[#161F32] px-4 text-sm text-slate-100 outline-none"
-            >
-              <option value="despesa">Despesa</option>
-              <option value="receita">Receita</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-400">Categoria</label>
-              <Link to="/categories" className="text-xs font-medium text-teal-400 hover:underline">
-                + Nova categoria
-              </Link>
-            </div>
-            <select
-              value={idCategoria}
-              onChange={(event) => setIdCategoria(Number(event.target.value) || '')}
-              className="h-[52px] rounded-xl border border-[#262F40] bg-[#161F32] px-4 text-sm text-slate-100 outline-none"
-            >
-              <option value="">Selecione</option>
-              {categoriasFiltradas.map((category) => (
-                <option key={category.id_categoria} value={category.id_categoria}>
-                  {category.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <Input
-            label="Data"
-            type="date"
-            value={dataTransacao}
-            onChange={(event) => setDataTransacao(event.target.value)}
-          />
-
-          <div className="flex items-end">
-            <PrimaryButton disabled={saving} className="w-full">
-              {saving ? 'Salvando...' : 'Adicionar transação'}
-            </PrimaryButton>
-          </div>
-        </form>
-
-        {categoriasFiltradas.length === 0 && !loading && (
-          <p className="mb-4 text-sm text-slate-400">
-            Nenhuma categoria de {tipo === 'receita' ? 'receita' : 'despesa'} cadastrada ainda.{' '}
-            <Link to="/categories" className="text-teal-400 hover:underline">
-              Cadastrar categoria
-            </Link>
-          </p>
-        )}
-
-        {error && (
-          <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
-            {error}
-          </p>
-        )}
-
-        {loading ? (
-          <p className="text-slate-400">Carregando transações...</p>
-        ) : transactions.length === 0 ? (
-          <p className="text-slate-400">Nenhuma transação registrada ainda.</p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {transactions.map((transaction) => (
+            return (
               <li
                 key={transaction.id_transacao}
-                className="flex items-center justify-between rounded-xl border border-[#202634] bg-[#121827] px-4 py-3"
+                className="flex items-center gap-3 rounded-2xl border border-[#202634] bg-[#121827] px-4 py-3"
               >
-                <div>
-                  <p className="font-medium text-white">{transaction.descricao}</p>
-                  <p className="text-xs text-slate-400">{transaction.data_transacao}</p>
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                    isReceita ? 'bg-teal-500/15 text-teal-400' : 'bg-red-500/15 text-red-400'
+                  }`}
+                >
+                  <Icon size={17} />
+                </span>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-white">{transaction.descricao}</p>
+                  <p className="text-xs text-slate-400">
+                    {category?.nome ?? 'Sem categoria'} · {formatDate(transaction.data_transacao)}
+                    {transaction.status === 'pendente' && ' · Pendente'}
+                  </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span
-                    className={
-                      transaction.tipo === 'receita' ? 'text-teal-400' : 'text-red-400'
-                    }
-                  >
-                    {transaction.tipo === 'receita' ? '+' : '-'}R$ {transaction.valor.toFixed(2)}
-                  </span>
-                  <button
-                    onClick={() => handleDelete(transaction.id_transacao)}
-                    className="text-sm text-red-400 hover:underline"
-                  >
-                    Excluir
-                  </button>
-                </div>
+
+                <span
+                  className={`text-sm font-semibold ${isReceita ? 'text-teal-400' : 'text-red-400'}`}
+                >
+                  {isReceita ? '+' : '-'}
+                  {formatCurrency(transaction.valor)}
+                </span>
+
+                <button
+                  type="button"
+                  aria-label="Excluir transação"
+                  onClick={() => handleDelete(transaction.id_transacao)}
+                  className="text-slate-500 transition-colors hover:text-red-400"
+                >
+                  <Trash2 size={16} />
+                </button>
               </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+            );
+          })}
+        </ul>
+      )}
+
+      <TransactionFormModal
+        open={modalOpen}
+        categories={categories}
+        selectedCategory={selectedCategory}
+        saving={saving}
+        error={modalError}
+        onClose={closeModal}
+        onSubmit={handleCreate}
+        onNewCategory={() => {
+          setCategoryError(null);
+          setCategoryModalOpen(true);
+        }}
+      />
+
+      <CategoryFormModal
+        open={categoryModalOpen}
+        saving={categorySaving}
+        error={categoryError}
+        onClose={closeCategoryModal}
+        onSubmit={handleCreateCategory}
+      />
+    </DashboardLayout>
   );
 }
