@@ -56,14 +56,33 @@ export function useGoogleAuth(onSuccess: () => void, onError: (message: string) 
     });
   }, [onSuccess, onError]);
 
-  function triggerGoogleSignIn(): void {
-    const realButton = hiddenButtonRef.current?.querySelector<HTMLElement>('div[role="button"]');
-    if (realButton) {
-      realButton.click();
-    } else {
-      onError('Login com Google ainda carregando. Tente novamente em instantes.');
-    }
+  
+function triggerGoogleSignIn(): void {
+  if (!GOOGLE_CLIENT_ID) {
+    onError('Login com Google não está configurado.');
+    return;
   }
+
+  const container = hiddenButtonRef.current;
+
+  if (!container) {
+    onError('O componente do Google ainda não foi montado.');
+    return;
+  }
+
+  const realButton = container.querySelector<HTMLElement>(
+    '[role="button"]'
+  );
+
+  if (realButton) {
+    realButton.click();
+    return;
+  }
+
+  onError(
+    'O botão oficial do Google não foi encontrado. Verifique a renderização do componente.'
+  );
+}
 
   return { hiddenButtonRef, triggerGoogleSignIn };
 }

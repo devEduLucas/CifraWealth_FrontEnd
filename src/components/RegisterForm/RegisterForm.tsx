@@ -144,9 +144,19 @@ export function RegisterForm() {
         Cadastrar com Google
       </SocialButton>
       {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
-      <div className="h-0 w-0 overflow-hidden">
-        <div ref={hiddenButtonRef} />
-      </div>
+      <div
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        left: '-10000px',
+        top: 0,
+        width: 320,
+        height: 50,
+        overflow: 'hidden',
+      }}
+    >
+      <div ref={hiddenButtonRef} />
+    </div>
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Já possui conta?{' '}

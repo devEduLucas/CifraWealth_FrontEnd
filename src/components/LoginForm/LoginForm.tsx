@@ -72,7 +72,7 @@ export function LoginForm() {
       </SocialButton>
       {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
       <div className="h-0 w-0 overflow-hidden">
-        <div ref={hiddenButtonRef} />
+      <div ref={hiddenButtonRef} />
       </div>
 
       <p className="mt-6 text-center text-sm text-slate-500">
