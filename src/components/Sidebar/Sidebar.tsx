@@ -1,6 +1,7 @@
-import { LayoutDashboard, List, Tag, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, List, LogOut, Tag, Target, TrendingUp as ReportsIcon, User } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '../Logo/Logo';
+import { session } from '../../lib/session';
 import type { NavItem } from '../../types/dashboard.types';
 
 const NAV_ITEMS: NavItem[] = [
@@ -26,6 +27,13 @@ interface SidebarProps {
 }
 
 export function Sidebar({ userName }: SidebarProps) {
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    session.clear();
+    navigate('/login', { replace: true });
+  }
+
   const initials = userName
     .split(' ')
     .map((part) => part[0])
@@ -67,7 +75,16 @@ export function Sidebar({ userName }: SidebarProps) {
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-slate-950">
           {initials}
         </span>
-        <span className="text-sm font-medium text-slate-200">{userName}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">{userName}</span>
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Sair"
+          title="Sair"
+          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-red-400"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
     </aside>
   );
