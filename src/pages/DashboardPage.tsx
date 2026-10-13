@@ -21,9 +21,6 @@ import { FinanceChart } from '../components/FinanceChart/FinanceChart';
 import { TransactionList } from '../components/TransactionList/TransactionList';
 import { GoalCard } from '../components/GoalCard/GoalCard';
 
-const CURRENT_YEAR = new Date().getFullYear();
-const CURRENT_MONTH_INDEX = new Date().getMonth();
-
 export function DashboardPage() {
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
@@ -35,6 +32,10 @@ export function DashboardPage() {
     .join('')
     .toUpperCase();
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIndex = now.getMonth();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saldo, setSaldo] = useState(0);
@@ -45,10 +46,19 @@ export function DashboardPage() {
 
   useEffect(() => {
     setLoading(true);
+    // When in early months of the year, fetch previous year too for continuous 6-month chart
+    const monthlyPromise =
+      currentMonthIndex < 5
+        ? Promise.all([
+            api.getMonthlyReport(currentYear - 1).catch(() => []),
+            api.getMonthlyReport(currentYear),
+          ]).then(([prev, cur]) => [...prev, ...cur])
+        : api.getMonthlyReport(currentYear);
+
     Promise.all([
       api.getDashboard(),
-      api.getMonthlyReport(CURRENT_YEAR),
-      api.listTransactions(),
+      monthlyPromise,
+      api.listTransactions({ status: 'confirmada', limit: 6 }),
       api.listCategories(),
       api.listGoals(),
     ])
@@ -63,7 +73,7 @@ export function DashboardPage() {
         setError(err instanceof ApiError ? err.message : 'Erro ao carregar o dashboard.');
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentYear, currentMonthIndex]);
 
   const categoriesById = useMemo(
     () =>
@@ -76,8 +86,12 @@ export function DashboardPage() {
     [categories]
   );
   
-  const currentMonthItem = monthly[CURRENT_MONTH_INDEX];
-  const previousMonthItem = CURRENT_MONTH_INDEX > 0 ? monthly[CURRENT_MONTH_INDEX - 1] : undefined;
+  const currentMonthKey = `${currentYear}-${String(currentMonthIndex + 1).padStart(2, '0')}`;
+  const currentMonthItemIndex = monthly.findIndex((item) => item.mes === currentMonthKey);
+  const currentMonthItem =
+    currentMonthItemIndex >= 0 ? monthly[currentMonthItemIndex] : monthly[monthly.length - 1];
+  const previousMonthItem =
+    currentMonthItemIndex > 0 ? monthly[currentMonthItemIndex - 1] : undefined;
 
   const receitasMes = currentMonthItem?.total_receitas ?? 0;
   const despesasMes = currentMonthItem?.total_despesas ?? 0;
@@ -89,7 +103,9 @@ export function DashboardPage() {
       ? Math.round(((despesasMes - previousMonthItem.total_despesas) / previousMonthItem.total_despesas) * 100)
       : null;
 
-  const chartSlice = monthly.slice(Math.max(0, CURRENT_MONTH_INDEX - 5), CURRENT_MONTH_INDEX + 1);
+  // Last 6 months up to current month
+  const targetEndIndex = currentMonthItemIndex >= 0 ? currentMonthItemIndex + 1 : monthly.length;
+  const chartSlice = monthly.slice(Math.max(0, targetEndIndex - 6), targetEndIndex);
   const chartData: ChartPoint[] = chartSlice.map((item) => {
     const monthNumber = Number(item.mes.slice(5, 7));
     return {
@@ -102,7 +118,8 @@ export function DashboardPage() {
 
   const recentTransactions: TransactionItem[] = useMemo(
     () =>
-      [...transactions]
+      transactions
+        .filter((transaction) => transaction.status === 'confirmada')
         .sort((a, b) => b.data_transacao.localeCompare(a.data_transacao))
         .slice(0, 6)
         .map((transaction) => {
@@ -202,7 +219,7 @@ export function DashboardPage() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            <FinanceChart data={chartData} year={CURRENT_YEAR} subtitle={chartSubtitle} />
+            <FinanceChart data={chartData} year={currentYear} subtitle={chartSubtitle} />
             <TransactionList transactions={recentTransactions} />
           </div>
 
