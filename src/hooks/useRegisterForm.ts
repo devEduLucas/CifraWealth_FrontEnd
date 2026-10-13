@@ -39,7 +39,7 @@ export function useRegisterForm() {
   }, [data]);
 
   const handleSubmit = useCallback(
-    (onSuccess: (userId: number) => void) => (event: FormEvent) => {
+    (onSuccess: (email: string) => void) => (event: FormEvent) => {
       event.preventDefault();
       setTouched({
         fullName: true,
@@ -54,7 +54,7 @@ export function useRegisterForm() {
       setSubmitting(true);
       api
         .register({ fullName: data.fullName, email: data.email, password: data.password })
-        .then((user) => onSuccess(user.id_usuario))
+        .then((result) => onSuccess(result.email))
         .catch((error: unknown) => {
           setSubmitError(error instanceof ApiError ? error.message : 'Erro de conexão com o servidor.');
         })

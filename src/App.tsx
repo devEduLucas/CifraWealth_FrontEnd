@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RegisterPage } from './pages/RegisterPage';
+import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CategoriesPage } from './pages/CategoriesPage';
@@ -25,6 +26,7 @@ export function App() {
         path="/"
         element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/register'} replace />}
       />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route
       path="/register"
       element={
