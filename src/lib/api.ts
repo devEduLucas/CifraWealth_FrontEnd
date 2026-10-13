@@ -142,10 +142,24 @@ export const api = {
     const params = new URLSearchParams({ data_inicio: start, data_fim: end });
     return authRequest<DetailedReportResponse>(`/reports/detailed?${params}`, { method: 'GET', signal });
   },
-  register(input: { fullName: string; email: string; password: string }): Promise<UserResponse> {
-    return request<UserResponse>('/users/register', {
+  register(input: { fullName: string; email: string; password: string }): Promise<{ email: string; message: string }> {
+    return request<{ email: string; message: string }>('/users/register', {
       method: 'POST',
       body: JSON.stringify(input),
+    });
+  },
+
+  verifyEmail(token: string): Promise<{ message: string }> {
+    return request<{ message: string }>('/users/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  },
+
+  resendVerification(email: string): Promise<{ message: string }> {
+    return request<{ message: string }>('/users/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     });
   },
 
