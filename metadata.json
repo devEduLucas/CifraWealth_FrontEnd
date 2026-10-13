@@ -1,0 +1,6 @@
+{
+  "name": "Cifra Wealth",
+  "description": "Aplicativo de gestão financeira pessoal e controle patrimonial com painel de receitas, despesas, categorias, metas e relatórios detalhados.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

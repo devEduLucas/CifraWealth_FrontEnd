@@ -1,7 +1,16 @@
 import { session } from './session';
 import type { DetailedReportResponse } from '../types/reports.types';
+import { mockStore } from './mockStore';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const isMockMode = !rawApiUrl || rawApiUrl.trim() === '';
+const API_URL = (rawApiUrl || 'http://localhost:3000/api').replace(/\/+$/, '');
+
+if (isMockMode) {
+  console.info('[CifraWealth] VITE_API_URL não configurada. Executando em modo Mock local.');
+} else {
+  console.info(`[CifraWealth] Conectado à API: ${API_URL}`);
+}
 
 export class ApiError extends Error {
   status: number;
@@ -23,7 +32,13 @@ async function request<T>(path: string, options: RequestInit, authenticated = fa
     if (token) headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch (netErr) {
+    console.error(`[CifraWealth API Error] Falha de conexão em ${API_URL}${path}:`, netErr);
+    throw new ApiError('Não foi possível conectar ao servidor. Verifique se o backend está ligado e acessível.', 0);
+  }
 
   if (authenticated && response.status === 401) {
     session.clear();
@@ -34,7 +49,7 @@ async function request<T>(path: string, options: RequestInit, authenticated = fa
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const message = data?.message ?? 'Erro inesperado. Tente novamente.';
+    const message = data?.message ?? `Erro na requisição (HTTP ${response.status}).`;
     throw new ApiError(message, response.status);
   }
 
@@ -133,138 +148,167 @@ export interface GoalInput {
   titulo: string;
   descricao?: string | null;
   valor_objetivo: number;
+  valor_atual?: number;
   data_inicio?: string | null;
   data_fim?: string | null;
 }
 
 export const api = {
-  getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
+  async getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
+    if (isMockMode) return mockStore.getDetailedReport(start, end);
     const params = new URLSearchParams({ data_inicio: start, data_fim: end });
     return authRequest<DetailedReportResponse>(`/reports/detailed?${params}`, { method: 'GET', signal });
   },
-  register(input: { fullName: string; email: string; password: string }): Promise<{ email: string; message: string }> {
+
+  async register(input: { fullName: string; email: string; password: string }): Promise<{ email: string; message: string }> {
+    if (isMockMode) return mockStore.register(input.fullName, input.email);
     return request<{ email: string; message: string }>('/users/register', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  verifyEmail(token: string): Promise<{ message: string }> {
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    if (isMockMode) return { message: 'E-mail validado com sucesso!' };
     return request<{ message: string }>('/users/verify-email', {
       method: 'POST',
       body: JSON.stringify({ token }),
     });
   },
 
-  resendVerification(email: string): Promise<{ message: string }> {
+  async resendVerification(email: string): Promise<{ message: string }> {
+    if (isMockMode) return { message: 'Novo e-mail de confirmação enviado.' };
     return request<{ message: string }>('/users/resend-verification', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   },
 
-  login(input: { email: string; password: string }): Promise<AuthResponse> {
+  async login(input: { email: string; password: string }): Promise<AuthResponse> {
+    if (isMockMode) return mockStore.login(input.email);
     return request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  googleLogin(idToken: string): Promise<AuthResponse> {
+  async googleLogin(idToken: string): Promise<AuthResponse> {
+    if (isMockMode) return mockStore.googleLogin();
     return request<AuthResponse>('/auth/google', {
       method: 'POST',
       body: JSON.stringify({ idToken }),
     });
   },
 
-  getDashboard(): Promise<DashboardResponse> {
+  async getDashboard(): Promise<DashboardResponse> {
+    if (isMockMode) return mockStore.getDashboard();
     return authRequest<DashboardResponse>('/dashboard', { method: 'GET' });
   },
 
-  listCategories(): Promise<CategoryResponse[]> {
+  async listCategories(): Promise<CategoryResponse[]> {
+    if (isMockMode) return mockStore.listCategories();
     return authRequest<CategoryResponse[]>('/categories', { method: 'GET' });
   },
 
-  createCategory(input: CategoryInput): Promise<CategoryResponse> {
+  async createCategory(input: CategoryInput): Promise<CategoryResponse> {
+    if (isMockMode) return mockStore.createCategory(input);
     return authRequest<CategoryResponse>('/categories', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  updateCategory(id: number, input: Partial<CategoryInput>): Promise<CategoryResponse> {
+  async updateCategory(id: number, input: Partial<CategoryInput>): Promise<CategoryResponse> {
+    if (isMockMode) return mockStore.updateCategory(id, input);
     return authRequest<CategoryResponse>(`/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
     });
   },
 
-  deleteCategory(id: number): Promise<void> {
+  async deleteCategory(id: number): Promise<void> {
+    if (isMockMode) return mockStore.deleteCategory(id);
     return authRequest<void>(`/categories/${id}`, { method: 'DELETE' });
   },
 
-  listTransactions(filters?: {
+  async listTransactions(filters?: {
     tipo?: CategoryType;
     id_categoria?: number;
     data_inicio?: string;
     data_fim?: string;
+    status?: TransactionStatus;
+    limit?: number;
+    page?: number;
   }): Promise<TransactionResponse[]> {
+    if (isMockMode) return mockStore.listTransactions(filters);
     const params = new URLSearchParams();
     if (filters?.tipo) params.set('tipo', filters.tipo);
     if (filters?.id_categoria) params.set('id_categoria', String(filters.id_categoria));
     if (filters?.data_inicio) params.set('data_inicio', filters.data_inicio);
     if (filters?.data_fim) params.set('data_fim', filters.data_fim);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.limit) params.set('limit', String(filters.limit));
+    if (filters?.page) params.set('page', String(filters.page));
     const query = params.toString();
     return authRequest<TransactionResponse[]>(`/transactions${query ? `?${query}` : ''}`, {
       method: 'GET',
     });
   },
 
-  createTransaction(input: TransactionInput): Promise<TransactionResponse> {
+  async createTransaction(input: TransactionInput): Promise<TransactionResponse> {
+    if (isMockMode) return mockStore.createTransaction(input);
     return authRequest<TransactionResponse>('/transactions', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  updateTransaction(id: number, input: Partial<TransactionInput>): Promise<TransactionResponse> {
+  async updateTransaction(id: number, input: Partial<TransactionInput>): Promise<TransactionResponse> {
+    if (isMockMode) return mockStore.updateTransaction(id, input);
     return authRequest<TransactionResponse>(`/transactions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
     });
   },
 
-  deleteTransaction(id: number): Promise<void> {
+  async deleteTransaction(id: number): Promise<void> {
+    if (isMockMode) return mockStore.deleteTransaction(id);
     return authRequest<void>(`/transactions/${id}`, { method: 'DELETE' });
   },
 
-  getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
+  async getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
+    if (isMockMode) return mockStore.getMonthlyReport(ano);
     return authRequest<MonthlyReportItem[]>(`/reports/monthly?ano=${ano}`, { method: 'GET' });
   },
 
-  listGoals(): Promise<GoalResponse[]> {
+  async listGoals(): Promise<GoalResponse[]> {
+    if (isMockMode) return mockStore.listGoals();
     return authRequest<GoalResponse[]>('/goals', { method: 'GET' });
   },
 
-  createGoal(input: GoalInput): Promise<GoalResponse> {
+  async createGoal(input: GoalInput): Promise<GoalResponse> {
+    if (isMockMode) return mockStore.createGoal(input);
     return authRequest<GoalResponse>('/goals', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  updateGoal(id: number, input: Partial<GoalInput>): Promise<GoalResponse> {
+  async updateGoal(id: number, input: Partial<GoalInput>): Promise<GoalResponse> {
+    if (isMockMode) return mockStore.updateGoal(id, input);
     return authRequest<GoalResponse>(`/goals/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
     });
   },
 
-  deleteGoal(id: number): Promise<void> {
+  async deleteGoal(id: number): Promise<void> {
+    if (isMockMode) return mockStore.deleteGoal(id);
     return authRequest<void>(`/goals/${id}`, { method: 'DELETE' });
   },
 
-  contributeGoal(id: number, valor: number): Promise<GoalResponse> {
+  async contributeGoal(id: number, valor: number): Promise<GoalResponse> {
+    if (isMockMode) return mockStore.contributeGoal(id, valor);
     return authRequest<GoalResponse>(`/goals/${id}/contribute`, {
       method: 'POST',
       body: JSON.stringify({ valor }),
