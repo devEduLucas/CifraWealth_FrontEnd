@@ -125,7 +125,7 @@ export function RegisterForm() {
             />
 
             <Input
-              label="E-mail real"
+              label="E-mail"
               type="email"
               icon={<Mail size={18} />}
               placeholder="seu@email.com"
