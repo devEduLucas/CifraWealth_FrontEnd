@@ -65,8 +65,8 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-[#202634]" />
       </div>
 
-      <div className="flex h-12 w-full items-center justify-center overflow-hidden">
-        <div ref={googleButtonRef} className="w-full" />
+      <div className="flex h-12 w-full items-center justify-center overflow-visible">
+        <div ref={googleButtonRef} className="w-[83.333333%] origin-center scale-[1.2]" />
       </div>
       {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
 

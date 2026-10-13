@@ -133,7 +133,11 @@ export function RegisterForm() {
       </div>
 
       <div className={`relative flex h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
-        <div ref={googleButtonRef} className="w-full" />
+        <div
+          ref={googleButtonRef}
+          className="w-full"
+          style={{ transform: 'scaleY(1.2)', transformOrigin: 'center' }}
+        />
         {!data.acceptTerms && (
           <button
             type="button"
