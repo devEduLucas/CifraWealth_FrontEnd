@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, List, LogOut, Tag, Target, TrendingUp } from 'lucide-react';
 import { Logo } from '../Logo/Logo';
 import { session } from '../../lib/session';
+import { Footer } from '../Footer/Footer';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -91,8 +92,8 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
         ))}
       </nav>
 
-      <main className="flex-1 px-6 py-8 md:px-10">
-        <div className="mx-auto max-w-4xl">
+      <main className="flex flex-1 flex-col px-6 py-8 md:px-10">
+        <div className="mx-auto w-full max-w-4xl flex-1">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold">{title}</h1>
@@ -102,6 +103,7 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
           </div>
           {children}
         </div>
+        <Footer />
       </main>
     </div>
   );

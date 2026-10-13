@@ -132,12 +132,8 @@ export function RegisterForm() {
         <span className="h-px flex-1 bg-[#202634]" />
       </div>
 
-      <div className={`relative flex h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
-        <div
-          ref={googleButtonRef}
-          className="w-full"
-          style={{ transform: 'scaleY(1.2)', transformOrigin: 'center' }}
-        />
+      <div className={`relative flex min-h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
+        <div ref={googleButtonRef} className="w-full max-w-[400px]" />
         {!data.acceptTerms && (
           <button
             type="button"
