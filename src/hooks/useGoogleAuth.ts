@@ -3,6 +3,7 @@ import { api, ApiError } from '../lib/api';
 import { session } from '../lib/session';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+export type GoogleButtonText = 'signin_with' | 'signup_with';
 
 function waitForGoogleScript(callback: () => void): () => void {
   if (window.google?.accounts?.id) {
@@ -20,21 +21,41 @@ function waitForGoogleScript(callback: () => void): () => void {
   return () => window.clearInterval(intervalId);
 }
 
-export function useGoogleAuth(onSuccess: () => void, onError: (message: string) => void) {
-  const hiddenButtonRef = useRef<HTMLDivElement>(null);
+/**
+ * Renderiza o botão oficial do Google dentro do espaço visível destinado a ele.
+ * O fluxo de autenticação é iniciado pelo clique real no botão do Google — não
+ * por um clique sintético em um elemento oculto.
+ */
+export function useGoogleAuth(
+  onSuccess: () => void,
+  onError: (message: string) => void,
+  buttonText: GoogleButtonText
+) {
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
       console.warn('VITE_GOOGLE_CLIENT_ID não configurado — login com Google desabilitado.');
+      onError('Login com Google indisponível no momento.');
       return;
     }
 
     return waitForGoogleScript(() => {
-      if (!hiddenButtonRef.current || !window.google) return;
+      const buttonContainer = googleButtonRef.current;
+      const google = window.google;
+      if (!buttonContainer || !google?.accounts?.id) return;
 
-      window.google.accounts.id.initialize({
+      // Evita acumular botões se o efeito for executado novamente em desenvolvimento.
+      buttonContainer.replaceChildren();
+
+      google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (response) => {
+          if (!response.credential) {
+            onError('O Google não retornou uma credencial válida. Tente novamente.');
+            return;
+          }
+
           api
             .googleLogin(response.credential)
             .then((auth) => {
@@ -47,42 +68,19 @@ export function useGoogleAuth(onSuccess: () => void, onError: (message: string) 
         },
       });
 
-      window.google.accounts.id.renderButton(hiddenButtonRef.current, {
+      const availableWidth = Math.floor(buttonContainer.getBoundingClientRect().width);
+      google.accounts.id.renderButton(buttonContainer, {
         type: 'standard',
         theme: 'filled_black',
         size: 'large',
-        width: 320,
+        text: buttonText,
+        shape: 'rectangular',
+        logo_alignment: 'left',
+        locale: 'pt-BR',
+        width: availableWidth > 0 ? availableWidth : 320,
       });
     });
-  }, [onSuccess, onError]);
+  }, [buttonText, onError, onSuccess]);
 
-  
-function triggerGoogleSignIn(): void {
-  if (!GOOGLE_CLIENT_ID) {
-    onError('Login com Google não está configurado.');
-    return;
-  }
-
-  const container = hiddenButtonRef.current;
-
-  if (!container) {
-    onError('O componente do Google ainda não foi montado.');
-    return;
-  }
-
-  const realButton = container.querySelector<HTMLElement>(
-    '[role="button"]'
-  );
-
-  if (realButton) {
-    realButton.click();
-    return;
-  }
-
-  onError(
-    'O botão oficial do Google não foi encontrado. Verifique a renderização do componente.'
-  );
-}
-
-  return { hiddenButtonRef, triggerGoogleSignIn };
+  return { googleButtonRef };
 }

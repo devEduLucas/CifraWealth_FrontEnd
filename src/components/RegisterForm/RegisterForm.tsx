@@ -4,13 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterForm } from '../../hooks/useRegisterForm';
 import { usePasswordStrength } from '../../hooks/usePasswordStrength';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
-import { GoogleIcon } from '../icons/GoogleIcon';
 import { Input } from '../Input/Input';
 import { PasswordInput } from '../PasswordInput/PasswordInput';
 import { PasswordStrengthIndicator } from '../PasswordStrengthIndicator/PasswordStrengthIndicator';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { PrimaryButton } from '../PrimaryButton/PrimaryButton';
-import { SocialButton } from '../SocialButton/SocialButton';
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -29,16 +27,11 @@ export function RegisterForm() {
 
   const [googleError, setGoogleError] = useState<string | null>(null);
   const handleGoogleSuccess = useCallback(() => navigate('/dashboard', { replace: true }), [navigate]);
-  const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(handleGoogleSuccess, setGoogleError);
+  const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signup_with');
 
-  function handleGoogleClick(): void {
-    if (!data.acceptTerms) {
-      setFieldTouched('acceptTerms');
-      setGoogleError('Aceite os Termos de Uso e a Política de Privacidade para continuar.');
-      return;
-    }
-    setGoogleError(null);
-    triggerGoogleSignIn();
+  function handleBlockedGoogleClick(): void {
+    setFieldTouched('acceptTerms');
+    setGoogleError('Aceite os Termos de Uso e a Política de Privacidade para continuar.');
   }
 
   return (
@@ -108,7 +101,10 @@ export function RegisterForm() {
         <Checkbox
           id="accept-terms"
           checked={data.acceptTerms}
-          onChange={(event) => setField('acceptTerms', event.target.checked)}
+          onChange={(event) => {
+            setField('acceptTerms', event.target.checked);
+            if (event.target.checked) setGoogleError(null);
+          }}
           onBlur={() => setFieldTouched('acceptTerms')}
           error={touched.acceptTerms ? errors.acceptTerms : undefined}
           label={
@@ -136,27 +132,18 @@ export function RegisterForm() {
         <span className="h-px flex-1 bg-[#202634]" />
       </div>
 
-      <SocialButton
-        icon={<GoogleIcon />}
-        onClick={handleGoogleClick}
-        className={!data.acceptTerms ? 'opacity-60' : undefined}
-      >
-        Cadastrar com Google
-      </SocialButton>
+      <div className={`relative flex h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
+        <div ref={googleButtonRef} className="w-full" />
+        {!data.acceptTerms && (
+          <button
+            type="button"
+            aria-label="Cadastrar com Google — aceite os termos primeiro"
+            onClick={handleBlockedGoogleClick}
+            className="absolute inset-0 z-10 cursor-pointer bg-transparent"
+          />
+        )}
+      </div>
       {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
-      <div
-      aria-hidden="true"
-      style={{
-        position: 'fixed',
-        left: '-10000px',
-        top: 0,
-        width: 320,
-        height: 50,
-        overflow: 'hidden',
-      }}
-    >
-      <div ref={hiddenButtonRef} />
-    </div>
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Já possui conta?{' '}

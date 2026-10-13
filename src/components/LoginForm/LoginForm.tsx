@@ -6,8 +6,6 @@ import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import { Input } from '../Input/Input';
 import { PasswordInput } from '../PasswordInput/PasswordInput';
 import { PrimaryButton } from '../PrimaryButton/PrimaryButton';
-import { GoogleIcon } from '../icons/GoogleIcon';
-import { SocialButton } from '../SocialButton/SocialButton';
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -16,7 +14,7 @@ export function LoginForm() {
 
   const [googleError, setGoogleError] = useState<string | null>(null);
   const handleGoogleSuccess = useCallback(() => navigate('/dashboard', { replace: true }), [navigate]);
-  const { hiddenButtonRef, triggerGoogleSignIn } = useGoogleAuth(handleGoogleSuccess, setGoogleError);
+  const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signin_with');
 
   return (
     <div className="w-full max-w-md rounded-2xl border border-[#202634] bg-[#121827] p-8">
@@ -67,13 +65,10 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-[#202634]" />
       </div>
 
-      <SocialButton icon={<GoogleIcon />} onClick={triggerGoogleSignIn}>
-        Entrar com Google
-      </SocialButton>
-      {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
-      <div className="h-0 w-0 overflow-hidden">
-      <div ref={hiddenButtonRef} />
+      <div className="flex h-12 w-full items-center justify-center overflow-hidden">
+        <div ref={googleButtonRef} className="w-full" />
       </div>
+      {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Não possui conta?{' '}
