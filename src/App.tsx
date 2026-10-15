@@ -10,6 +10,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { ReportsPage } from './pages/ReportsPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { session } from './lib/session';
+import { DemoBanner } from './components/DemoBanner/DemoBanner';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
@@ -21,7 +22,7 @@ function PublicRoute({ children }: { children: ReactNode }) {
 
 export function App() {
   return (
-    <Routes>
+    <><DemoBanner /><Routes>
       <Route
         path="/"
         element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/register'} replace />}
@@ -91,6 +92,6 @@ export function App() {
           </ProtectedRoute>
         }
       />
-    </Routes>
+    </Routes></>
   );
 }

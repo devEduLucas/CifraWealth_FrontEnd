@@ -1,15 +1,9 @@
 import { session } from './session';
 import type { DetailedReportResponse } from '../types/reports.types';
-import { mockStore } from './mockStore';
+import { API_URL, isDemoMode } from './config';
 
-const rawApiUrl = import.meta.env.VITE_API_URL;
-const isMockMode = !rawApiUrl || rawApiUrl.trim() === '';
-const API_URL = (rawApiUrl || 'http://localhost:3000/api').replace(/\/+$/, '');
-
-if (isMockMode) {
-  console.info('[CifraWealth] VITE_API_URL não configurada. Executando em modo Mock local.');
-} else {
-  console.info(`[CifraWealth] Conectado à API: ${API_URL}`);
+async function getDemoStore() {
+  return (await import('./mockStore')).mockStore;
 }
 
 export class ApiError extends Error {
@@ -155,13 +149,13 @@ export interface GoalInput {
 
 export const api = {
   async getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
-    if (isMockMode) return mockStore.getDetailedReport(start, end);
+    if (isDemoMode) return (await getDemoStore()).getDetailedReport(start, end);
     const params = new URLSearchParams({ data_inicio: start, data_fim: end });
     return authRequest<DetailedReportResponse>(`/reports/detailed?${params}`, { method: 'GET', signal });
   },
 
   async register(input: { fullName: string; email: string; password: string }): Promise<{ email: string; message: string }> {
-    if (isMockMode) return mockStore.register(input.fullName, input.email);
+    if (isDemoMode) return (await getDemoStore()).register(input.fullName, input.email);
     return request<{ email: string; message: string }>('/users/register', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -169,7 +163,7 @@ export const api = {
   },
 
   async verifyEmail(token: string): Promise<{ message: string }> {
-    if (isMockMode) return { message: 'E-mail validado com sucesso!' };
+    if (isDemoMode) return { message: 'E-mail validado com sucesso!' };
     return request<{ message: string }>('/users/verify-email', {
       method: 'POST',
       body: JSON.stringify({ token }),
@@ -177,7 +171,7 @@ export const api = {
   },
 
   async resendVerification(email: string): Promise<{ message: string }> {
-    if (isMockMode) return { message: 'Novo e-mail de confirmação enviado.' };
+    if (isDemoMode) return { message: 'Novo e-mail de confirmação enviado.' };
     return request<{ message: string }>('/users/resend-verification', {
       method: 'POST',
       body: JSON.stringify({ email }),
@@ -185,7 +179,7 @@ export const api = {
   },
 
   async login(input: { email: string; password: string }): Promise<AuthResponse> {
-    if (isMockMode) return mockStore.login(input.email);
+    if (isDemoMode) return (await getDemoStore()).login(input.email);
     return request<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -193,7 +187,7 @@ export const api = {
   },
 
   async googleLogin(idToken: string): Promise<AuthResponse> {
-    if (isMockMode) return mockStore.googleLogin();
+    if (isDemoMode) return (await getDemoStore()).googleLogin();
     return request<AuthResponse>('/auth/google', {
       method: 'POST',
       body: JSON.stringify({ idToken }),
@@ -201,17 +195,17 @@ export const api = {
   },
 
   async getDashboard(): Promise<DashboardResponse> {
-    if (isMockMode) return mockStore.getDashboard();
+    if (isDemoMode) return (await getDemoStore()).getDashboard();
     return authRequest<DashboardResponse>('/dashboard', { method: 'GET' });
   },
 
   async listCategories(): Promise<CategoryResponse[]> {
-    if (isMockMode) return mockStore.listCategories();
+    if (isDemoMode) return (await getDemoStore()).listCategories();
     return authRequest<CategoryResponse[]>('/categories', { method: 'GET' });
   },
 
   async createCategory(input: CategoryInput): Promise<CategoryResponse> {
-    if (isMockMode) return mockStore.createCategory(input);
+    if (isDemoMode) return (await getDemoStore()).createCategory(input);
     return authRequest<CategoryResponse>('/categories', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -219,7 +213,7 @@ export const api = {
   },
 
   async updateCategory(id: number, input: Partial<CategoryInput>): Promise<CategoryResponse> {
-    if (isMockMode) return mockStore.updateCategory(id, input);
+    if (isDemoMode) return (await getDemoStore()).updateCategory(id, input);
     return authRequest<CategoryResponse>(`/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
@@ -227,7 +221,7 @@ export const api = {
   },
 
   async deleteCategory(id: number): Promise<void> {
-    if (isMockMode) return mockStore.deleteCategory(id);
+    if (isDemoMode) return (await getDemoStore()).deleteCategory(id);
     return authRequest<void>(`/categories/${id}`, { method: 'DELETE' });
   },
 
@@ -240,7 +234,7 @@ export const api = {
     limit?: number;
     page?: number;
   }): Promise<TransactionResponse[]> {
-    if (isMockMode) return mockStore.listTransactions(filters);
+    if (isDemoMode) return (await getDemoStore()).listTransactions(filters);
     const params = new URLSearchParams();
     if (filters?.tipo) params.set('tipo', filters.tipo);
     if (filters?.id_categoria) params.set('id_categoria', String(filters.id_categoria));
@@ -256,7 +250,7 @@ export const api = {
   },
 
   async createTransaction(input: TransactionInput): Promise<TransactionResponse> {
-    if (isMockMode) return mockStore.createTransaction(input);
+    if (isDemoMode) return (await getDemoStore()).createTransaction(input);
     return authRequest<TransactionResponse>('/transactions', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -264,7 +258,7 @@ export const api = {
   },
 
   async updateTransaction(id: number, input: Partial<TransactionInput>): Promise<TransactionResponse> {
-    if (isMockMode) return mockStore.updateTransaction(id, input);
+    if (isDemoMode) return (await getDemoStore()).updateTransaction(id, input);
     return authRequest<TransactionResponse>(`/transactions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
@@ -272,22 +266,22 @@ export const api = {
   },
 
   async deleteTransaction(id: number): Promise<void> {
-    if (isMockMode) return mockStore.deleteTransaction(id);
+    if (isDemoMode) return (await getDemoStore()).deleteTransaction(id);
     return authRequest<void>(`/transactions/${id}`, { method: 'DELETE' });
   },
 
   async getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
-    if (isMockMode) return mockStore.getMonthlyReport(ano);
+    if (isDemoMode) return (await getDemoStore()).getMonthlyReport(ano);
     return authRequest<MonthlyReportItem[]>(`/reports/monthly?ano=${ano}`, { method: 'GET' });
   },
 
   async listGoals(): Promise<GoalResponse[]> {
-    if (isMockMode) return mockStore.listGoals();
+    if (isDemoMode) return (await getDemoStore()).listGoals();
     return authRequest<GoalResponse[]>('/goals', { method: 'GET' });
   },
 
   async createGoal(input: GoalInput): Promise<GoalResponse> {
-    if (isMockMode) return mockStore.createGoal(input);
+    if (isDemoMode) return (await getDemoStore()).createGoal(input);
     return authRequest<GoalResponse>('/goals', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -295,7 +289,7 @@ export const api = {
   },
 
   async updateGoal(id: number, input: Partial<GoalInput>): Promise<GoalResponse> {
-    if (isMockMode) return mockStore.updateGoal(id, input);
+    if (isDemoMode) return (await getDemoStore()).updateGoal(id, input);
     return authRequest<GoalResponse>(`/goals/${id}`, {
       method: 'PUT',
       body: JSON.stringify(input),
@@ -303,12 +297,12 @@ export const api = {
   },
 
   async deleteGoal(id: number): Promise<void> {
-    if (isMockMode) return mockStore.deleteGoal(id);
+    if (isDemoMode) return (await getDemoStore()).deleteGoal(id);
     return authRequest<void>(`/goals/${id}`, { method: 'DELETE' });
   },
 
   async contributeGoal(id: number, valor: number): Promise<GoalResponse> {
-    if (isMockMode) return mockStore.contributeGoal(id, valor);
+    if (isDemoMode) return (await getDemoStore()).contributeGoal(id, valor);
     return authRequest<GoalResponse>(`/goals/${id}/contribute`, {
       method: 'POST',
       body: JSON.stringify({ valor }),
