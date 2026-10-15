@@ -82,13 +82,12 @@ export function TransactionFormModal({
   }
 
   return (
-    <Modal open={open} title="Nova Transação" onClose={onClose}>
+    <Modal open={open} title="Nova Transação" saving={saving} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label="Descrição"
           placeholder="Ex: Supermercado"
           maxLength={255}
-          autoFocus
           disabled={saving}
           value={descricao}
           onChange={(event) => setDescricao(event.target.value)}
