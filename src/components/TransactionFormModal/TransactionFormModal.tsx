@@ -127,7 +127,7 @@ export function TransactionFormModal({
               type="button"
               onClick={onNewCategory}
               disabled={saving}
-              className="text-xs font-medium text-teal-400 hover:underline"
+              className="text-xs font-medium text-accent hover:underline"
             >
               + Nova categoria
             </button>
@@ -149,7 +149,7 @@ export function TransactionFormModal({
           onChange={(event) => setData(event.target.value)}
         />
 
-        {(localError || error) && <p className="text-xs text-red-400">{localError ?? error}</p>}
+        {(localError || error) && <p className="text-xs text-danger">{localError ?? error}</p>}
 
         <div className="mt-1 flex items-center justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={saving}>

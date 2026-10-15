@@ -14,26 +14,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="flex flex-col gap-2">
-        <label htmlFor={inputId} className="text-sm font-medium text-slate-400">
+        <label htmlFor={inputId} className="text-sm font-medium text-muted">
           {label}
         </label>
         <div
           className={`field-shell ${
-            error ? 'border-red-500/60' : 'border-[#262F40]'
+            error ? 'border-red-500/60' : 'border-line-strong'
           } ${className ?? ''}`}
         >
-          {icon && <span className="pointer-events-none absolute left-4 text-slate-500">{icon}</span>}
+          {icon && <span className="pointer-events-none absolute left-4 text-subtle">{icon}</span>}
           <input
             ref={ref}
             id={inputId}
-            className={`px-4 text-sm text-slate-100 placeholder:text-slate-500 ${icon ? 'pl-11' : ''}`}
+            className={`px-4 text-sm text-foreground placeholder:text-subtle ${icon ? 'pl-11' : ''}`}
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
             {...rest}
           />
         </div>
         {error && (
-          <span id={errorId} role="alert" className="text-xs text-red-400">
+          <span id={errorId} role="alert" className="text-xs text-danger">
             {error}
           </span>
         )}

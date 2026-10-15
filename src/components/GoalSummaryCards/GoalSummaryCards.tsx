@@ -21,33 +21,33 @@ export function GoalSummaryCards({
         label="Metas Ativas"
         value={String(metasAtivas)}
         icon={Target}
-        iconClassName="bg-teal-500/15 text-teal-400"
+        iconClassName="bg-teal-500/15 text-accent"
         footnote={metasAtivas === 0 ? 'Nenhuma meta em andamento.' : 'Em andamento'}
-        footnoteClassName="text-slate-500"
+        footnoteClassName="text-subtle"
       />
       <SummaryCard
         label="Valor Objetivo"
         value={formatCurrency(valorObjetivo)}
         icon={DollarSign}
-        iconClassName="bg-sky-500/15 text-sky-400"
+        iconClassName="bg-sky-500/15 text-info"
         footnote="Soma das metas não canceladas"
-        footnoteClassName="text-slate-500"
+        footnoteClassName="text-subtle"
       />
       <SummaryCard
         label="Valor Economizado"
         value={formatCurrency(valorEconomizado)}
         icon={Heart}
-        iconClassName="bg-teal-500/15 text-teal-400"
+        iconClassName="bg-teal-500/15 text-accent"
         footnote="Total guardado até agora"
-        footnoteClassName="text-slate-500"
+        footnoteClassName="text-subtle"
       />
       <SummaryCard
         label="Progresso Geral"
         value={`${progressoGeralPercentual}%`}
         icon={BarChart3}
-        iconClassName="bg-amber-500/15 text-amber-400"
+        iconClassName="bg-amber-500/15 text-warning"
         footnote="Do total alcançado"
-        footnoteClassName="text-slate-500"
+        footnoteClassName="text-subtle"
       />
     </div>
   );

@@ -31,23 +31,23 @@ export function GoalListCard({ goal, onEdit, onDelete, onContribute, disabled }:
     <Card>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-500/15 text-teal-400">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-500/15 text-accent">
             <Icon size={19} />
           </span>
           <div>
-            <p className="text-sm font-semibold text-white">{goal.titulo}</p>
-            {goal.descricao && <p className="mt-0.5 text-xs text-slate-400">{goal.descricao}</p>}
+            <p className="text-sm font-semibold text-foreground">{goal.titulo}</p>
+            {goal.descricao && <p className="mt-0.5 text-xs text-muted">{goal.descricao}</p>}
           </div>
         </div>
         <Badge label={badge.label} variant={badge.variant} />
       </div>
 
       <div className="mt-4 flex items-end justify-between gap-3">
-        <p className="text-lg font-bold text-white">
+        <p className="text-lg font-bold text-foreground">
           {formatCurrency(goal.valorAtual)}
-          <span className="ml-1.5 text-sm font-normal text-slate-400">de {formatCurrency(goal.valorObjetivo)}</span>
+          <span className="ml-1.5 text-sm font-normal text-muted">de {formatCurrency(goal.valorObjetivo)}</span>
         </p>
-        <p className="text-lg font-bold text-teal-400">{progress}%</p>
+        <p className="text-lg font-bold text-accent">{progress}%</p>
       </div>
 
       <div className="mt-2.5">
@@ -59,12 +59,12 @@ export function GoalListCard({ goal, onEdit, onDelete, onContribute, disabled }:
       )}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         {goal.dataFim ? (
-          <span className="flex items-center gap-1.5 text-xs text-slate-500">
+          <span className="flex items-center gap-1.5 text-xs text-subtle">
             <Calendar size={13} />
             {formatMonthYear(goal.dataFim)}
           </span>
         ) : (
-          <span className="text-xs text-slate-600">Sem prazo definido</span>
+          <span className="text-xs text-subtle">Sem prazo definido</span>
         )}
 
         <div className="flex items-center gap-2">

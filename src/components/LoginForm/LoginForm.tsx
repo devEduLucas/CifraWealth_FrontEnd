@@ -17,12 +17,12 @@ export function LoginForm() {
   const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signin_with');
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-[#202634] bg-[#121827] p-8">
-      <h1 className="text-[28px] font-bold text-white">Entrar</h1>
-      <p className="mt-1.5 text-sm text-slate-400">Acesse sua conta para continuar.</p>
+    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
+      <h1 className="text-[28px] font-bold text-foreground">Entrar</h1>
+      <p className="mt-1.5 text-sm text-muted">Acesse sua conta para continuar.</p>
 
       {submitError && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
@@ -60,19 +60,19 @@ export function LoginForm() {
       </form>
 
       <div className="my-6 flex items-center gap-4">
-        <span className="h-px flex-1 bg-[#202634]" />
-        <span className="text-xs text-slate-500">ou</span>
-        <span className="h-px flex-1 bg-[#202634]" />
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-xs text-subtle">ou</span>
+        <span className="h-px flex-1 bg-line" />
       </div>
 
       <div className="flex min-h-12 w-full items-center justify-center overflow-hidden">
         <div ref={googleButtonRef} className="w-full max-w-[400px]" />
       </div>
-      {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
+      {googleError && <p className="mt-2 text-center text-xs text-danger">{googleError}</p>}
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-subtle">
         Não possui conta?{' '}
-        <Link to="/register" className="font-medium text-teal-400 hover:underline">
+        <Link to="/register" className="font-medium text-accent hover:underline">
           Criar conta
         </Link>
       </p>

@@ -11,28 +11,28 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
   const [visible, setVisible] = useState(true);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#202634] bg-[#121827] p-6">
+    <div className="relative overflow-hidden rounded-2xl border border-line bg-surface p-6">
       <div className="flex items-center gap-2">
-        <p className="text-sm text-slate-400">Saldo Total</p>
+        <p className="text-sm text-muted">Saldo Total</p>
         <button
           type="button"
           aria-label={visible ? 'Ocultar saldo' : 'Mostrar saldo'}
           onClick={() => setVisible((prev) => !prev)}
-          className="text-slate-500 transition-colors hover:text-slate-300"
+          className="text-subtle transition-colors hover:text-secondary"
         >
           {visible ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
 
-      <p className={`mt-2 text-4xl font-bold tracking-tight ${total < 0 ? 'text-red-400' : 'text-white'}`}>
+      <p className={`mt-2 text-4xl font-bold tracking-tight ${total < 0 ? 'text-danger' : 'text-foreground'}`}>
         {visible ? formatCurrency(total) : 'R$ ••••••'}
       </p>
 
       {variacaoPercentual !== undefined && (
-        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-teal-400">
+        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-accent">
           {variacaoPercentual >= 0 ? '↑' : '↓'} {variacaoPercentual >= 0 ? '+' : ''}
           {variacaoPercentual.toString().replace('.', ',')}%
-          <span className="font-normal text-teal-400/80">em relação ao mês anterior</span>
+          <span className="font-normal text-accent/80">em relação ao mês anterior</span>
         </span>
       )}
 

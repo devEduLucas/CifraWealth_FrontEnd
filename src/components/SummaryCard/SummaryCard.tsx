@@ -18,14 +18,14 @@ export function SummaryCard({
   footnoteClassName,
 }: SummaryCardProps) {
   return (
-    <div className="rounded-2xl border border-[#202634] bg-[#121827] p-5">
+    <div className="rounded-2xl border border-line bg-surface p-5">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">{label}</p>
+        <p className="text-sm text-muted">{label}</p>
         <span className={`flex h-9 w-9 items-center justify-center rounded-full ${iconClassName}`}>
           <Icon size={16} />
         </span>
       </div>
-      <p className="mt-3 text-2xl font-bold text-white">{value}</p>
+      <p className="mt-3 text-2xl font-bold text-foreground">{value}</p>
       <p className={`mt-1 text-xs font-medium ${footnoteClassName}`}>{footnote}</p>
     </div>
   );

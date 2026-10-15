@@ -57,22 +57,22 @@ export function ReportsPage() {
   return (
     <DashboardLayout userName={fullName}>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><h1 className="text-2xl font-bold text-white">Relatórios</h1><p className="mt-1 text-sm text-slate-400">Acompanhe receitas, despesas e saldo a partir das suas transações confirmadas.</p></div>
+        <div><h1 className="text-2xl font-bold text-foreground">Relatórios</h1><p className="mt-1 text-sm text-muted">Acompanhe receitas, despesas e saldo a partir das suas transações confirmadas.</p></div>
         <div className="flex flex-wrap items-center gap-3"><ReportPeriodFilter value={period} onChange={changePeriod} /><ReportExportButton onExport={report && !loading ? () => downloadReport(report) : undefined} /></div>
       </div>
       {period === 'custom' && (
-        <form onSubmit={applyDates} className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#202634] bg-[#121827] p-4">
-          <div><label htmlFor="report-start" className="mb-1 block text-xs text-slate-400">Data inicial</label><input id="report-start" type="date" required value={draft.start} onChange={(event) => setDraft((old) => ({ ...old, start: event.target.value }))} className="h-11 rounded-xl border border-[#262F40] bg-[#161F32] px-3 text-sm text-white" /></div>
-          <div><label htmlFor="report-end" className="mb-1 block text-xs text-slate-400">Data final</label><input id="report-end" type="date" required value={draft.end} onChange={(event) => setDraft((old) => ({ ...old, end: event.target.value }))} className="h-11 rounded-xl border border-[#262F40] bg-[#161F32] px-3 text-sm text-white" /></div>
+        <form onSubmit={applyDates} className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-line bg-surface p-4">
+          <div><label htmlFor="report-start" className="mb-1 block text-xs text-muted">Data inicial</label><input id="report-start" type="date" required value={draft.start} onChange={(event) => setDraft((old) => ({ ...old, start: event.target.value }))} className="h-11 rounded-xl border border-line-strong bg-elevated px-3 text-sm text-foreground" /></div>
+          <div><label htmlFor="report-end" className="mb-1 block text-xs text-muted">Data final</label><input id="report-end" type="date" required value={draft.end} onChange={(event) => setDraft((old) => ({ ...old, end: event.target.value }))} className="h-11 rounded-xl border border-line-strong bg-elevated px-3 text-sm text-foreground" /></div>
           <button type="submit" className="h-11 rounded-xl bg-teal-500 px-4 text-sm font-semibold text-slate-950">Aplicar datas</button>
-          {filterError && <p role="alert" className="w-full text-sm text-red-400">{filterError}</p>}
+          {filterError && <p role="alert" className="w-full text-sm text-danger">{filterError}</p>}
         </form>
       )}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-slate-400">Período aplicado: {label} · Comparação com o período anterior de mesma duração.</p><button type="button" disabled={loading} onClick={() => setRetry((value) => value + 1)} className="text-sm font-semibold text-teal-400 disabled:opacity-40">Atualizar relatório</button></div>
-      {loading && <p role="status" className="mt-8 text-sm text-slate-400">Carregando relatório...</p>}
-      {error && <div role="alert" className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400"><p>{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 font-semibold underline">Tentar novamente</button></div>}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted">Período aplicado: {label} · Comparação com o período anterior de mesma duração.</p><button type="button" disabled={loading} onClick={() => setRetry((value) => value + 1)} className="text-sm font-semibold text-accent disabled:opacity-40">Atualizar relatório</button></div>
+      {loading && <p role="status" className="mt-8 text-sm text-muted">Carregando relatório...</p>}
+      {error && <div role="alert" className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-danger"><p>{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 font-semibold underline">Tentar novamente</button></div>}
       {report && !loading && !error && <>
-        {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-[#202634] p-4 text-sm text-slate-400">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-teal-400">Registrar transação</Link> ou selecione outras datas.</div>}
+        {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-line p-4 text-sm text-muted">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-accent">Registrar transação</Link> ou selecione outras datas.</div>}
         <div className="mt-6"><ReportSummaryCards summary={report.summary} /></div>
         <div className="mt-6"><FinancialEvolutionChart data={report.evolution} periodLabel={label} /></div>
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2"><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /><MonthlyComparisonChart data={report.monthlyComparison} /></div>

@@ -42,7 +42,7 @@ export function Sidebar({ userName }: SidebarProps) {
     .toUpperCase();
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-[260px] flex-col justify-between border-r border-[#1B2231] bg-[#0B1020] px-5 py-6 lg:flex">
+    <aside className="fixed inset-y-0 left-0 hidden w-[260px] flex-col justify-between border-r border-line bg-canvas px-5 py-6 lg:flex">
       <div>
         <div className="px-2">
           <Logo />
@@ -58,8 +58,8 @@ export function Sidebar({ userName }: SidebarProps) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-teal-500/15 text-teal-400'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                      ? 'bg-teal-500/15 text-accent'
+                      : 'text-muted hover:bg-hover hover:text-secondary'
                   }`
                 }
               >
@@ -75,13 +75,13 @@ export function Sidebar({ userName }: SidebarProps) {
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-slate-950">
           {initials}
         </span>
-        <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">{userName}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-secondary">{userName}</span>
         <button
           type="button"
           onClick={handleLogout}
           aria-label="Sair"
           title="Sair"
-          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-red-400"
+          className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-hover hover:text-danger"
         >
           <LogOut size={18} />
         </button>

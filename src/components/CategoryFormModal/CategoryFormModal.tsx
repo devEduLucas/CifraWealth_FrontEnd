@@ -64,7 +64,7 @@ export function CategoryFormModal({
           <option value="receita">Receita</option>
         </Select>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
 
         <div className="mt-1 flex items-center justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={saving}>

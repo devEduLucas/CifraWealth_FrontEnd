@@ -8,7 +8,7 @@ export function SocialButton({ icon, children, className, ...rest }: SocialButto
   return (
     <button
       type="button"
-      className={`flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#262F40] bg-[#1B212F] text-sm font-medium text-slate-200 transition-colors duration-200 hover:bg-[#232A3B] ${
+      className={`flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-hover text-sm font-medium text-secondary transition-colors duration-200 hover:bg-line ${
         className ?? ''
       }`}
       {...rest}

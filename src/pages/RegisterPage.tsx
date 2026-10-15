@@ -13,11 +13,11 @@ export function RegisterPage() {
           <Logo showTagline />
 
           <div className="flex max-w-md flex-col gap-4">
-            <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-              Comece hoje a <span className="text-teal-400">transformar</span> sua vida
+            <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
+              Comece hoje a <span className="text-accent">transformar</span> sua vida
               financeira.
             </h1>
-            <p className="max-w-sm text-base text-slate-400">
+            <p className="max-w-sm text-base text-muted">
               Organize receitas, despesas, acompanhe seu patrimônio e construa hábitos financeiros
               inteligentes.
             </p>
@@ -25,17 +25,17 @@ export function RegisterPage() {
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-teal-400" />}
+              icon={<ShieldCheck size={20} className="text-accent" />}
               title="Segurança"
               description="Acesso autenticado para organizar suas finanças com privacidade."
             />
             <BenefitItem
-              icon={<TrendingUp size={20} className="text-teal-400" />}
+              icon={<TrendingUp size={20} className="text-accent" />}
               title="Crescimento"
               description="Visualize sua evolução financeira com clareza."
             />
             <BenefitItem
-              icon={<Target size={20} className="text-teal-400" />}
+              icon={<Target size={20} className="text-accent" />}
               title="Objetivos"
               description="Defina metas e acompanhe seu progresso em tempo real."
             />

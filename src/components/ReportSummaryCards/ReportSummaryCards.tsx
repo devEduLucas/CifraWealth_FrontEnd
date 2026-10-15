@@ -9,10 +9,10 @@ interface ReportSummaryCardsProps {
 
 function formatVariation(value: number | null, lowerIsBetter = false): { text: string; className: string } {
   if (value === null) {
-    return { text: 'Sem base no período anterior.', className: 'text-slate-500' };
+    return { text: 'Sem base no período anterior.', className: 'text-subtle' };
   }
   const arrow = value >= 0 ? '↑' : '↓';
-  const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-teal-400' : 'text-red-400';
+  const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-accent' : 'text-danger';
   return { text: `${arrow} ${Math.abs(value)}% vs período anterior`, className };
 }
 
@@ -28,7 +28,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Receitas"
         value={formatCurrency(summary.receitas)}
         icon={TrendingUp}
-        iconClassName="bg-teal-500/15 text-teal-400"
+        iconClassName="bg-teal-500/15 text-accent"
         footnote={receitas.text}
         footnoteClassName={receitas.className}
       />
@@ -36,7 +36,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Despesas"
         value={formatCurrency(summary.despesas)}
         icon={TrendingDown}
-        iconClassName="bg-red-500/15 text-red-400"
+        iconClassName="bg-red-500/15 text-danger"
         footnote={despesas.text}
         footnoteClassName={despesas.className}
       />
@@ -44,7 +44,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Saldo do Período"
         value={formatCurrency(summary.saldo)}
         icon={Wallet}
-        iconClassName="bg-sky-500/15 text-sky-400"
+        iconClassName="bg-sky-500/15 text-info"
         footnote={saldo.text}
         footnoteClassName={saldo.className}
       />
@@ -52,7 +52,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Taxa de Economia"
         value={`${summary.taxaEconomiaPercentual}%`}
         icon={PieChart}
-        iconClassName="bg-teal-500/15 text-teal-400"
+        iconClassName="bg-teal-500/15 text-accent"
         footnote={taxa.text}
         footnoteClassName={taxa.className}
       />

@@ -40,7 +40,7 @@ export function useGoogleAuth(onSuccess: () => void, onError: (message: string) 
       btn.disabled = !isDemoMode;
       btn.title = isDemoMode ? 'Acessar dados fictícios' : 'Use seu e-mail e senha para entrar.';
       btn.className =
-        'w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#2a3448] bg-[#1a2233] text-sm font-medium text-slate-200 hover:bg-[#202b40] transition disabled:cursor-not-allowed disabled:opacity-60';
+        'w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-line-strong bg-elevated text-sm font-medium text-secondary hover:bg-hover transition disabled:cursor-not-allowed disabled:opacity-60';
       btn.textContent = isDemoMode ? 'Entrar na demonstração' : 'Google indisponível';
       btn.onclick = () => {
         if (!isDemoMode) return;

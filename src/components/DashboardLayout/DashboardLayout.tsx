@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ userName, children }: DashboardLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#0B1020] text-white">
+    <div className="min-h-screen bg-canvas text-foreground">
       <Sidebar userName={userName} />
 
       <main className="px-4 pb-24 pt-6 sm:px-6 lg:ml-[260px] lg:px-10 lg:pb-10 lg:pt-8">

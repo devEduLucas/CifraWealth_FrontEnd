@@ -11,7 +11,7 @@ interface QuickActionButtonProps {
 
 export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick }: QuickActionButtonProps) {
   const className =
-    'flex flex-1 items-center gap-3 rounded-2xl border border-[#202634] bg-[#121827] px-4 py-3.5 text-left text-sm font-medium text-slate-200 transition-colors hover:border-[#2c3648] hover:bg-[#161c29]';
+    'flex flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 text-left text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:bg-surface';
 
   const content = (
     <>

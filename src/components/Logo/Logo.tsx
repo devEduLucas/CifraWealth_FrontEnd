@@ -29,12 +29,12 @@ export function Logo({ showTagline = false, iconSize = 32 }: LogoProps) {
           />
         </svg>
         <span className="text-lg font-bold tracking-tight">
-          <span className="text-white">CIFRA </span>
+          <span className="text-foreground">CIFRA </span>
           <span className="bg-brand-gradient bg-clip-text text-transparent">Wealth</span>
         </span>
       </div>
       {showTagline && (
-        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-400">
+        <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
           Inteligência para o seu futuro
         </p>
       )}

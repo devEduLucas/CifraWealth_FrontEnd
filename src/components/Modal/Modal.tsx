@@ -26,17 +26,17 @@ export function Modal({ open, title, onClose, children, saving = false }: ModalP
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#202634] bg-[#121827] p-6"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line bg-surface p-6"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <h2 className="text-lg font-bold text-foreground">{title}</h2>
           <button
             type="button"
             onClick={close}
             disabled={saving}
             aria-label="Fechar"
-            className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-[#1B212F] hover:text-white"
+            className="rounded-lg p-1 text-muted transition-colors hover:bg-hover hover:text-foreground"
           >
             <X size={18} />
           </button>
