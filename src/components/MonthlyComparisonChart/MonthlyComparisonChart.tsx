@@ -28,14 +28,14 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#202634] bg-[#121827] p-5 sm:p-6">
-      <h2 className="text-base font-semibold text-white">Comparativo Mensal</h2>
-      <p className="mt-0.5 text-xs text-slate-400">Receitas e despesas no período selecionado</p>
+    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+      <h2 className="text-base font-semibold text-foreground">Comparativo Mensal</h2>
+      <p className="mt-0.5 text-xs text-muted">Receitas e despesas no período selecionado</p>
 
       <div className="relative mt-5 h-56">
         {!hasData && (
           <div className="absolute inset-0 z-10 flex items-center justify-center px-6 text-center">
-            <p className="text-sm text-slate-500">Sem dados suficientes para comparação mensal.</p>
+            <p className="text-sm text-subtle">Sem dados suficientes para comparação mensal.</p>
           </div>
         )}
 
@@ -50,8 +50,8 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
             const y = yFor(tick);
             return (
               <g key={tick}>
-                <line x1={PADDING_LEFT} y1={y} x2={WIDTH - PADDING_RIGHT} y2={y} stroke="#202634" strokeDasharray="3 4" />
-                <text x={PADDING_LEFT - 8} y={y + 3} textAnchor="end" fontSize="11" fill="#64748b">
+                <line x1={PADDING_LEFT} y1={y} x2={WIDTH - PADDING_RIGHT} y2={y} stroke="var(--chart-grid)" strokeDasharray="3 4" />
+                <text x={PADDING_LEFT - 8} y={y + 3} textAnchor="end" fontSize="11" fill="var(--chart-label)">
                   {tick.toLocaleString('pt-BR', { notation: 'compact', maximumFractionDigits: 1 })}
                 </text>
               </g>
@@ -64,14 +64,14 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
               const receitasY = yFor(point.receitas);
               const despesasY = yFor(point.despesas);
               return (
-                <g key={index % Math.max(1, Math.ceil(data.length / 8)) === 0 ? point.mes : ''}>
+                <g key={point.mes}>
                   <rect
                     x={groupX - barWidth - 3}
                     y={receitasY}
                     width={barWidth}
                     height={HEIGHT - PADDING_BOTTOM - receitasY}
                     rx="3"
-                    fill="#2dd4bf"
+                    fill="var(--chart-income)"
                   />
                   <rect
                     x={groupX + 3}
@@ -79,7 +79,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
                     width={barWidth}
                     height={HEIGHT - PADDING_BOTTOM - despesasY}
                     rx="3"
-                    fill="#f87171"
+                    fill="var(--chart-expense)"
                   />
                 </g>
               );
@@ -92,7 +92,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
               y={HEIGHT - 6}
               textAnchor="middle"
               fontSize="11"
-              fill="#64748b"
+              fill="var(--chart-label)"
             >
               {point.mes}
             </text>
@@ -100,7 +100,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
         </svg>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
+      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-teal-400" />
           Receitas

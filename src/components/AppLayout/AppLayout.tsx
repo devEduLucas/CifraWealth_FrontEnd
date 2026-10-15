@@ -22,7 +22,7 @@ interface AppLayoutProps {
 
 function navClass(isActive: boolean): string {
   return `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-    isActive ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-[#121827] hover:text-white'
+    isActive ? 'bg-emerald-500/10 text-positive' : 'text-muted hover:bg-surface hover:text-foreground'
   }`;
 }
 
@@ -42,8 +42,8 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0B1020] text-white md:flex-row">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-[#202634] p-5 md:sticky md:top-0 md:flex md:h-screen">
+    <div className="flex min-h-screen flex-col bg-canvas text-foreground md:flex-row">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-line p-5 md:sticky md:top-0 md:flex md:h-screen">
         <div className="mb-8 px-1">
           <Logo />
         </div>
@@ -57,7 +57,7 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
           ))}
         </nav>
 
-        <div className="flex items-center gap-3 border-t border-[#202634] pt-4">
+        <div className="flex items-center gap-3 border-t border-line pt-4">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-slate-950">
             {initials}
           </span>
@@ -66,20 +66,20 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
             type="button"
             onClick={handleLogout}
             aria-label="Sair"
-            className="text-slate-400 transition-colors hover:text-red-400"
+            className="text-muted transition-colors hover:text-danger"
           >
             <LogOut size={18} />
           </button>
         </div>
       </aside>
 
-      <header className="flex items-center justify-between border-b border-[#202634] px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between border-b border-line px-4 py-3 md:hidden">
         <Logo />
-        <button type="button" onClick={handleLogout} aria-label="Sair" className="text-slate-400">
+        <button type="button" onClick={handleLogout} aria-label="Sair" className="text-muted">
           <LogOut size={18} />
         </button>
       </header>
-      <nav className="flex gap-1 overflow-x-auto border-b border-[#202634] px-3 py-2 md:hidden">
+      <nav className="flex gap-1 overflow-x-auto border-b border-line px-3 py-2 md:hidden">
         {NAV_LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -97,7 +97,7 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold">{title}</h1>
-              {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
+              {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
             </div>
             {action}
           </div>

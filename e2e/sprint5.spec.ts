@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import process from 'node:process';
 import { prisma } from '../../CifraWealth_BackEnd/src/lib/prisma';
-const API = 'http://localhost:3000/api';
+import { hashPassword } from '../../CifraWealth_BackEnd/src/utils/hashPassword';
+import { DEFAULT_CATEGORIES } from '../../CifraWealth_BackEnd/src/utils/defaultCategories';
+const API = process.env.E2E_API_URL!;
 let userId: number;
 let auth: { token: string; user: unknown };
 let email: string;
@@ -10,7 +12,9 @@ const password = 'Sprint5Browser!123';
 test.beforeAll(async ({ request }) => {
   expect(['localhost','127.0.0.1','[::1]']).toContain(new URL(process.env.DATABASE_URL!).hostname);
   email = 'browser-' + randomUUID() + '@example.com';
-  const registered=await request.post(API+'/users/register',{data:{fullName:'Teste Navegador',email,password}});expect(registered.status()).toBe(201);userId=(await registered.json()).id_usuario;
+  // Verified fixtures avoid delivering e-mail to external recipients. The actual
+  // registration/SMTP flow is covered by the backend's local capture server.
+  const created=await prisma.usuarios.create({data:{nome:'Teste',sobrenome:'Navegador',email,senha:await hashPassword(password),email_verificado:true,categorias:{create:DEFAULT_CATEGORIES}}});userId=created.id_usuario;
   const login=await request.post(API+'/auth/login',{data:{email,password}});expect(login.status()).toBe(200);auth=await login.json();
 });
 test.afterAll(async () => {
@@ -19,6 +23,8 @@ test.afterAll(async () => {
 });
 test('campos ocupam a área inteira, têm um único foco e login funciona', async ({ page }) => {
   await page.goto('/login');
+  await expect(page.getByRole('button',{name:'Google indisponível'})).toBeDisabled();
+  await expect(page.getByText(/Modo demonstração/)).toHaveCount(0);
   const emailInput=page.getByLabel('E-mail',{exact:true});await emailInput.fill(email);
   const shell=emailInput.locator('..');const bounds=await shell.boundingBox();expect(bounds).not.toBeNull();
   await page.mouse.click(bounds!.x+bounds!.width-8,bounds!.y+8);await expect(emailInput).toBeFocused();
@@ -28,6 +34,49 @@ test('campos ocupam a área inteira, têm um único foco e login funciona', asyn
   await page.getByRole('button',{name:'Mostrar senha'}).click();await expect(passwordInput).toHaveAttribute('type','text');
   await page.getByRole('button',{name:'Ocultar senha'}).click();await expect(passwordInput).toHaveAttribute('type','password');
   await page.getByRole('button',{name:'Entrar',exact:true}).click();await expect(page).toHaveURL(/dashboard/);
+});
+
+test('confirmação de e-mail exige a senha e preserva erros para nova tentativa', async ({ page }) => {
+  let confirmations = 0;
+  await page.route('**/api/users/verify-email', async (route) => {
+    confirmations++;
+    const input = route.request().postDataJSON();
+    expect(input.token).toBe('token-de-teste');
+    const valid = input.password === password;
+    await route.fulfill({status:valid ? 200 : 400,contentType:'application/json',body:JSON.stringify({message:valid ? 'E-mail confirmado com sucesso!' : 'A senha está incorreta.'})});
+  });
+  await page.goto('/verify-email?token=token-de-teste');
+  await expect(page.getByLabel('Senha cadastrada',{exact:true})).toBeVisible();
+  expect(confirmations).toBe(0);
+  await page.getByLabel('Senha cadastrada',{exact:true}).fill('SenhaErrada!123');
+  await page.getByRole('button',{name:'Confirmar e-mail',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('senha');
+  await page.getByLabel('Senha cadastrada',{exact:true}).fill(password);
+  await page.getByRole('button',{name:'Confirmar e-mail',exact:true}).click();
+  await expect(page.getByRole('link',{name:'Ir para entrar'})).toBeVisible();
+  expect(confirmations).toBe(2);
+});
+
+test('transação e categoria mantêm o formulário e o foco em modais aninhados', async ({ page }) => {
+  await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
+  await page.goto('/transactions');
+  await page.getByRole('button',{name:'Nova Transação',exact:true}).click();
+  const transaction=page.getByRole('dialog',{name:'Nova Transação',exact:true});
+  await transaction.getByLabel('Descrição',{exact:true}).fill('Despesa do formulário');
+  await transaction.getByRole('button',{name:'+ Nova categoria',exact:true}).click();
+  const category=page.getByRole('dialog',{name:'Nova Categoria',exact:true});
+  await expect(category.getByLabel('Nome da categoria')).toBeFocused();
+  await category.getByLabel('Nome da categoria').fill('Categoria temporária');
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Shift+Tab');
+  await expect(category.getByRole('button',{name:'Salvar',exact:true})).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(category).not.toBeVisible();
+  await expect(transaction).toBeVisible();
+  await expect(transaction.getByLabel('Descrição',{exact:true})).toHaveValue('Despesa do formulário');
+  await expect(transaction.getByRole('button',{name:'+ Nova categoria',exact:true})).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(transaction).not.toBeVisible();
 });
 test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ page }, testInfo) => {
   await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
@@ -44,6 +93,29 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await expect(page.getByRole('dialog')).not.toBeVisible();await expect(page.getByText('100%',{exact:true}).first()).toBeVisible();
   await page.getByRole('button',{name:'Concluídas',exact:true}).click();await expect(page.getByText('Reserva Sprint 5',{exact:true}).first()).toBeVisible();
   await expect(page.getByRole('button',{name:'Registrar valor guardado',exact:true})).toHaveCount(0);
+});
+
+test('modal de categoria permanece aberto enquanto salva', async ({ page }) => {
+  await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  await page.route('**/api/categories', async (route) => {
+    if (route.request().method() === 'POST') await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto('/categories');
+    await page.getByRole('button',{name:'Nova Categoria',exact:true}).click();
+    const dialog=page.getByRole('dialog',{name:'Nova Categoria',exact:true});
+    await dialog.getByLabel('Nome da categoria').fill('Categoria durante gravação');
+    await dialog.getByRole('button',{name:'Salvar',exact:true}).click();
+    await expect(dialog.getByRole('button',{name:'Fechar',exact:true})).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await page.mouse.click(2,2);
+    await expect(dialog).toBeVisible();
+    release();
+    await expect(dialog).not.toBeVisible();
+  } finally { release(); }
 });
 test('relatórios reais, período personalizado, detalhes, CSV e estados de erro', async ({ page, request }, testInfo) => {
   const headers={Authorization:'Bearer '+auth.token};

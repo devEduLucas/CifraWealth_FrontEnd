@@ -128,16 +128,16 @@ export function TransactionsPage() {
       />
 
       {pageError && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
           {pageError}
         </p>
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-400">Carregando transações...</p>
+        <p className="text-sm text-muted">Carregando transações...</p>
       ) : sortedTransactions.length === 0 ? (
-        <div className="rounded-2xl border border-[#202634] bg-[#121827] p-10 text-center">
-          <p className="text-sm text-slate-400">Nenhuma transação registrada ainda.</p>
+        <div className="rounded-2xl border border-line bg-surface p-10 text-center">
+          <p className="text-sm text-muted">Nenhuma transação registrada ainda.</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
@@ -149,26 +149,26 @@ export function TransactionsPage() {
             return (
               <li
                 key={transaction.id_transacao}
-                className="flex items-center gap-3 rounded-2xl border border-[#202634] bg-[#121827] px-4 py-3"
+                className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3"
               >
                 <span
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                    isReceita ? 'bg-teal-500/15 text-teal-400' : 'bg-red-500/15 text-red-400'
+                    isReceita ? 'bg-teal-500/15 text-accent' : 'bg-red-500/15 text-danger'
                   }`}
                 >
                   <Icon size={17} />
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">{transaction.descricao}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="truncate text-sm font-medium text-foreground">{transaction.descricao}</p>
+                  <p className="text-xs text-muted">
                     {category?.nome ?? 'Sem categoria'} · {formatDate(transaction.data_transacao)}
                     {transaction.status === 'pendente' && ' · Pendente'}
                   </p>
                 </div>
 
                 <span
-                  className={`text-sm font-semibold ${isReceita ? 'text-teal-400' : 'text-red-400'}`}
+                  className={`text-sm font-semibold ${isReceita ? 'text-accent' : 'text-danger'}`}
                 >
                   {isReceita ? '+' : '-'}
                   {formatCurrency(transaction.valor)}
@@ -178,7 +178,7 @@ export function TransactionsPage() {
                   type="button"
                   aria-label="Excluir transação"
                   onClick={() => handleDelete(transaction.id_transacao)}
-                  className="text-slate-500 transition-colors hover:text-red-400"
+                  className="text-subtle transition-colors hover:text-danger"
                 >
                   <Trash2 size={16} />
                 </button>

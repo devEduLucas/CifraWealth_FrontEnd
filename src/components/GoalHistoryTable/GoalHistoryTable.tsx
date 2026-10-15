@@ -16,12 +16,12 @@ interface GoalHistoryTableProps {
 export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistoryTableProps) {
   return (
     <Card>
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Histórico de Metas</p>
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Histórico de Metas</p>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
-            <tr className="text-xs uppercase tracking-wide text-slate-500">
+            <tr className="text-xs uppercase tracking-wide text-subtle">
               <th className="pb-3 font-medium">Nome</th>
               <th className="pb-3 font-medium">Objetivo</th>
               <th className="pb-3 font-medium">Economizado</th>
@@ -30,10 +30,10 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistor
               <th className="pb-3 text-right font-medium">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#202634]">
+          <tbody className="divide-y divide-line">
             {goals.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-10 text-center text-sm text-slate-500">
+                <td colSpan={6} className="py-10 text-center text-sm text-subtle">
                   Nenhuma meta cadastrada.
                 </td>
               </tr>
@@ -42,13 +42,13 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistor
                 const badge = getGoalStatusBadge(goal.status);
                 return (
                   <tr key={goal.id}>
-                    <td className="py-3.5 font-semibold text-white">{goal.titulo}</td>
-                    <td className="py-3.5 text-slate-300">{formatCurrency(goal.valorObjetivo)}</td>
-                    <td className="py-3.5 font-semibold text-teal-400">{formatCurrency(goal.valorAtual)}</td>
+                    <td className="py-3.5 font-semibold text-foreground">{goal.titulo}</td>
+                    <td className="py-3.5 text-secondary">{formatCurrency(goal.valorObjetivo)}</td>
+                    <td className="py-3.5 font-semibold text-accent">{formatCurrency(goal.valorAtual)}</td>
                     <td className="py-3.5">
                       <Badge label={badge.label} variant={badge.variant} />
                     </td>
-                    <td className="py-3.5 text-slate-400">
+                    <td className="py-3.5 text-muted">
                       {goal.dataFim ? formatMonthYear(goal.dataFim) : '—'}
                     </td>
                     <td className="py-3.5">

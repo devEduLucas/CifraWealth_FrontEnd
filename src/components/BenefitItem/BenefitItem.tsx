@@ -13,8 +13,8 @@ export function BenefitItem({ icon, title, description }: BenefitItemProps) {
         {icon}
       </span>
       <div className="flex flex-col gap-0.5 pt-1">
-        <h3 className="text-[15px] font-semibold text-white">{title}</h3>
-        <p className="text-sm text-slate-400">{description}</p>
+        <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+        <p className="text-sm text-muted">{description}</p>
       </div>
     </div>
   );

@@ -100,8 +100,8 @@ export function GoalsPage() {
   return (
     <DashboardLayout userName={fullName}>
       <GoalsHeader filter={filter} onFilterChange={setFilter} onNewGoal={openCreateModal} />
-      <p className="mt-3 text-sm text-slate-400">Crie uma meta e use “Registrar valor guardado” para acompanhar o dinheiro que você já reservou.</p>
-      {success && <p role="status" className="mt-4 text-sm text-teal-400">{success}</p>}
+      <p className="mt-3 text-sm text-muted">Crie uma meta e use “Registrar valor guardado” para acompanhar o dinheiro que você já reservou.</p>
+      {success && <p role="status" className="mt-4 text-sm text-accent">{success}</p>}
 
       <div className="mt-6">
         <GoalSummaryCards
@@ -113,7 +113,7 @@ export function GoalsPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -121,16 +121,16 @@ export function GoalsPage() {
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="text-base font-semibold text-white">Minhas Metas</h2>
-            <span className="text-xs text-slate-500">
+            <h2 className="text-base font-semibold text-foreground">Minhas Metas</h2>
+            <span className="text-xs text-subtle">
               {goals.length} {goals.length === 1 ? 'meta encontrada' : 'metas encontradas'}
             </span>
           </div>
 
           {loading ? (
-            <p className="text-sm text-slate-400">Carregando metas...</p>
+            <p className="text-sm text-muted">Carregando metas...</p>
           ) : filteredGoals.length === 0 ? (
-            error ? <p className="text-sm text-slate-400">Não foi possível carregar suas metas. Recarregue a página para tentar novamente.</p> : goals.length > 0 ? <p className="text-sm text-slate-400">Nenhuma meta neste filtro.</p> : <EmptyGoals onNewGoal={openCreateModal} />
+            error ? <p className="text-sm text-muted">Não foi possível carregar suas metas. Recarregue a página para tentar novamente.</p> : goals.length > 0 ? <p className="text-sm text-muted">Nenhuma meta neste filtro.</p> : <EmptyGoals onNewGoal={openCreateModal} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {filteredGoals.map((goal) => (

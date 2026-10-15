@@ -22,7 +22,7 @@ const ICONS: Record<NavItem['icon'], typeof LayoutDashboard> = {
 
 export function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-between border-t border-[#1B2231] bg-[#0B1020] px-2 pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <nav aria-label="Menu móvel" className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-between border-t border-line bg-surface px-2 pb-[env(safe-area-inset-bottom)] lg:hidden">
       {NAV_ITEMS.map((item) => {
         const Icon = ICONS[item.icon];
         return (
@@ -31,7 +31,7 @@ export function BottomNav() {
             to={item.path}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
-                isActive ? 'text-teal-400' : 'text-slate-500'
+                isActive ? 'text-accent' : 'text-subtle'
               }`
             }
           >

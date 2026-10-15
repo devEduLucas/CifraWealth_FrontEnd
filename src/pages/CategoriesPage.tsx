@@ -85,16 +85,16 @@ export function CategoriesPage() {
       />
 
       {pageError && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
           {pageError}
         </p>
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-400">Carregando categorias...</p>
+        <p className="text-sm text-muted">Carregando categorias...</p>
       ) : sortedCategories.length === 0 ? (
-        <div className="rounded-2xl border border-[#202634] bg-[#121827] p-10 text-center">
-          <p className="text-sm text-slate-400">Nenhuma categoria cadastrada ainda.</p>
+        <div className="rounded-2xl border border-line bg-surface p-10 text-center">
+          <p className="text-sm text-muted">Nenhuma categoria cadastrada ainda.</p>
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -103,13 +103,13 @@ export function CategoriesPage() {
             return (
               <li
                 key={category.id_categoria}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[#202634] bg-[#121827] px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-white">{category.nome}</p>
+                  <p className="truncate text-sm font-medium text-foreground">{category.nome}</p>
                   <span
                     className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      isReceita ? 'bg-teal-500/15 text-teal-400' : 'bg-red-500/15 text-red-400'
+                      isReceita ? 'bg-teal-500/15 text-accent' : 'bg-red-500/15 text-danger'
                     }`}
                   >
                     {isReceita ? 'Receita' : 'Despesa'}
@@ -119,7 +119,7 @@ export function CategoriesPage() {
                   type="button"
                   aria-label="Excluir categoria"
                   onClick={() => handleDelete(category.id_categoria)}
-                  className="text-slate-500 transition-colors hover:text-red-400"
+                  className="text-subtle transition-colors hover:text-danger"
                 >
                   <Trash2 size={16} />
                 </button>

@@ -25,12 +25,6 @@ export function DashboardPage() {
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
   const firstName = fullName.split(' ')[0];
-  const initials = fullName
-    .split(' ')
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -148,11 +142,11 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout userName={fullName}>
-      <DashboardHeader firstName={firstName} initials={initials} />
+      <DashboardHeader firstName={firstName} />
 
-      {loading && <p className="text-sm text-slate-400">Carregando dados financeiros...</p>}
+      {loading && <p className="text-sm text-muted">Carregando dados financeiros...</p>}
       {error && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -166,53 +160,53 @@ export function DashboardPage() {
               label="Receitas"
               value={formatCurrency(receitasMes)}
               icon={TrendingUp}
-              iconClassName="bg-teal-500/15 text-teal-400"
+              iconClassName="bg-teal-500/15 text-accent"
               footnote="Este mês"
-              footnoteClassName="text-teal-400"
+              footnoteClassName="text-accent"
             />
             <SummaryCard
               label="Despesas"
               value={formatCurrency(despesasMes)}
               icon={TrendingDown}
-              iconClassName="bg-red-500/15 text-red-400"
+              iconClassName="bg-red-500/15 text-danger"
               footnote={
                 despesasVariacao === null
                   ? 'Este mês'
                   : `${despesasVariacao > 0 ? '↑' : '↓'} ${despesasVariacao}% vs mês anterior`
               }
-              footnoteClassName="text-red-400"
+              footnoteClassName="text-danger"
             />
             <SummaryCard
               label="Economia"
               value={formatCurrency(economiaMes)}
               icon={Clock}
-              iconClassName="bg-sky-500/15 text-sky-400"
+              iconClassName="bg-sky-500/15 text-info"
               footnote={receitasMes > 0 ? `${economiaPercentual}% da receita` : 'Este mês'}
-              footnoteClassName="text-sky-400"
+              footnoteClassName="text-info"
             />
           </div>
 
           <div className="mt-6">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">
               Ações Rápidas
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <QuickActionButton
                 label="Adicionar Receita"
                 icon={Plus}
-                iconClassName="bg-teal-500/15 text-teal-400"
+                iconClassName="bg-teal-500/15 text-accent"
                 to="/transactions"
               />
               <QuickActionButton
                 label="Adicionar Despesa"
                 icon={Minus}
-                iconClassName="bg-red-500/15 text-red-400"
+                iconClassName="bg-red-500/15 text-danger"
                 to="/transactions"
               />
               <QuickActionButton
                 label="Criar Meta"
                 icon={Settings}
-                iconClassName="bg-sky-500/15 text-sky-400"
+                iconClassName="bg-sky-500/15 text-info"
                 to="/goals"
               />
             </div>
@@ -226,8 +220,8 @@ export function DashboardPage() {
           <div className="mt-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-white">Metas Financeiras</h2>
-                <p className="mt-0.5 text-xs text-slate-400">
+                <h2 className="text-base font-semibold text-foreground">Metas Financeiras</h2>
+                <p className="mt-0.5 text-xs text-muted">
                   {goalItems.length} {goalItems.length === 1 ? 'meta em andamento' : 'metas em andamento'}
                 </p>
               </div>
@@ -240,8 +234,8 @@ export function DashboardPage() {
             </div>
 
             {goalItems.length === 0 ? (
-              <div className="mt-4 rounded-2xl border border-[#202634] bg-[#121827] p-8 text-center">
-                <p className="text-sm text-slate-400">Nenhuma meta criada ainda.</p>
+              <div className="mt-4 rounded-2xl border border-line bg-surface p-8 text-center">
+                <p className="text-sm text-muted">Nenhuma meta criada ainda.</p>
               </div>
             ) : (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

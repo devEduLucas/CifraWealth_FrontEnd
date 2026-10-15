@@ -15,19 +15,19 @@ export function Checkbox({ label, error, id, className, ...rest }: CheckboxProps
         <input
           id={inputId}
           type="checkbox"
-          className={`mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[#353A47] bg-[#161F32] accent-teal-500 ${
+          className={`mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-line-strong bg-elevated accent-teal-500 ${
             className ?? ''
           }`}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
           {...rest}
         />
-        <label htmlFor={inputId} className="cursor-pointer text-sm leading-relaxed text-slate-400">
+        <label htmlFor={inputId} className="cursor-pointer text-sm leading-relaxed text-muted">
           {label}
         </label>
       </div>
       {error && (
-        <span id={errorId} role="alert" className="pl-7 text-xs text-red-400">
+        <span id={errorId} role="alert" className="pl-7 text-xs text-danger">
           {error}
         </span>
       )}

@@ -12,9 +12,9 @@ const LEVEL_BAR_COLOR: Record<PasswordStrengthResult['level'], string> = {
 };
 
 const LEVEL_LABEL_COLOR: Record<PasswordStrengthResult['level'], string> = {
-  weak: 'text-red-400',
-  medium: 'text-amber-400',
-  strong: 'text-teal-400',
+  weak: 'text-danger',
+  medium: 'text-warning',
+  strong: 'text-accent',
 };
 
 export function PasswordStrengthIndicator({ strength, visible }: PasswordStrengthIndicatorProps) {
@@ -31,13 +31,13 @@ export function PasswordStrengthIndicator({ strength, visible }: PasswordStrengt
           <span
             key={index}
             className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-              index < strength.score ? LEVEL_BAR_COLOR[strength.level] : 'bg-[#262F40]'
+              index < strength.score ? LEVEL_BAR_COLOR[strength.level] : 'bg-line-strong'
             }`}
           />
         ))}
       </div>
       {strength.label && (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-subtle">
           Força da senha:{' '}
           <span className={LEVEL_LABEL_COLOR[strength.level]}>{strength.label}</span>
         </span>

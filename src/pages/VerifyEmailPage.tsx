@@ -1,110 +1,95 @@
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { CheckCircle2, LoaderCircle, MailCheck, ShieldAlert } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { CheckCircle2, MailCheck } from 'lucide-react';
 import { api, ApiError } from '../lib/api';
+import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { Footer } from '../components/Footer/Footer';
 
-type VerificationStatus = 'loading' | 'success' | 'error';
-
 export function VerifyEmailPage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const [status, setStatus] = useState<VerificationStatus>('loading');
-  const [message, setMessage] = useState('Estamos validando o link de confirmação.');
+  const [params] = useSearchParams();
+  const token = params.get('token');
+  const [password, setPassword] = useState('');
+  const [confirming, setConfirming] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    if (!token) {
-      setStatus('error');
-      setMessage('O link de confirmação está incompleto ou não é válido.');
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    setStatus('loading');
-    api.verifyEmail(token)
-      .then((result) => {
-        if (!cancelled) {
-          setStatus('success');
-          setMessage(result.message);
-        }
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          setStatus('error');
-          setMessage(error instanceof ApiError ? error.message : 'Não foi possível confirmar o e-mail. Tente novamente.');
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [token]);
-
-  async function handleResend(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleConfirm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!token || confirming) return;
+    setConfirming(true);
+    setError(null);
+    try {
+      const result = await api.verifyEmail(token, password);
+      setSuccess(result.message);
+      setPassword('');
+    } catch (cause: unknown) {
+      setError(cause instanceof ApiError ? cause.message : 'Não foi possível confirmar o e-mail. Tente novamente.');
+    } finally {
+      setConfirming(false);
+    }
+  }
+
+  async function handleResend(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (resending) return;
     setResending(true);
     setResendMessage(null);
     setResendError(null);
     try {
       const result = await api.resendVerification(email.trim());
       setResendMessage(result.message);
-    } catch (error: unknown) {
-      setResendError(error instanceof ApiError ? error.message : 'Não foi possível solicitar outro e-mail agora.');
+    } catch (cause: unknown) {
+      setResendError(cause instanceof ApiError ? cause.message : 'Não foi possível solicitar outro e-mail agora.');
     } finally {
       setResending(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-[#0B1020] text-white">
+    <div className="flex min-h-screen w-full flex-col bg-canvas text-foreground">
       <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <section className="w-full max-w-md rounded-2xl border border-[#202634] bg-[#121827] p-8">
-          <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${status === 'error' ? 'bg-amber-400/10 text-amber-300' : 'bg-teal-400/10 text-teal-300'}`}>
-            {status === 'loading' ? <LoaderCircle size={26} className="animate-spin" /> : status === 'error' ? <ShieldAlert size={26} /> : <CheckCircle2 size={26} />}
+        <section className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-400/10 text-accent">
+            {success ? <CheckCircle2 size={26} /> : <MailCheck size={26} />}
           </div>
-          <h1 className="text-2xl font-bold text-white">
-            {status === 'loading' ? 'Confirmando e-mail...' : status === 'success' ? 'E-mail confirmado' : 'Não foi possível confirmar'}
-          </h1>
-          <p role="status" className="mt-3 text-sm leading-6 text-slate-400">{message}</p>
-
-          {status === 'success' ? (
-            <Link to="/login" className="mt-6 flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a] transition hover:bg-teal-400">
-              Ir para entrar
-            </Link>
-          ) : status === 'error' ? (
+          <h1 className="text-2xl font-bold text-foreground">{success ? 'E-mail confirmado' : 'Confirme seu e-mail'}</h1>
+          {success ? (
             <>
-              <form onSubmit={handleResend} className="mt-6 space-y-3">
-                <label htmlFor="resend-email" className="block text-sm font-medium text-slate-300">E-mail usado no cadastro</label>
-                <input
-                  id="resend-email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="seu@email.com"
-                  className="min-h-12 w-full rounded-xl border border-[#2a3448] bg-[#1b2435] px-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-teal-400"
-                />
-                <button type="submit" disabled={resending} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a] transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:opacity-60">
-                  <MailCheck size={17} />
+              <p role="status" className="mt-3 text-sm leading-6 text-muted">{success}</p>
+              <Link to="/login" className="mt-6 flex min-h-12 items-center justify-center rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a]">Ir para entrar</Link>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                {token ? 'Para ativar sua conta, informe a senha escolhida no cadastro que originou este link.' : 'O link de confirmação está incompleto. Solicite outro link abaixo.'}
+              </p>
+              {token && (
+                <form onSubmit={handleConfirm} className="mt-6 space-y-4">
+                  <PasswordInput label="Senha cadastrada" required minLength={8} autoComplete="current-password" disabled={confirming} value={password} onChange={(event) => setPassword(event.target.value)} />
+                  <button type="submit" disabled={confirming} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a] disabled:opacity-60">
+                    {confirming ? 'Confirmando...' : 'Confirmar e-mail'}
+                  </button>
+                  {error && <p role="alert" className="text-sm text-danger">{error}</p>}
+                </form>
+              )}
+              <form onSubmit={handleResend} className="mt-8 space-y-3 border-t border-line pt-5">
+                <p className="text-sm text-muted">Link expirado ou não recebeu a mensagem?</p>
+                <label htmlFor="resend-email" className="block text-sm font-medium text-secondary">E-mail usado no cadastro</label>
+                <input id="resend-email" type="email" required autoComplete="email" disabled={resending} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" className="min-h-12 w-full rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground" />
+                <button type="submit" disabled={resending} className="min-h-12 w-full rounded-xl border border-teal-500/40 px-4 font-semibold text-accent disabled:opacity-60">
                   {resending ? 'Solicitando...' : 'Solicitar novo link'}
                 </button>
               </form>
-              {resendMessage && <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-teal-200">{resendMessage}</p>}
-              {resendError && <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-300">{resendError}</p>}
-              <p className="mt-6 text-center text-sm text-slate-500">
-                <Link to="/login" className="font-medium text-teal-400 hover:underline">Voltar para entrar</Link>
-              </p>
+              {resendMessage && <p role="status" className="mt-3 text-sm text-accent">{resendMessage}</p>}
+              {resendError && <p role="alert" className="mt-3 text-sm text-danger">{resendError}</p>}
+              <p className="mt-6 text-center text-sm"><Link to="/login" className="text-accent hover:underline">Voltar para entrar</Link></p>
+              <p className="mt-3 text-center text-sm"><Link to="/register" className="text-muted hover:underline">Cadastrar novamente com outra senha</Link></p>
             </>
-          ) : null}
+          )}
         </section>
       </main>
       <Footer />

@@ -55,15 +55,15 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-[#202634] bg-[#121827] p-8">
+    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
       {verificationEmail ? (
         <>
-          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-400/10 text-teal-300">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-400/10 text-accent">
             <CheckCircle2 size={26} />
           </div>
-          <h1 className="text-[28px] font-bold text-white">Confirme seu e-mail</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
-            Enviamos um link de confirmação para <span className="font-medium text-slate-200">{verificationEmail}</span>.
+          <h1 className="text-[28px] font-bold text-foreground">Confirme seu e-mail</h1>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Enviamos um link de confirmação para <span className="font-medium text-secondary">{verificationEmail}</span>.
             Abra a mensagem e clique no link para ativar sua conta. Por segurança, o link expira em 24 horas.
           </p>
 
@@ -71,39 +71,39 @@ export function RegisterForm() {
             type="button"
             onClick={handleResendVerification}
             disabled={resending}
-            className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#2a3448] bg-[#1b2435] px-4 text-sm font-semibold text-slate-100 transition hover:bg-[#243149] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-elevated px-4 text-sm font-semibold text-foreground transition hover:bg-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw size={16} className={resending ? 'animate-spin' : undefined} />
             {resending ? 'Solicitando...' : 'Reenviar confirmação'}
           </button>
 
           {resendMessage && (
-            <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-teal-200">
+            <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-accent">
               {resendMessage}
             </p>
           )}
           {resendError && (
-            <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs leading-5 text-red-300">
+            <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs leading-5 text-danger">
               {resendError}
             </p>
           )}
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-subtle">
             Já confirmou?{' '}
-            <Link to="/login" className="font-medium text-teal-400 hover:underline">
+            <Link to="/login" className="font-medium text-accent hover:underline">
               Entrar
             </Link>
           </p>
         </>
       ) : (
         <>
-          <h1 className="text-[28px] font-bold text-white">Criar conta</h1>
-          <p className="mt-1.5 text-sm text-slate-400">
-            <span className="text-slate-300">Comece gratuitamente.</span> Sem cartão de crédito.
+          <h1 className="text-[28px] font-bold text-foreground">Criar conta</h1>
+          <p className="mt-1.5 text-sm text-muted">
+            <span className="text-secondary">Comece gratuitamente.</span> Sem cartão de crédito.
           </p>
 
           {submitError && (
-            <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
               {submitError}
             </p>
           )}
@@ -136,7 +136,7 @@ export function RegisterForm() {
               error={touched.email ? errors.email : undefined}
             />
 
-            <p className="-mt-2 text-xs leading-5 text-slate-500">
+            <p className="-mt-2 text-xs leading-5 text-subtle">
               Enviaremos um link para este endereço. Você só poderá entrar depois de confirmar que tem acesso a ele.
             </p>
 
@@ -175,11 +175,11 @@ export function RegisterForm() {
               label={
                 <>
                   Aceito os{' '}
-                  <a href="/termos-de-uso" className="text-teal-400 hover:underline">
+                  <a href="/termos-de-uso" className="text-accent hover:underline">
                     Termos de Uso
                   </a>{' '}
                   e{' '}
-                  <a href="/politica-de-privacidade" className="text-teal-400 hover:underline">
+                  <a href="/politica-de-privacidade" className="text-accent hover:underline">
                     Política de Privacidade
                   </a>
                 </>
@@ -192,9 +192,9 @@ export function RegisterForm() {
           </form>
 
           <div className="my-6 flex items-center gap-4">
-            <span className="h-px flex-1 bg-[#202634]" />
-            <span className="text-xs text-slate-500">ou</span>
-            <span className="h-px flex-1 bg-[#202634]" />
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs text-subtle">ou</span>
+            <span className="h-px flex-1 bg-line" />
           </div>
 
           <div className={`relative flex min-h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
@@ -208,11 +208,11 @@ export function RegisterForm() {
               />
             )}
           </div>
-          {googleError && <p className="mt-2 text-center text-xs text-red-400">{googleError}</p>}
+          {googleError && <p className="mt-2 text-center text-xs text-danger">{googleError}</p>}
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-subtle">
             Já possui conta?{' '}
-            <Link to="/login" className="font-medium text-teal-400 hover:underline">
+            <Link to="/login" className="font-medium text-accent hover:underline">
               Entrar
             </Link>
           </p>

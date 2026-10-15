@@ -43,13 +43,12 @@ export function CategoryFormModal({
   }
 
   return (
-    <Modal open={open} title="Nova Categoria" onClose={onClose}>
+    <Modal open={open} title="Nova Categoria" saving={saving} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label="Nome da categoria"
           placeholder="Ex: Alimentação"
           maxLength={50}
-          autoFocus
           disabled={saving}
           value={nome}
           onChange={(event) => setNome(event.target.value)}
@@ -65,7 +64,7 @@ export function CategoryFormModal({
           <option value="receita">Receita</option>
         </Select>
 
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-danger">{error}</p>}
 
         <div className="mt-1 flex items-center justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={saving}>

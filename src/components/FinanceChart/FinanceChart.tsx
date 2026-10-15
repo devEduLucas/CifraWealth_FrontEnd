@@ -74,13 +74,13 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const activeX = activeIndex !== null ? xFor(activeIndex) : null;
 
   return (
-    <div className="rounded-2xl border border-[#202634] bg-[#121827] p-5 sm:p-6">
+    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-base font-semibold text-white">Receitas x Despesas</h2>
-          <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>
+          <h2 className="text-base font-semibold text-foreground">Receitas x Despesas</h2>
+          <p className="mt-0.5 text-xs text-muted">{subtitle}</p>
         </div>
-        <span className="rounded-lg border border-[#262F40] bg-[#161F32] px-3 py-1 text-xs font-medium text-slate-300">
+        <span className="rounded-lg border border-line-strong bg-elevated px-3 py-1 text-xs font-medium text-secondary">
           {year}
         </span>
       </div>
@@ -93,7 +93,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
       >
         {!hasData && (
           <div className="absolute inset-0 z-10 flex items-center justify-center">
-            <p className="text-sm text-slate-500">Sem movimentações neste período.</p>
+            <p className="text-sm text-subtle">Sem movimentações neste período.</p>
           </div>
         )}
         <svg
@@ -103,14 +103,14 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
         >
           <defs>
             <linearGradient id="receitasGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00d68f" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#00d68f" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--chart-income)" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="var(--chart-income)" stopOpacity="0" />
             </linearGradient>
           </defs>
 
           <path d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
-          <path d={receitasLine} fill="none" stroke="#00d68f" strokeWidth="2.5" strokeLinecap="round" />
-          <path d={despesasLine} fill="none" stroke="#f04452" strokeWidth="2" strokeLinecap="round" />
+          <path d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
+          <path d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" />
 
           {activeX !== null && (
             <line
@@ -118,7 +118,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
               y1={PADDING_TOP}
               x2={activeX}
               y2={HEIGHT - PADDING_BOTTOM}
-              stroke="#2c3648"
+              stroke="var(--chart-grid)"
               strokeWidth="1"
               strokeDasharray="4 4"
             />
@@ -131,7 +131,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
               y={HEIGHT - 6}
               textAnchor="middle"
               fontSize="11"
-              fill="#64748b"
+              fill="var(--chart-label)"
             >
               {point.month}
             </text>
@@ -140,19 +140,19 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
 
         {hasData && active && activeIndex !== null && (
           <div
-            className="pointer-events-none absolute top-0 z-10 w-40 -translate-x-1/2 rounded-xl border border-[#262F40] bg-[#1a2233] p-3 text-xs shadow-lg shadow-black/40"
+            className="pointer-events-none absolute top-0 z-10 w-40 -translate-x-1/2 rounded-xl border border-line-strong bg-elevated p-3 text-xs shadow-lg shadow-black/40"
             style={{
               left: `${(xFor(activeIndex) / WIDTH) * 100}%`,
               transform:
                 activeIndex > data.length - 2 ? 'translateX(-90%)' : activeIndex === 0 ? 'translateX(-10%)' : 'translateX(-50%)',
             }}
           >
-            <p className="font-semibold text-white">{active.month}</p>
-            <p className="mt-1.5 flex items-center justify-between gap-3 text-teal-400">
+            <p className="font-semibold text-foreground">{active.month}</p>
+            <p className="mt-1.5 flex items-center justify-between gap-3 text-accent">
               <span>Receitas</span>
               <span className="font-semibold">{formatCurrency(active.receitas)}</span>
             </p>
-            <p className="mt-1 flex items-center justify-between gap-3 text-red-400">
+            <p className="mt-1 flex items-center justify-between gap-3 text-danger">
               <span>Despesas</span>
               <span className="font-semibold">{formatCurrency(active.despesas)}</span>
             </p>
@@ -160,7 +160,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
+      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted">
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-red-500" />
           Despesas
