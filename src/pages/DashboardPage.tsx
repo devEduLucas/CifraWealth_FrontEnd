@@ -25,12 +25,6 @@ export function DashboardPage() {
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
   const firstName = fullName.split(' ')[0];
-  const initials = fullName
-    .split(' ')
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -148,7 +142,7 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout userName={fullName}>
-      <DashboardHeader firstName={firstName} initials={initials} />
+      <DashboardHeader firstName={firstName} />
 
       {loading && <p className="text-sm text-muted">Carregando dados financeiros...</p>}
       {error && (

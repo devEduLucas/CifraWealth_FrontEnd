@@ -27,6 +27,7 @@
   --chart-expense: #f87171;
   --chart-balance: #38bdf8;
   --theme-color-scheme: dark;
+  --app-banner-height: 0px;
 }
 
 :root[data-theme='light'] {
@@ -54,8 +55,19 @@
   --theme-color-scheme: light;
 }
 
+:root[data-demo='true'] { --app-banner-height: 40px; }
+@media (max-width: 639px) {
+  :root[data-demo='true'] { --app-banner-height: 64px; }
+}
+
+html { scroll-padding-top: calc(96px + var(--app-banner-height)); }
 body { background: rgb(var(--color-canvas)); color: rgb(var(--color-foreground)); }
 ::selection { background: rgb(var(--color-accent) / 22%); }
+
+.app-topbar { top: var(--app-banner-height); }
+.app-sidebar { top: var(--app-banner-height); }
+.app-notifications { top: calc(100% + 8px); }
+.demo-banner { height: var(--app-banner-height); }
 
 * {
   box-sizing: border-box;

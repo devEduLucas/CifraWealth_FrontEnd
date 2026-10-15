@@ -22,7 +22,7 @@ const ICONS: Record<NavItem['icon'], typeof LayoutDashboard> = {
 
 export function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-between border-t border-line bg-canvas px-2 pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <nav aria-label="Menu móvel" className="fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-between border-t border-line bg-surface px-2 pb-[env(safe-area-inset-bottom)] lg:hidden">
       {NAV_ITEMS.map((item) => {
         const Icon = ICONS[item.icon];
         return (

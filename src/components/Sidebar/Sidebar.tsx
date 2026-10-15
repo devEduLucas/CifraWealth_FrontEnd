@@ -42,13 +42,13 @@ export function Sidebar({ userName }: SidebarProps) {
     .toUpperCase();
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-[260px] flex-col justify-between border-r border-line bg-canvas px-5 py-6 lg:flex">
+    <aside className="app-sidebar fixed bottom-0 left-0 z-40 hidden w-[260px] flex-col justify-between border-r border-line bg-surface lg:flex">
       <div>
-        <div className="px-2">
+        <div className="flex h-20 items-center border-b border-line px-7">
           <Logo />
         </div>
 
-        <nav className="mt-10 flex flex-col gap-1">
+        <nav aria-label="Menu principal" className="mt-6 flex flex-col gap-1 px-4">
           {NAV_ITEMS.map((item) => {
             const Icon = ICONS[item.icon];
             return (
@@ -71,7 +71,7 @@ export function Sidebar({ userName }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="flex items-center gap-3 px-2">
+      <div className="mx-4 flex items-center gap-3 border-t border-line px-2 py-5">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-slate-950">
           {initials}
         </span>

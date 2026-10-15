@@ -28,7 +28,7 @@ export function ProfilePage() {
         <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xl font-bold text-slate-950">
           {initials}
         </span>
-        <div>
+        <div className="min-w-0 break-words">
           <p className="text-lg font-semibold text-foreground">{fullName}</p>
           <p className="text-sm text-muted">{user?.email}</p>
         </div>
@@ -39,7 +39,7 @@ export function ProfilePage() {
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-accent">
             <User size={16} />
           </span>
-          <div>
+          <div className="min-w-0 break-words">
             <p className="text-xs text-subtle">Nome completo</p>
             <p className="text-sm font-medium text-foreground">{fullName}</p>
           </div>
@@ -49,7 +49,7 @@ export function ProfilePage() {
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-accent">
             <Mail size={16} />
           </span>
-          <div>
+          <div className="min-w-0 break-words">
             <p className="text-xs text-subtle">E-mail</p>
             <p className="text-sm font-medium text-foreground">{user?.email}</p>
           </div>
