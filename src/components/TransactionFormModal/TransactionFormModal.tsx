@@ -87,7 +87,7 @@ export function TransactionFormModal({
         <Input
           label="Descrição"
           placeholder="Ex: Supermercado"
-          maxLength={255}
+          maxLength={200}
           disabled={saving}
           value={descricao}
           onChange={(event) => setDescricao(event.target.value)}
