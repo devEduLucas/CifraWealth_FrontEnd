@@ -64,7 +64,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
               const receitasY = yFor(point.receitas);
               const despesasY = yFor(point.despesas);
               return (
-                <g key={index % Math.max(1, Math.ceil(data.length / 8)) === 0 ? point.mes : ''}>
+                <g key={point.mes}>
                   <rect
                     x={groupX - barWidth - 3}
                     y={receitasY}
