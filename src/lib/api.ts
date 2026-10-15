@@ -162,11 +162,11 @@ export const api = {
     });
   },
 
-  async verifyEmail(token: string): Promise<{ message: string }> {
+  async verifyEmail(token: string, password: string): Promise<{ message: string }> {
     if (isDemoMode) return { message: 'E-mail validado com sucesso!' };
     return request<{ message: string }>('/users/verify-email', {
       method: 'POST',
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ token, password }),
     });
   },
 
