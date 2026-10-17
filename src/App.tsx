@@ -4,6 +4,8 @@ import { Home } from './pages/Home';
 import { RegisterPage } from './pages/RegisterPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { LoginPage } from './pages/LoginPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { TransactionsPage } from './pages/TransactionsPage';
@@ -26,17 +28,17 @@ export function App() {
     <>
       <DemoBanner />
       <Routes>
-        {/* Raiz: Se o usuário estiver autenticado, vai para a /dashboard. Se for primeiro acesso, vê a Home */}
+        {/* Raiz: Se autenticado vai para /dashboard, caso contrário exibe a Home */}
         <Route
           path="/"
           element={session.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Home />}
         />
         <Route
           path="/home"
-          element={session.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Home />}
+          element={<Home />}
         />
 
-        {/* Rotas de Autenticação */}
+        {/* Rotas de Autenticação e Recuperação de Senha */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route
           path="/register"
@@ -54,17 +56,78 @@ export function App() {
             </PublicRoute>
           }
         />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPasswordPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <ResetPasswordPage />
+            </PublicRoute>
+          }
+        />
 
-        {/* Rotas Protegidas do Sistema */}
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
-        <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-        <Route path="/goals" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
+        {/* Rotas Protegidas da Plataforma */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <TransactionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <ProtectedRoute>
+              <GoalsPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/'} replace />} />
+        {/* Rota de Fallback */}
+        <Route
+          path="*"
+          element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/'} replace />}
+        />
       </Routes>
     </>
   );

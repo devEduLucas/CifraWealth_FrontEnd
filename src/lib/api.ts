@@ -178,6 +178,29 @@ export const api = {
     });
   },
 
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    if (isDemoMode) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return { message: 'Se o e-mail informado estiver cadastrado em nossa plataforma, você receberá as instruções em instantes.' };
+    }
+    return request<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    if (isDemoMode) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return { message: 'Senha redefinida com sucesso!' };
+    }
+    return request<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
+  },
+
+
   async login(input: { email: string; password: string }): Promise<AuthResponse> {
     if (isDemoMode) return (await getDemoStore()).login(input.email);
     return request<AuthResponse>('/auth/login', {
