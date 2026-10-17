@@ -45,7 +45,7 @@ export function ForgotPasswordForm() {
             <button
               type="button"
               onClick={reset}
-              className="w-full text-center text-xs font-semibold text-muted hover:text-foreground py-2 transition-colors"
+              className="w-full text-center text-sm font-semibold text-muted hover:text-foreground py-2 transition-colors"
             >
               Não recebeu? Tentar com outro e-mail
             </button>

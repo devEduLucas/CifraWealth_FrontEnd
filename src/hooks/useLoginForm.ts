@@ -6,8 +6,8 @@ import { api, ApiError } from '../lib/api';
 import { session } from '../lib/session';
 
 const initialData: LoginFormData = {
-  email: 'usuario@cifrawealth.com',
-  password: 'Password123!',
+  email: '',
+  password: '',
 };
 
 type TouchedState = Partial<Record<keyof LoginFormData, boolean>>;
