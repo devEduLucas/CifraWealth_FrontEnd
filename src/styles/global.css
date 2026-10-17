@@ -60,7 +60,10 @@
   :root[data-demo='true'] { --app-banner-height: 64px; }
 }
 
-html { scroll-padding-top: calc(96px + var(--app-banner-height)); }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(96px + var(--app-banner-height));
+}
 body { background: rgb(var(--color-canvas)); color: rgb(var(--color-foreground)); }
 ::selection { background: rgb(var(--color-accent) / 22%); }
 
