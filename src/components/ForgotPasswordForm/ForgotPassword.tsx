@@ -19,6 +19,7 @@ export function ForgotPasswordForm() {
     reset,
   } = useForgotPasswordForm();
 
+  // Tela de Sucesso após envio das instruções
   if (isSubmitted) {
     return (
       <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm animate-in fade-in duration-300">
@@ -45,7 +46,7 @@ export function ForgotPasswordForm() {
             <button
               type="button"
               onClick={reset}
-              className="w-full text-center text-xs font-semibold text-muted hover:text-foreground py-2 transition-colors"
+              className="w-full text-center text-sm font-semibold text-muted hover:text-foreground py-2 transition-colors"
             >
               Não recebeu? Tentar com outro e-mail
             </button>
@@ -62,6 +63,7 @@ export function ForgotPasswordForm() {
     );
   }
 
+  // Tela padrão com o formulário de e-mail
   return (
     <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm">
       <h1 className="text-[28px] font-bold text-foreground">Recuperar senha</h1>
