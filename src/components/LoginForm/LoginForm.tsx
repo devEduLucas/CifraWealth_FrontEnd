@@ -17,7 +17,7 @@ export function LoginForm() {
   const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signin_with');
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
+    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm">
       <h1 className="text-[28px] font-bold text-foreground">Entrar</h1>
       <p className="mt-1.5 text-sm text-muted">Acesse sua conta para continuar.</p>
 
@@ -37,22 +37,32 @@ export function LoginForm() {
           type="email"
           icon={<Mail size={18} />}
           placeholder="seu@email.com"
-          autoComplete="email"
+          autoComplete="off"
           value={data.email}
           onChange={(event) => setField('email', event.target.value)}
           onBlur={() => setFieldTouched('email')}
           error={touched.email ? errors.email : undefined}
         />
 
-        <PasswordInput
-          label="Senha"
-          placeholder="Sua senha"
-          autoComplete="current-password"
-          value={data.password}
-          onChange={(event) => setField('password', event.target.value)}
-          onBlur={() => setFieldTouched('password')}
-          error={touched.password ? errors.password : undefined}
-        />
+        <div className="flex flex-col gap-1.5">
+          <PasswordInput
+            label="Senha"
+            placeholder="Sua senha"
+            autoComplete="off"
+            value={data.password}
+            onChange={(event) => setField('password', event.target.value)}
+            onBlur={() => setFieldTouched('password')}
+            error={touched.password ? errors.password : undefined}
+          />
+          <div className="flex justify-end pt-1">
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-accent hover:text-accent/80 hover:underline transition-colors"
+            >
+              Esqueceu a senha?
+            </Link>
+          </div>
+        </div>
 
         <PrimaryButton disabled={!isValid || submitting}>
           {submitting ? 'Entrando...' : 'Entrar'}
