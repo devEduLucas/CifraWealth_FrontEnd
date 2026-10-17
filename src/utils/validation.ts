@@ -1,8 +1,12 @@
 import type {
+  ForgotPasswordFormData,
+  ForgotPasswordFormErrors,
   LoginFormData,
   LoginFormErrors,
   RegisterFormData,
   RegisterFormErrors,
+  ResetPasswordFormData,
+  ResetPasswordFormErrors,
 } from '../types/form.types';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,6 +71,36 @@ export function validateLoginForm(data: LoginFormData): LoginFormErrors {
 
   if (!isRequired(data.password)) {
     errors.password = 'Informe sua senha.';
+  }
+
+  return errors;
+}
+
+export function validateForgotPasswordForm(data: ForgotPasswordFormData): ForgotPasswordFormErrors {
+  const errors: ForgotPasswordFormErrors = {};
+
+  if (!isRequired(data.email)) {
+    errors.email = 'Informe seu e-mail.';
+  } else if (!isValidEmail(data.email)) {
+    errors.email = 'Informe um e-mail válido.';
+  }
+
+  return errors;
+}
+
+export function validateResetPasswordForm(data: ResetPasswordFormData): ResetPasswordFormErrors {
+  const errors: ResetPasswordFormErrors = {};
+
+  if (!isRequired(data.password)) {
+    errors.password = 'Informe a nova senha.';
+  } else if (!hasMinPasswordLength(data.password)) {
+    errors.password = `A senha deve ter no mínimo ${MIN_PASSWORD_LENGTH} caracteres.`;
+  }
+
+  if (!isRequired(data.confirmPassword)) {
+    errors.confirmPassword = 'Confirme sua nova senha.';
+  } else if (!passwordsMatch(data.password, data.confirmPassword)) {
+    errors.confirmPassword = 'As senhas não coincidem.';
   }
 
   return errors;
