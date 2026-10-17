@@ -20,9 +20,6 @@ import {
   Sparkles,
   HelpCircle,
   KeyRound,
-  Smartphone,
-  CreditCard,
-  FileText,
   Compass,
 } from 'lucide-react';
 import { Logo } from '../components/Logo/Logo';
