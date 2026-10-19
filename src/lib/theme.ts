@@ -1,6 +1,19 @@
 export type Theme = 'dark' | 'light';
+export type ThemePreference = Theme | 'system';
 const STORAGE_KEY = 'cifrawealth:theme';
 const CHANGE_EVENT = 'cifrawealth:themechange';
+let preference: ThemePreference = 'system';
+let deviceTheme: MediaQueryList | undefined;
+
+function readPreference(): ThemePreference {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch { /* Device preference also works when storage is unavailable. */ }
+  return 'system';
+}
+
+export function getThemePreference(): ThemePreference { return preference; }
 
 export function getTheme(): Theme {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
@@ -8,20 +21,38 @@ export function getTheme(): Theme {
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.themePreference = preference;
   document.documentElement.style.colorScheme = theme;
 }
 
-export function initializeTheme() {
-  let theme: Theme = 'dark';
-  try { if (localStorage.getItem(STORAGE_KEY) === 'light') theme = 'light'; } catch { /* Storage may be unavailable. */ }
-  applyTheme(theme);
+function applyPreference() {
+  applyTheme(preference === 'system' ? (deviceTheme?.matches ? 'dark' : 'light') : preference);
 }
 
-export function setTheme(theme: Theme) {
-  applyTheme(theme);
-  try { localStorage.setItem(STORAGE_KEY, theme); } catch { /* The theme still works for this session. */ }
+export function initializeTheme() {
+  if (!deviceTheme) {
+    deviceTheme = window.matchMedia('(prefers-color-scheme: dark)');
+    deviceTheme.addEventListener('change', () => {
+      if (preference !== 'system') return;
+      applyPreference();
+      window.dispatchEvent(new Event(CHANGE_EVENT));
+    });
+  }
+  preference = readPreference();
+  applyPreference();
+}
+
+export function setThemePreference(value: ThemePreference) {
+  preference = value;
+  applyPreference();
+  try {
+    if (value === 'system') localStorage.removeItem(STORAGE_KEY);
+    else localStorage.setItem(STORAGE_KEY, value);
+  } catch { /* The preference still works for this session. */ }
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
+
+export function setTheme(theme: Theme) { setThemePreference(theme); }
 
 export function subscribeToTheme(callback: () => void) {
   const sync = (event: StorageEvent) => {

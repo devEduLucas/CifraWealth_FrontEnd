@@ -11,12 +11,13 @@ interface GoalHistoryTableProps {
   onView: (goal: GoalViewModel) => void;
   onEdit: (goal: GoalViewModel) => void;
   onDelete: (goal: GoalViewModel) => void;
+  disabled?: boolean;
 }
 
-export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistoryTableProps) {
+export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: GoalHistoryTableProps) {
   return (
     <Card>
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Histórico de Metas</p>
+      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo das metas</p>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
@@ -44,7 +45,7 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistor
                   <tr key={goal.id}>
                     <td className="py-3.5 font-semibold text-foreground">{goal.titulo}</td>
                     <td className="py-3.5 text-secondary">{formatCurrency(goal.valorObjetivo)}</td>
-                    <td className="py-3.5 font-semibold text-accent">{formatCurrency(goal.valorAtual)}</td>
+                    <td className="py-3.5 font-semibold text-progress">{formatCurrency(goal.valorAtual)}</td>
                     <td className="py-3.5">
                       <Badge label={badge.label} variant={badge.variant} />
                     </td>
@@ -53,13 +54,13 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistor
                     </td>
                     <td className="py-3.5">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="secondary" size="sm" icon={Eye} onClick={() => onView(goal)}>
+                        <Button variant="secondary" size="sm" icon={Eye} disabled={disabled} onClick={() => onView(goal)}>
                           Visualizar
                         </Button>
-                        <Button variant="secondary" size="sm" icon={Pencil} onClick={() => onEdit(goal)}>
+                        <Button variant="secondary" size="sm" icon={Pencil} disabled={disabled} onClick={() => onEdit(goal)}>
                           Editar
                         </Button>
-                        <Button variant="danger" size="sm" icon={Trash2} onClick={() => onDelete(goal)}>
+                        <Button variant="danger" size="sm" icon={Trash2} disabled={disabled} onClick={() => onDelete(goal)}>
                           Excluir
                         </Button>
                       </div>

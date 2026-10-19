@@ -3,7 +3,7 @@ import { Modal } from '../Modal/Modal';
 import { Input } from '../Input/Input';
 import { Select } from '../Select/Select';
 import { Button } from '../Button/Button';
-import type { CategoryType } from '../../lib/api';
+import type { CategoryType, CategoryResponse } from '../../lib/api';
 
 export interface CategoryFormValues {
   nome: string;
@@ -15,6 +15,7 @@ interface CategoryFormModalProps {
   saving: boolean;
   error: string | null;
   defaultTipo?: CategoryType;
+  category?: CategoryResponse | null;
   onClose: () => void;
   onSubmit: (values: CategoryFormValues) => void;
 }
@@ -24,6 +25,7 @@ export function CategoryFormModal({
   saving,
   error,
   defaultTipo = 'despesa',
+  category = null,
   onClose,
   onSubmit,
 }: CategoryFormModalProps) {
@@ -32,9 +34,9 @@ export function CategoryFormModal({
 
   useEffect(() => {
     if (!open) return;
-    setNome('');
-    setTipo(defaultTipo);
-  }, [open, defaultTipo]);
+    setNome(category?.nome ?? '');
+    setTipo(category?.tipo ?? defaultTipo);
+  }, [open, defaultTipo, category]);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -43,7 +45,7 @@ export function CategoryFormModal({
   }
 
   return (
-    <Modal open={open} title="Nova Categoria" saving={saving} onClose={onClose}>
+    <Modal open={open} title={category ? 'Editar Categoria' : 'Nova Categoria'} saving={saving} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label="Nome da categoria"
@@ -64,7 +66,8 @@ export function CategoryFormModal({
           <option value="receita">Receita</option>
         </Select>
 
-        {error && <p className="text-xs text-danger">{error}</p>}
+        {category && <p className="text-xs text-muted">O nome será atualizado nos lançamentos vinculados. Categorias em uso conservam seu tipo.</p>}
+        {error && <p role="alert" className="text-xs text-danger">{error}</p>}
 
         <div className="mt-1 flex items-center justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={saving}>

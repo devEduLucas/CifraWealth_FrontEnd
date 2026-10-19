@@ -1,11 +1,11 @@
 import type { MonthlyComparisonPoint } from '../../types/reports.types';
 import { niceMax } from '../../utils/validation';
+import { useChartWidth } from '../../hooks/useChartWidth';
 
 interface MonthlyComparisonChartProps {
   data: MonthlyComparisonPoint[];
 }
 
-const WIDTH = 560;
 const HEIGHT = 260;
 const PADDING_LEFT = 40;
 const PADDING_RIGHT = 12;
@@ -13,6 +13,7 @@ const PADDING_TOP = 16;
 const PADDING_BOTTOM = 28;
 
 export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
+  const { ref, width: WIDTH } = useChartWidth();
   const hasData = data.length > 0 && data.some((point) => point.receitas > 0 || point.despesas > 0);
 
   const maxValue = niceMax(Math.max(...data.flatMap((point) => [point.receitas, point.despesas]), 0) * 1.15);
@@ -28,7 +29,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <div ref={ref} className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <h2 className="text-base font-semibold text-foreground">Comparativo Mensal</h2>
       <p className="mt-0.5 text-xs text-muted">Receitas e despesas no período selecionado</p>
 
@@ -44,7 +45,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
           aria-label="Comparação mensal de receitas e despesas"
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           preserveAspectRatio="none"
-          className={`h-full w-full ${hasData ? '' : 'opacity-20'}`}
+          className="h-full w-full"
         >
           {ticks.map((tick) => {
             const y = yFor(tick);
@@ -102,11 +103,11 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
 
       <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-teal-400" />
+          <span className="h-2 w-2 rounded-full bg-positive" />
           Receitas
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-400" />
+          <span className="h-2 w-2 rounded-full bg-danger" />
           Despesas
         </span>
       </div>

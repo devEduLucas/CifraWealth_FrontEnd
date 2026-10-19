@@ -9,11 +9,11 @@ export function IllustrationSection() {
         <p className="mt-1 text-center text-2xl font-bold text-foreground">R$ 48.320,00</p>
 
         <div className="mt-4 flex gap-2">
-          <div className="flex-1 rounded-lg bg-teal-500/10 px-2 py-1.5 text-center">
+          <div className="flex-1 rounded-lg bg-positive/10 px-2 py-1.5 text-center">
             <p className="text-[10px] text-muted">Receitas</p>
-            <p className="text-sm font-semibold text-accent">+12%</p>
+            <p className="text-sm font-semibold text-positive">+12%</p>
           </div>
-          <div className="flex-1 rounded-lg bg-red-500/10 px-2 py-1.5 text-center">
+          <div className="flex-1 rounded-lg bg-danger/10 px-2 py-1.5 text-center">
             <p className="text-[10px] text-muted">Despesas</p>
             <p className="text-sm font-semibold text-danger">-4%</p>
           </div>
@@ -23,7 +23,7 @@ export function IllustrationSection() {
           <polyline
             points="0,48 35,40 70,44 105,20 140,26 210,6"
             fill="none"
-            stroke="#2DD4BF"
+            stroke="var(--chart-balance)"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -38,19 +38,19 @@ export function IllustrationSection() {
 
       {/* Cartão flutuante: Patrimônio */}
       <div className="absolute left-0 top-8 flex items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 py-2 shadow-xl shadow-black/40">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-500/15">
-          <ArrowUp size={12} className="text-accent" />
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-positive/10">
+          <ArrowUp size={12} className="text-positive" />
         </span>
         <div>
           <p className="text-[10px] text-subtle">Patrimônio</p>
-          <p className="text-xs font-semibold text-accent">+23,4%</p>
+          <p className="text-xs font-semibold text-positive">+23,4%</p>
         </div>
       </div>
 
       {/* Cartão flutuante: Meta atingida */}
       <div className="absolute right-0 top-[185px] flex items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 py-2 shadow-xl shadow-black/40">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-500">
-          <Check size={12} className="text-slate-950" />
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-positive">
+          <Check size={12} className="text-on-accent" />
         </span>
         <div>
           <p className="text-xs font-semibold text-foreground">Meta atingida</p>
@@ -72,8 +72,8 @@ export function IllustrationSection() {
       </div>
 
       {/* Ícone de poupança/crescimento */}
-      <div className="absolute bottom-6 left-0 flex h-10 w-10 items-center justify-center rounded-full bg-teal-500/10">
-        <Sprout size={18} className="text-accent" />
+      <div className="absolute bottom-6 left-0 flex h-10 w-10 items-center justify-center rounded-full bg-positive/10">
+        <Sprout size={18} className="text-positive" />
       </div>
     </div>
   );

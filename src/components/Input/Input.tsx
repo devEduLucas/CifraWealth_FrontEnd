@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </label>
         <div
           className={`field-shell ${
-            error ? 'border-red-500/60' : 'border-line-strong'
+            error ? 'border-danger/60' : 'border-field-border'
           } ${className ?? ''}`}
         >
           {icon && <span className="pointer-events-none absolute left-4 text-subtle">{icon}</span>}

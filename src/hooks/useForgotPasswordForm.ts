@@ -26,6 +26,7 @@ export function useForgotPasswordForm() {
   function handleSubmit(onSuccess?: (email: string) => void) {
     return async (event: FormEvent) => {
       event.preventDefault();
+      if (submitting) return;
       setFieldTouched();
 
       const validationErrors = validateForgotPasswordForm(data);

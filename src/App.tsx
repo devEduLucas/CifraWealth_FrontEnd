@@ -14,6 +14,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
+import { InformationPage } from './pages/InformationPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
@@ -40,6 +41,8 @@ export function App() {
 
         {/* Rotas de Autenticação e Recuperação de Senha */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/termos-de-uso" element={<InformationPage kind="terms" />} />
+        <Route path="/politica-de-privacidade" element={<InformationPage kind="privacy" />} />
         <Route
           path="/register"
           element={

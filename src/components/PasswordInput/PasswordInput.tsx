@@ -20,7 +20,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         </label>
         <div
           className={`field-shell ${
-            error ? 'border-red-500/60' : 'border-line-strong'
+            error ? 'border-danger/60' : 'border-field-border'
           } ${className ?? ''}`}
         >
           <Lock size={18} className="pointer-events-none absolute left-4 text-subtle" />

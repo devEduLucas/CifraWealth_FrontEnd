@@ -145,6 +145,7 @@ export interface GoalInput {
   valor_atual?: number;
   data_inicio?: string | null;
   data_fim?: string | null;
+  status?: GoalStatus;
 }
 
 export const api = {
@@ -293,9 +294,11 @@ export const api = {
     return authRequest<void>(`/transactions/${id}`, { method: 'DELETE' });
   },
 
-  async getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
-    if (isDemoMode) return (await getDemoStore()).getMonthlyReport(ano);
-    return authRequest<MonthlyReportItem[]>(`/reports/monthly?ano=${ano}`, { method: 'GET' });
+  async getMonthlyReport(ano: number, end?: string): Promise<MonthlyReportItem[]> {
+    if (isDemoMode) return (await getDemoStore()).getMonthlyReport(ano, end);
+    const params = new URLSearchParams({ ano: String(ano) });
+    if (end) params.set('data_fim', end);
+    return authRequest<MonthlyReportItem[]>(`/reports/monthly?${params}`, { method: 'GET' });
   },
 
   async listGoals(): Promise<GoalResponse[]> {
@@ -322,6 +325,11 @@ export const api = {
   async deleteGoal(id: number): Promise<void> {
     if (isDemoMode) return (await getDemoStore()).deleteGoal(id);
     return authRequest<void>(`/goals/${id}`, { method: 'DELETE' });
+  },
+
+  async withdrawGoal(id: number, valor: number): Promise<GoalResponse> {
+    if (isDemoMode) return (await getDemoStore()).withdrawGoal(id, valor);
+    return authRequest<GoalResponse>(`/goals/${id}/withdraw`, { method: 'POST', body: JSON.stringify({ valor }) });
   },
 
   async contributeGoal(id: number, valor: number): Promise<GoalResponse> {

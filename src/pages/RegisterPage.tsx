@@ -14,28 +14,28 @@ export function RegisterPage() {
 
           <div className="flex max-w-md flex-col gap-4">
             <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-              Comece hoje a <span className="text-accent">transformar</span> sua vida
+              Comece hoje a <span className="text-accent-ink">transformar</span> sua vida
               financeira.
             </h1>
             <p className="max-w-sm text-base text-muted">
-              Organize receitas, despesas, acompanhe seu patrimônio e construa hábitos financeiros
+              Registre receitas e despesas, acompanhe suas metas e construa hábitos financeiros
               inteligentes.
             </p>
           </div>
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-accent" />}
+              icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança"
               description="Acesso autenticado para organizar suas finanças com privacidade."
             />
             <BenefitItem
-              icon={<TrendingUp size={20} className="text-accent" />}
+              icon={<TrendingUp size={20} className="text-accent-ink" />}
               title="Crescimento"
               description="Visualize sua evolução financeira com clareza."
             />
             <BenefitItem
-              icon={<Target size={20} className="text-accent" />}
+              icon={<Target size={20} className="text-accent-ink" />}
               title="Objetivos"
               description="Defina metas e acompanhe seu progresso em tempo real."
             />

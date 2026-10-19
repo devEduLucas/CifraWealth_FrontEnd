@@ -14,7 +14,7 @@ export function ForgotPasswordPage() {
 
           <div className="flex max-w-md flex-col gap-4">
             <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-              Recupere seu <span className="text-accent">acesso</span>.
+              Recupere seu <span className="text-accent-ink">acesso</span>.
             </h1>
             <p className="max-w-sm text-base text-muted">
               Não se preocupe, vamos ajudar você a redefinir sua senha de forma simples e segura.
@@ -23,17 +23,17 @@ export function ForgotPasswordPage() {
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-accent" />}
+              icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança Máxima"
               description="Links criptografados com tempo limite para sua total proteção."
             />
             <BenefitItem
-              icon={<TrendingUp size={20} className="text-accent" />}
+              icon={<TrendingUp size={20} className="text-accent-ink" />}
               title="Sem Complicação"
               description="Redefina sua credencial em poucos cliques sem burocracia."
             />
             <BenefitItem
-              icon={<Target size={20} className="text-accent" />}
+              icon={<Target size={20} className="text-accent-ink" />}
               title="Seus Dados Salvos"
               description="Todo o seu histórico financeiro e metas continuam protegidos."
             />

@@ -34,7 +34,7 @@ export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps)
               items.map((item) => (
                 <tr key={item.id}>
                   <td className="py-3.5 font-semibold text-foreground">{item.periodo}</td>
-                  <td className="py-3.5 text-accent">{formatCurrency(item.receitas)}</td>
+                  <td className="py-3.5 text-positive">{formatCurrency(item.receitas)}</td>
                   <td className="py-3.5 text-danger">{formatCurrency(item.despesas)}</td>
                   <td className="py-3.5 text-info">{formatCurrency(item.saldo)}</td>
                   <td className="py-3.5">
@@ -43,7 +43,7 @@ export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps)
                     ) : (
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          item.variacaoPercentual >= 0 ? 'bg-teal-500/15 text-accent' : 'bg-red-500/15 text-danger'
+                          item.variacaoPercentual >= 0 ? 'bg-positive/10 text-positive' : 'bg-danger/15 text-danger'
                         }`}
                       >
                         {item.variacaoPercentual >= 0 ? '↑' : '↓'} {Math.abs(item.variacaoPercentual)}%
@@ -54,7 +54,7 @@ export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps)
                     <button
                       type="button"
                       onClick={() => onView?.(item.id)}
-                      className="rounded-lg border border-line-strong bg-elevated px-3 py-1.5 text-xs font-semibold text-secondary transition-colors hover:border-teal-400/60 hover:text-accent"
+                      className="rounded-lg border border-line-strong bg-elevated px-3 py-1.5 text-xs font-semibold text-secondary transition-colors hover:border-accent hover:text-accent-ink"
                     >
                       Visualizar
                     </button>

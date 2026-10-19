@@ -14,7 +14,7 @@ export function LoginPage() {
 
           <div className="flex max-w-md flex-col gap-4">
             <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-              Bem-vindo de <span className="text-accent">volta</span>.
+              Bem-vindo de <span className="text-accent-ink">volta</span>.
             </h1>
             <p className="max-w-sm text-base text-muted">
               Continue organizando suas finanças e acompanhando seu progresso.
@@ -23,17 +23,17 @@ export function LoginPage() {
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-accent" />}
+              icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança"
               description="Seus dados protegidos com criptografia de ponta a ponta."
             />
             <BenefitItem
-              icon={<TrendingUp size={20} className="text-accent" />}
+              icon={<TrendingUp size={20} className="text-accent-ink" />}
               title="Crescimento"
               description="Visualize sua evolução financeira com clareza."
             />
             <BenefitItem
-              icon={<Target size={20} className="text-accent" />}
+              icon={<Target size={20} className="text-accent-ink" />}
               title="Objetivos"
               description="Defina metas e acompanhe seu progresso em tempo real."
             />

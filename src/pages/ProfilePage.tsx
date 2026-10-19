@@ -2,9 +2,12 @@ import { LogOut, Mail, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { session } from '../lib/session';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
+import { useTheme } from '../hooks/useTheme';
+import type { ThemePreference } from '../lib/theme';
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { preference, setPreference } = useTheme();
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
   const initials = fullName
@@ -25,7 +28,7 @@ export function ProfilePage() {
       <p className="mt-1 text-sm text-muted">Suas informações de conta.</p>
 
       <div className="mt-6 flex items-center gap-4 rounded-2xl border border-line bg-surface p-6">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-teal-500 text-xl font-bold text-slate-950">
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent text-xl font-bold text-on-accent">
           {initials}
         </span>
         <div className="min-w-0 break-words">
@@ -36,7 +39,7 @@ export function ProfilePage() {
 
       <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6">
         <div className="flex items-center gap-3 border-b border-line pb-4">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-accent">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-ink">
             <User size={16} />
           </span>
           <div className="min-w-0 break-words">
@@ -46,7 +49,7 @@ export function ProfilePage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-accent">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-ink">
             <Mail size={16} />
           </span>
           <div className="min-w-0 break-words">
@@ -56,10 +59,20 @@ export function ProfilePage() {
         </div>
       </div>
 
+      <div className="mt-6 rounded-2xl border border-line bg-surface p-6">
+        <label htmlFor="theme-preference" className="text-sm font-semibold text-foreground">Aparência</label>
+        <p id="theme-preference-hint" className="mt-1 text-sm text-muted">Acompanhe o tema do dispositivo ou escolha uma aparência para este navegador.</p>
+        <select id="theme-preference" aria-label="Preferência de tema" aria-describedby="theme-preference-hint" value={preference} onChange={(event) => setPreference(event.target.value as ThemePreference)} className="mt-4 h-11 w-full max-w-sm rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground">
+          <option value="system">Usar tema do dispositivo</option>
+          <option value="light">Claro</option>
+          <option value="dark">Escuro</option>
+        </select>
+      </div>
+
       <button
         type="button"
         onClick={handleLogout}
-        className="mt-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-danger transition-colors hover:bg-red-500/20"
+        className="mt-6 flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger transition-colors hover:bg-danger/20"
       >
         <LogOut size={16} />
         Sair da conta

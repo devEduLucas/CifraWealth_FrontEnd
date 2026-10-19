@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark light" />
     <script>
-      try {
-        const theme = localStorage.getItem('cifrawealth:theme') === 'light' ? 'light' : 'dark';
+      (() => {
+        let saved;
+        try { saved = localStorage.getItem('cifrawealth:theme'); } catch {}
+        const preference = saved === 'light' || saved === 'dark' ? saved : 'system';
+        const theme = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference;
         document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.themePreference = preference;
         document.documentElement.style.colorScheme = theme;
-      } catch { /* Dark theme is the default when storage is unavailable. */ }
+      })();
     </script>
     <title>Cifra Wealth</title>
     <meta name="description" content="Aplicativo de gestão financeira pessoal e controle patrimonial com painel de receitas, despesas, categorias, metas e relatórios detalhados." />

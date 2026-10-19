@@ -6,15 +6,15 @@ interface PasswordStrengthIndicatorProps {
 }
 
 const LEVEL_BAR_COLOR: Record<PasswordStrengthResult['level'], string> = {
-  weak: 'bg-red-500',
-  medium: 'bg-amber-500',
-  strong: 'bg-teal-400',
+  weak: 'bg-danger',
+  medium: 'bg-warning',
+  strong: 'bg-positive',
 };
 
 const LEVEL_LABEL_COLOR: Record<PasswordStrengthResult['level'], string> = {
   weak: 'text-danger',
   medium: 'text-warning',
-  strong: 'text-accent',
+  strong: 'text-positive',
 };
 
 export function PasswordStrengthIndicator({ strength, visible }: PasswordStrengthIndicatorProps) {

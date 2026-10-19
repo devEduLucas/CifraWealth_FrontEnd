@@ -7,8 +7,8 @@ interface ProgressBarProps {
 
 export function ProgressBar({
   value,
-  colorClassName = 'bg-teal-400',
-  trackClassName = 'bg-hover',
+  colorClassName = 'bg-progress',
+  trackClassName = 'bg-line',
   heightClassName = 'h-2',
 }: ProgressBarProps) {
   const clamped = Math.min(Math.max(value, 0), 100);

@@ -22,7 +22,7 @@ export function LoginForm() {
       <p className="mt-1.5 text-sm text-muted">Acesse sua conta para continuar.</p>
 
       {submitError && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
@@ -57,7 +57,7 @@ export function LoginForm() {
           <div className="flex justify-end pt-1">
             <Link
               to="/forgot-password"
-              className="text-sm font-medium text-accent hover:text-accent/80 hover:underline transition-colors"
+              className="text-sm font-medium text-accent-ink hover:text-accent-hover hover:underline transition-colors"
             >
               Esqueceu a senha?
             </Link>
@@ -82,7 +82,7 @@ export function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-subtle">
         Não possui conta?{' '}
-        <Link to="/register" className="font-medium text-accent hover:underline">
+        <Link to="/register" className="font-medium text-accent-ink hover:underline">
           Criar conta
         </Link>
       </p>

@@ -14,7 +14,7 @@ export function ResetPasswordPage() {
 
           <div className="flex max-w-md flex-col gap-4">
             <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
-              Defina sua nova <span className="text-accent">senha</span>.
+              Defina sua nova <span className="text-accent-ink">senha</span>.
             </h1>
             <p className="max-w-sm text-base text-muted">
               Crie uma senha forte para proteger seu patrimônio e continuar sua jornada financeira.
@@ -23,17 +23,17 @@ export function ResetPasswordPage() {
 
           <div className="flex flex-col gap-5">
             <BenefitItem
-              icon={<Lock size={20} className="text-accent" />}
+              icon={<Lock size={20} className="text-accent-ink" />}
               title="Proteção de Acesso"
               description="Senhas fortes garantem que apenas você tenha acesso às suas informações."
             />
             <BenefitItem
-              icon={<ShieldCheck size={20} className="text-accent" />}
+              icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Criptografia Segura"
               description="Sua nova senha é armazenada com algoritmos criptográficos robustos."
             />
             <BenefitItem
-              icon={<Sparkles size={20} className="text-accent" />}
+              icon={<Sparkles size={20} className="text-accent-ink" />}
               title="Acesso Imediato"
               description="Após salvar, você já poderá entrar no seu painel financeiro."
             />

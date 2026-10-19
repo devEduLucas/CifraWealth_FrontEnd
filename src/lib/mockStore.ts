@@ -11,6 +11,7 @@ import type {
   UserResponse,
 } from './api';
 import type { DetailedReportResponse } from '../types/reports.types';
+import { localDateOnly } from '../utils/reports';
 
 const STORAGE_KEY = 'cifrawealth:mock_store:v1';
 
@@ -265,7 +266,7 @@ class MockStore {
     }
 
     for (const t of this.data.transactions) {
-      if (t.status === 'pendente') continue;
+      if (t.status === 'pendente' || t.data_transacao > localDateOnly()) continue;
       if (t.tipo === 'receita') {
         total_receitas += t.valor;
       } else {
@@ -297,6 +298,7 @@ class MockStore {
   }
 
   createCategory(input: CategoryInput): CategoryResponse {
+    if (this.data.categories.some((c) => c.tipo === input.tipo && c.nome.localeCompare(input.nome.trim(), 'pt-BR', { sensitivity: 'base' }) === 0)) throw new Error('Você já possui uma categoria com esse nome.');
     const nextId = this.data.categories.reduce((max, c) => Math.max(max, c.id_categoria), 0) + 1;
     const category: CategoryResponse = {
       id_categoria: nextId,
@@ -315,6 +317,8 @@ class MockStore {
     if (index === -1) {
       throw new Error('Categoria não encontrada.');
     }
+    if (input.tipo && input.tipo !== this.data.categories[index].tipo && this.data.transactions.some((t) => t.id_categoria === id)) throw new Error('Não é possível alterar o tipo de uma categoria em uso.');
+    if (this.data.categories.some((c) => c.id_categoria !== id && c.tipo === (input.tipo ?? this.data.categories[index].tipo) && c.nome.localeCompare(input.nome ?? this.data.categories[index].nome, 'pt-BR', { sensitivity: 'base' }) === 0)) throw new Error('Você já possui uma categoria com esse nome.');
     const updated = {
       ...this.data.categories[index],
       ...input,
@@ -325,6 +329,7 @@ class MockStore {
   }
 
   deleteCategory(id: number): void {
+    if (this.data.transactions.some((t) => t.id_categoria === id)) throw new Error('Não é possível excluir uma categoria que possui transações.');
     this.data.categories = this.data.categories.filter((c) => c.id_categoria !== id);
     this.save(this.data);
   }
@@ -365,7 +370,7 @@ class MockStore {
       tipo: input.tipo,
       descricao: input.descricao,
       data_transacao: input.data_transacao,
-      status: input.status ?? 'confirmada',
+      status: input.status ?? (input.data_transacao > localDateOnly() ? 'pendente' : 'confirmada'),
     };
     this.data.transactions.unshift(transaction);
     this.save(this.data);
@@ -391,7 +396,7 @@ class MockStore {
     this.save(this.data);
   }
 
-  getMonthlyReport(year: number): MonthlyReportItem[] {
+  getMonthlyReport(year: number, end?: string): MonthlyReportItem[] {
     const pad = (n: number) => String(n).padStart(2, '0');
     const result: MonthlyReportItem[] = [];
 
@@ -401,7 +406,7 @@ class MockStore {
       let despesas = 0;
 
       for (const t of this.data.transactions) {
-        if (t.data_transacao.startsWith(monthPrefix) && t.status !== 'pendente') {
+        if (t.data_transacao.startsWith(monthPrefix) && t.status !== 'pendente' && (!end || t.data_transacao <= end)) {
           if (t.tipo === 'receita') {
             receitas += t.valor;
           } else {
@@ -591,6 +596,7 @@ class MockStore {
       ...this.data.goals[index],
       ...input,
     };
+    updated.status = updated.status === 'cancelada' ? 'cancelada' : updated.valor_atual >= updated.valor_objetivo ? 'concluida' : 'em_andamento';
     this.data.goals[index] = updated;
     this.save(this.data);
     return updated;
@@ -607,7 +613,9 @@ class MockStore {
       throw new Error('Meta não encontrada.');
     }
     const goal = this.data.goals[index];
-    const newCurrent = goal.valor_atual + valor;
+    if (goal.status === 'cancelada' || valor <= 0) throw new Error('Esta meta não recebe aportes.');
+    const newCurrent = (Math.round(goal.valor_atual * 100) + Math.round(valor * 100)) / 100;
+    if (newCurrent > 99999999.99) throw new Error('Valor máximo excedido.');
     const isCompleted = newCurrent >= goal.valor_objetivo;
 
     const updated: GoalResponse = {
@@ -618,6 +626,12 @@ class MockStore {
     this.data.goals[index] = updated;
     this.save(this.data);
     return updated;
+  }
+
+  withdrawGoal(id: number, valor: number): GoalResponse {
+    const goal = this.data.goals.find((g) => g.id_meta === id);
+    if (!goal || goal.status === 'cancelada' || valor <= 0 || valor > goal.valor_atual) throw new Error('Retirada inválida.');
+    return this.updateGoal(id, { valor_atual: (Math.round(goal.valor_atual * 100) - Math.round(valor * 100)) / 100 });
   }
 }
 

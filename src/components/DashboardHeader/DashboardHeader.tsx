@@ -7,7 +7,7 @@ export function DashboardHeader({ firstName }: DashboardHeaderProps) {
     <div className="mb-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Olá, {firstName}</h1>
-        <p className="mt-0.5 text-sm text-muted">Bem-vindo de volta.</p>
+        <p className="mt-0.5 text-sm text-muted">Confira seus lançamentos e acompanhe suas metas.</p>
       </div>
 
     </div>

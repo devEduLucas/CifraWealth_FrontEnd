@@ -53,14 +53,14 @@ export function VerifyEmailPage() {
     <div className="flex min-h-screen w-full flex-col bg-canvas text-foreground">
       <main className="flex flex-1 items-center justify-center px-5 py-12">
         <section className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
-          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-400/10 text-accent">
+          <div className={'mb-5 flex h-12 w-12 items-center justify-center rounded-xl ' + (success ? 'bg-positive/10 text-positive' : 'bg-accent/10 text-accent-ink')}>
             {success ? <CheckCircle2 size={26} /> : <MailCheck size={26} />}
           </div>
           <h1 className="text-2xl font-bold text-foreground">{success ? 'E-mail confirmado' : 'Confirme seu e-mail'}</h1>
           {success ? (
             <>
               <p role="status" className="mt-3 text-sm leading-6 text-muted">{success}</p>
-              <Link to="/login" className="mt-6 flex min-h-12 items-center justify-center rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a]">Ir para entrar</Link>
+              <Link to="/login" className="mt-6 flex min-h-12 items-center justify-center rounded-xl bg-accent px-4 font-semibold text-on-accent transition-colors hover:bg-accent-hover">Ir para entrar</Link>
             </>
           ) : (
             <>
@@ -70,7 +70,7 @@ export function VerifyEmailPage() {
               {token && (
                 <form onSubmit={handleConfirm} className="mt-6 space-y-4">
                   <PasswordInput label="Senha cadastrada" required minLength={8} autoComplete="current-password" disabled={confirming} value={password} onChange={(event) => setPassword(event.target.value)} />
-                  <button type="submit" disabled={confirming} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-teal-500 px-4 font-semibold text-[#062a2a] disabled:opacity-60">
+                  <button type="submit" disabled={confirming} className="flex min-h-12 w-full items-center justify-center rounded-xl bg-accent px-4 font-semibold text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-60">
                     {confirming ? 'Confirmando...' : 'Confirmar e-mail'}
                   </button>
                   {error && <p role="alert" className="text-sm text-danger">{error}</p>}
@@ -79,14 +79,14 @@ export function VerifyEmailPage() {
               <form onSubmit={handleResend} className="mt-8 space-y-3 border-t border-line pt-5">
                 <p className="text-sm text-muted">Link expirado ou não recebeu a mensagem?</p>
                 <label htmlFor="resend-email" className="block text-sm font-medium text-secondary">E-mail usado no cadastro</label>
-                <input id="resend-email" type="email" required autoComplete="email" disabled={resending} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" className="min-h-12 w-full rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground" />
-                <button type="submit" disabled={resending} className="min-h-12 w-full rounded-xl border border-teal-500/40 px-4 font-semibold text-accent disabled:opacity-60">
+                <input id="resend-email" type="email" required autoComplete="email" disabled={resending} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" className="min-h-12 w-full rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground" />
+                <button type="submit" disabled={resending} className="min-h-12 w-full rounded-xl border border-accent/40 px-4 font-semibold text-accent-ink disabled:opacity-60">
                   {resending ? 'Solicitando...' : 'Solicitar novo link'}
                 </button>
               </form>
-              {resendMessage && <p role="status" className="mt-3 text-sm text-accent">{resendMessage}</p>}
+              {resendMessage && <p role="status" className="mt-3 text-sm text-positive">{resendMessage}</p>}
               {resendError && <p role="alert" className="mt-3 text-sm text-danger">{resendError}</p>}
-              <p className="mt-6 text-center text-sm"><Link to="/login" className="text-accent hover:underline">Voltar para entrar</Link></p>
+              <p className="mt-6 text-center text-sm"><Link to="/login" className="text-accent-ink hover:underline">Voltar para entrar</Link></p>
               <p className="mt-3 text-center text-sm"><Link to="/register" className="text-muted hover:underline">Cadastrar novamente com outra senha</Link></p>
             </>
           )}

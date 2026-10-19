@@ -9,8 +9,8 @@ export function PrimaryButton({ children, className, disabled, ...rest }: Primar
       disabled={disabled}
       className={`h-[52px] w-full rounded-xl text-sm font-semibold transition-all duration-200 ${
         disabled
-          ? 'cursor-not-allowed bg-teal-500/15 text-teal-700/70'
-          : 'bg-teal-500 text-slate-950 hover:bg-teal-400 active:scale-[0.98]'
+          ? 'cursor-not-allowed bg-accent/10 text-accent-ink/60'
+          : 'bg-accent text-on-accent hover:bg-accent-hover active:scale-[0.98]'
       } ${className ?? ''}`}
       {...rest}
     >
