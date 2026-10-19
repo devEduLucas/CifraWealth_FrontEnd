@@ -146,7 +146,7 @@ export function DashboardPage() {
 
       {loading && <p className="text-sm text-muted">Carregando dados financeiros...</p>}
       {error && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -160,15 +160,15 @@ export function DashboardPage() {
               label="Receitas"
               value={formatCurrency(receitasMes)}
               icon={TrendingUp}
-              iconClassName="bg-teal-500/15 text-accent"
+              iconClassName="bg-positive/10 text-positive"
               footnote="Este mês"
-              footnoteClassName="text-accent"
+              footnoteClassName="text-positive"
             />
             <SummaryCard
               label="Despesas"
               value={formatCurrency(despesasMes)}
               icon={TrendingDown}
-              iconClassName="bg-red-500/15 text-danger"
+              iconClassName="bg-danger/15 text-danger"
               footnote={
                 despesasVariacao === null
                   ? 'Este mês'
@@ -180,7 +180,7 @@ export function DashboardPage() {
               label="Economia"
               value={formatCurrency(economiaMes)}
               icon={Clock}
-              iconClassName="bg-sky-500/15 text-info"
+              iconClassName="bg-info/15 text-info"
               footnote={receitasMes > 0 ? `${economiaPercentual}% da receita` : 'Este mês'}
               footnoteClassName="text-info"
             />
@@ -194,20 +194,20 @@ export function DashboardPage() {
               <QuickActionButton
                 label="Adicionar Receita"
                 icon={Plus}
-                iconClassName="bg-teal-500/15 text-accent"
-                to="/transactions"
+                iconClassName="bg-positive/10 text-positive"
+                to="/transactions?new=1&tipo=receita"
               />
               <QuickActionButton
                 label="Adicionar Despesa"
                 icon={Minus}
-                iconClassName="bg-red-500/15 text-danger"
-                to="/transactions"
+                iconClassName="bg-danger/15 text-danger"
+                to="/transactions?new=1&tipo=despesa"
               />
               <QuickActionButton
                 label="Criar Meta"
                 icon={Settings}
-                iconClassName="bg-sky-500/15 text-info"
-                to="/goals"
+                iconClassName="bg-info/15 text-info"
+                to="/goals?new=1"
               />
             </div>
           </div>
@@ -227,7 +227,7 @@ export function DashboardPage() {
               </div>
               <Link
                 to="/goals?new=1"
-                className="rounded-xl bg-teal-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-teal-400"
+                className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover"
               >
                 + Nova meta
               </Link>

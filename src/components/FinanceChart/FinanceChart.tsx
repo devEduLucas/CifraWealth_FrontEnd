@@ -97,9 +97,11 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
           </div>
         )}
         <svg
+          role="img"
+          aria-label="Evolução de receitas e despesas"
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           preserveAspectRatio="none"
-          className={`h-full w-full ${hasData ? '' : 'opacity-30'}`}
+          className="h-full w-full"
         >
           <defs>
             <linearGradient id="receitasGradient" x1="0" y1="0" x2="0" y2="1">
@@ -108,9 +110,11 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
             </linearGradient>
           </defs>
 
-          <path d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
-          <path d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
-          <path d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" />
+          {hasData && <>
+            <path d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
+            <path d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
+            <path d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 4" />
+          </>}
 
           {activeX !== null && (
             <line
@@ -148,7 +152,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
             }}
           >
             <p className="font-semibold text-foreground">{active.month}</p>
-            <p className="mt-1.5 flex items-center justify-between gap-3 text-accent">
+            <p className="mt-1.5 flex items-center justify-between gap-3 text-positive">
               <span>Receitas</span>
               <span className="font-semibold">{formatCurrency(active.receitas)}</span>
             </p>
@@ -162,11 +166,11 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
 
       <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-500" />
+          <span className="w-4 border-t-2 border-dashed border-danger" />
           Despesas
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-teal-400" />
+          <span className="w-4 border-t-2 border-positive" />
           Receitas
         </span>
       </div>

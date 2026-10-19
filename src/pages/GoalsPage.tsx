@@ -101,7 +101,7 @@ export function GoalsPage() {
     <DashboardLayout userName={fullName}>
       <GoalsHeader filter={filter} onFilterChange={setFilter} onNewGoal={openCreateModal} />
       <p className="mt-3 text-sm text-muted">Crie uma meta e use “Registrar valor guardado” para acompanhar o dinheiro que você já reservou.</p>
-      {success && <p role="status" className="mt-4 text-sm text-accent">{success}</p>}
+      {success && <p role="status" className="mt-4 text-sm text-positive">{success}</p>}
 
       <div className="mt-6">
         <GoalSummaryCards
@@ -113,7 +113,7 @@ export function GoalsPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mt-6 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}

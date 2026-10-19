@@ -29,14 +29,15 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
       </p>
 
       {variacaoPercentual !== undefined && (
-        <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-teal-500/15 px-2.5 py-1 text-xs font-semibold text-accent">
+        <span className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${variacaoPercentual >= 0 ? 'bg-positive/10 text-positive' : 'bg-danger/15 text-danger'}`}>
           {variacaoPercentual >= 0 ? '↑' : '↓'} {variacaoPercentual >= 0 ? '+' : ''}
           {variacaoPercentual.toString().replace('.', ',')}%
-          <span className="font-normal text-accent/80">em relação ao mês anterior</span>
+          <span className="font-normal">em relação ao mês anterior</span>
         </span>
       )}
 
       <svg
+        aria-hidden="true"
         viewBox="0 0 160 60"
         className="pointer-events-none absolute bottom-4 right-4 h-14 w-36 opacity-90"
         preserveAspectRatio="none"
@@ -44,7 +45,7 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
         <path
           d="M0,45 C20,48 30,38 45,36 C60,34 65,44 80,40 C95,36 100,20 115,16 C130,12 140,18 160,4"
           fill="none"
-          stroke="#00d68f"
+          stroke="var(--chart-balance)"
           strokeWidth="2.5"
           strokeLinecap="round"
         />

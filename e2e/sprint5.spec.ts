@@ -87,7 +87,7 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await expect(dialog.getByText(/não transfere dinheiro/)).toBeVisible();await dialog.getByLabel('Quanto você já reservou para esta meta?').fill('250');
   await dialog.getByRole('button',{name:'Registrar valor',exact:true}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('status')).toContainText('progresso');
   await page.reload();await expect(page.getByText('25%',{exact:true}).first()).toBeVisible();
-  await page.screenshot({path:testInfo.outputPath('metas.png'),fullPage:true});
+  await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('metas.png'),fullPage:true});
   await page.goto('/dashboard');await page.getByRole('link',{name:'Registrar valor guardado'}).click();await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button',{name:/Completar meta/}).click();await page.getByRole('dialog').getByRole('button',{name:'Registrar valor',exact:true}).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();await expect(page.getByText('100%',{exact:true}).first()).toBeVisible();
@@ -122,7 +122,7 @@ test('relatórios reais, período personalizado, detalhes, CSV e estados de erro
   const income=await request.post(API+'/categories',{headers,data:{nome:'Salário Sprint 5',tipo:'receita'}});expect(income.status()).toBe(201);
   const expense=await request.post(API+'/categories',{headers,data:{nome:'Mercado Sprint 5',tipo:'despesa'}});expect(expense.status()).toBe(201);
   const incomeId=(await income.json()).id_categoria,expenseId=(await expense.json()).id_categoria;
-  for(const data of [{id_categoria:incomeId,valor:2000,tipo:'receita',descricao:'Salário do período',data_transacao:'2026-10-05'},{id_categoria:expenseId,valor:350,tipo:'despesa',descricao:'Compra do período',data_transacao:'2026-10-25'},{id_categoria:expenseId,valor:999,tipo:'despesa',descricao:'Despesa fora do período',data_transacao:'2026-10-26'},{id_categoria:expenseId,valor:500,tipo:'despesa',descricao:'Despesa pendente',data_transacao:'2026-10-06',status:'pendente'}]) expect((await request.post(API+'/transactions',{headers,data})).status()).toBe(201);
+  for(const data of [{id_categoria:incomeId,valor:2000,tipo:'receita',descricao:'Salário do período',data_transacao:'2026-10-05'},{id_categoria:expenseId,valor:350,tipo:'despesa',descricao:'Compra do período',data_transacao:'2026-10-25'},{id_categoria:expenseId,valor:999,tipo:'despesa',descricao:'Despesa fora do período',data_transacao:'2026-10-26'},{id_categoria:expenseId,valor:500,tipo:'despesa',descricao:'Despesa pendente',data_transacao:'2026-10-06',status:'pendente'}]) expect((await request.post(API+'/transactions',{headers,data:{status:'confirmada',...data}})).status()).toBe(201);
   await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
   await page.goto('/reports');await page.getByLabel('Selecionar período do relatório').selectOption('custom');
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-05');await page.getByLabel('Data final',{exact:true}).fill('2026-10-25');
@@ -130,7 +130,9 @@ test('relatórios reais, período personalizado, detalhes, CSV e estados de erro
   await expect(page.getByText('Despesa fora do período',{exact:true})).toHaveCount(0);await expect(page.getByText('Despesa pendente',{exact:true})).toHaveCount(0);
   await expect(page.getByText(/1[.]650,00/).first()).toBeVisible();await expect(page.getByRole('img',{name:'Evolução mensal de receitas, despesas e saldo'})).toBeVisible();
   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar Relatório'}).click();expect((await download).suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.csv');
-  await page.screenshot({path:testInfo.outputPath('relatorios.png'),fullPage:true});
+  await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('relatorios.png'),fullPage:true});
+  await page.getByRole('button', { name: 'Ativar modo claro' }).click();
+  await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('relatorios-claro.png'),fullPage:true});
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-26');await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByRole('alert')).toContainText('inicial');
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-25');await page.getByLabel('Data final',{exact:true}).fill('2026-10-25');await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText(/-R\$\s*350,00/).first()).toBeVisible();
   await page.getByLabel('Data inicial',{exact:true}).fill('2025-01-01');await page.getByLabel('Data final',{exact:true}).fill('2025-01-01');await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText(/Nenhuma transação confirmada neste período/)).toBeVisible();

@@ -44,7 +44,7 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete }: GoalHistor
                   <tr key={goal.id}>
                     <td className="py-3.5 font-semibold text-foreground">{goal.titulo}</td>
                     <td className="py-3.5 text-secondary">{formatCurrency(goal.valorObjetivo)}</td>
-                    <td className="py-3.5 font-semibold text-accent">{formatCurrency(goal.valorAtual)}</td>
+                    <td className="py-3.5 font-semibold text-progress">{formatCurrency(goal.valorAtual)}</td>
                     <td className="py-3.5">
                       <Badge label={badge.label} variant={badge.variant} />
                     </td>

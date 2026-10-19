@@ -9,7 +9,7 @@ const frontendOrigin = 'http://127.0.0.1:5174';
 process.env.E2E_API_URL = apiOrigin + '/api';
 export default defineConfig({
   testDir: './e2e', fullyParallel: false, workers: 1, timeout: 60000,
-  use: { baseURL: frontendOrigin, channel: 'chrome', headless: true, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
+  use: { baseURL: frontendOrigin, channel: 'chrome', headless: true, colorScheme: 'dark', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
     { name: 'desktop', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts'], use: { viewport: { width: 1440, height: 1000 } } },
     { name: 'mobile', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts'], use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },

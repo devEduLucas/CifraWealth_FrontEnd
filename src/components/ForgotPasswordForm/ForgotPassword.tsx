@@ -24,14 +24,14 @@ export function ForgotPasswordForm() {
     return (
       <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm animate-in fade-in duration-300">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 text-accent mb-5">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-positive/10 text-positive mb-5">
             <CheckCircle2 size={32} />
           </div>
 
           <h1 className="text-2xl font-bold text-foreground">Verifique seu e-mail</h1>
           <p className="mt-2 text-sm text-secondary leading-relaxed">
-            Enviamos as instruções e o link de recuperação para{' '}
-            <strong className="text-foreground font-semibold">{data.email}</strong>.
+            Se houver uma conta com senha cadastrada para{' '}
+            <strong className="text-foreground font-semibold">{data.email}</strong>, você receberá as instruções de recuperação.
           </p>
 
           <div className="mt-4 w-full rounded-xl border border-line bg-elevated/70 p-4 text-xs text-muted text-left">
@@ -72,7 +72,7 @@ export function ForgotPasswordForm() {
       </p>
 
       {submitError && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}

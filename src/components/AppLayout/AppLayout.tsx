@@ -22,7 +22,7 @@ interface AppLayoutProps {
 
 function navClass(isActive: boolean): string {
   return `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-    isActive ? 'bg-emerald-500/10 text-positive' : 'text-muted hover:bg-surface hover:text-foreground'
+    isActive ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-surface hover:text-foreground'
   }`;
 }
 
@@ -58,7 +58,7 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
         </nav>
 
         <div className="flex items-center gap-3 border-t border-line pt-4">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-slate-950">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-on-accent">
             {initials}
           </span>
           <span className="flex-1 truncate text-sm font-medium">{fullName}</span>

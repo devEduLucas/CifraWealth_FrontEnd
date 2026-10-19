@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'react';
-import { getTheme, setTheme, subscribeToTheme } from '../lib/theme';
+import { getTheme, getThemePreference, setTheme, setThemePreference, subscribeToTheme } from '../lib/theme';
 
 export function useTheme() {
   const theme = useSyncExternalStore(subscribeToTheme, getTheme);
-  return { theme, toggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark') };
+  const preference = useSyncExternalStore(subscribeToTheme, getThemePreference);
+  return { theme, preference, setPreference: setThemePreference, toggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark') };
 }

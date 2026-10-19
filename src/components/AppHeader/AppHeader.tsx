@@ -10,9 +10,13 @@ const SECTION_NAMES: Record<string, string> = {
   '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias',
   '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil',
 };
-const TONES = { danger: 'bg-red-500/10 text-danger', warning: 'bg-amber-500/10 text-warning', info: 'bg-sky-500/10 text-info' };
+const TONES = { danger: 'bg-danger/10 text-danger', warning: 'bg-warning/10 text-warning', info: 'bg-info/10 text-info' };
 
-export function AppHeader({ userName }: { userName: string }) {
+interface AppHeaderProps {
+  userName: string;
+}
+
+export function AppHeader({ userName }: AppHeaderProps) {
   const { pathname } = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -51,8 +55,8 @@ export function AppHeader({ userName }: { userName: string }) {
   }, [open]);
 
   return (
-    <header ref={headerRef} aria-label="Cabeçalho principal" className="app-topbar fixed inset-x-0 z-40 h-20 border-b border-line bg-surface/95 backdrop-blur-md lg:left-[260px]">
-      <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
+    <header ref={headerRef} aria-label="Cabeçalho principal" className="app-topbar fixed inset-x-0 z-40 h-20 border-b border-line bg-surface/95 backdrop-blur-md">
+      <div className="flex h-full w-full items-center justify-between gap-3 px-4 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:text-[11px]">Meu espaço <span aria-hidden="true" className="mx-1">/</span> {SECTION_NAMES[pathname] ?? 'CifraWealth'}</p>
           <p className="mt-1 truncate text-sm font-semibold text-foreground sm:text-base">{userName}</p>
@@ -64,10 +68,10 @@ export function AppHeader({ userName }: { userName: string }) {
           </button>
           <button ref={bellRef} type="button" aria-label="Notificações" aria-expanded={open} aria-controls={open ? 'app-notifications' : undefined} title="Notificações" onClick={() => setOpen((value) => !value)} className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-line text-muted transition-colors hover:bg-elevated hover:text-foreground">
             <Bell size={18} />
-            {!error && notifications.length > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-teal-500 px-1 text-[9px] font-bold text-slate-950">{notifications.length > 9 ? '9+' : notifications.length}</span>}
+            {!error && notifications.length > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-on-accent">{notifications.length > 9 ? '9+' : notifications.length}</span>}
           </button>
           <span aria-hidden="true" className="mx-1 h-7 w-px bg-line" />
-          <Link to="/profile" onClick={() => setOpen(false)} aria-label="Abrir meu perfil" title="Meu perfil" className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-slate-950 ring-4 ring-teal-500/10 transition-shadow hover:ring-teal-500/25">{initials}</Link>
+          <Link to="/profile" onClick={() => setOpen(false)} aria-label="Abrir meu perfil" title="Meu perfil" className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-xs font-bold text-on-accent ring-4 ring-accent/10 transition-shadow hover:ring-accent/25">{initials}</Link>
         </div>
       </div>
       {open && (
@@ -77,9 +81,9 @@ export function AppHeader({ userName }: { userName: string }) {
             <button ref={closeRef} type="button" aria-label="Fechar notificações" onClick={() => { setOpen(false); bellRef.current?.focus(); }} className="rounded-lg p-1 text-muted hover:bg-hover"><X size={17} /></button>
           </div>
           {loading ? <p role="status" className="px-5 py-8 text-sm text-muted">Carregando lembretes...</p> : error ? (
-            <div className="p-5"><p role="alert" className="text-sm text-danger">{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 text-sm font-semibold text-accent">Tentar novamente</button></div>
+            <div className="p-5"><p role="alert" className="text-sm text-danger">{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 text-sm font-semibold text-accent-ink">Tentar novamente</button></div>
           ) : notifications.length === 0 ? (
-            <div className="px-6 py-8 text-center"><CheckCheck size={28} className="mx-auto text-accent" /><p className="mt-3 text-sm font-semibold text-foreground">Tudo em dia</p><p className="mt-1 text-xs leading-5 text-muted">Sem metas próximas do prazo ou transações pendentes no momento.</p></div>
+            <div className="px-6 py-8 text-center"><CheckCheck size={28} className="mx-auto text-positive" /><p className="mt-3 text-sm font-semibold text-foreground">Tudo em dia</p><p className="mt-1 text-xs leading-5 text-muted">Sem metas próximas do prazo ou transações pendentes no momento.</p></div>
           ) : (
             <ul className="divide-y divide-line">{notifications.map((notification) => <li key={notification.id}>
               <Link to={notification.to} onClick={() => setOpen(false)} className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-elevated">

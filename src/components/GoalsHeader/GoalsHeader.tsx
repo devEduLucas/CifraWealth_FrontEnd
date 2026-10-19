@@ -30,7 +30,7 @@ export function GoalsHeader({ filter, onFilterChange, onNewGoal }: GoalsHeaderPr
               type="button"
               onClick={() => onFilterChange(option.value)}
               className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors ${
-                filter === option.value ? 'bg-teal-500/15 text-accent' : 'text-muted hover:text-secondary'
+                filter === option.value ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:text-secondary'
               }`}
             >
               {option.label}

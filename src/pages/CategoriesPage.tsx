@@ -85,7 +85,7 @@ export function CategoriesPage() {
       />
 
       {pageError && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {pageError}
         </p>
       )}
@@ -109,7 +109,7 @@ export function CategoriesPage() {
                   <p className="truncate text-sm font-medium text-foreground">{category.nome}</p>
                   <span
                     className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      isReceita ? 'bg-teal-500/15 text-accent' : 'bg-red-500/15 text-danger'
+                      isReceita ? 'bg-positive/10 text-positive' : 'bg-danger/15 text-danger'
                     }`}
                   >
                     {isReceita ? 'Receita' : 'Despesa'}

@@ -23,7 +23,8 @@ interface TransactionFormModalProps {
   error: string | null;
   onClose: () => void;
   onSubmit: (values: TransactionFormValues) => void;
-  onNewCategory: () => void;
+  onNewCategory: (tipo: CategoryType) => void;
+  defaultTipo?: CategoryType;
 }
 
 export function TransactionFormModal({
@@ -35,6 +36,7 @@ export function TransactionFormModal({
   onClose,
   onSubmit,
   onNewCategory,
+  defaultTipo = 'despesa',
 }: TransactionFormModalProps) {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
@@ -47,11 +49,11 @@ export function TransactionFormModal({
     if (!open) return;
     setDescricao('');
     setValor('');
-    setTipo('despesa');
+    setTipo(defaultTipo);
     setIdCategoria('');
     setData(localDateOnly());
     setLocalError(null);
-  }, [open]);
+  }, [open, defaultTipo]);
 
   useEffect(() => {
     if (!selectedCategory) return;
@@ -125,9 +127,9 @@ export function TransactionFormModal({
           labelAction={
             <button
               type="button"
-              onClick={onNewCategory}
+              onClick={() => onNewCategory(tipo)}
               disabled={saving}
-              className="text-xs font-medium text-accent hover:underline"
+              className="text-xs font-medium text-accent-ink hover:underline"
             >
               + Nova categoria
             </button>

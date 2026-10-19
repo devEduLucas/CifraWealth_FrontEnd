@@ -30,7 +30,7 @@ export function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm text-center">
-        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-amber-500/15 text-warning mb-4">
+        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-warning/15 text-warning mb-4">
           <AlertTriangle size={30} />
         </div>
         <h1 className="text-2xl font-bold text-foreground">Link inválido ou expirado</h1>
@@ -41,7 +41,7 @@ export function ResetPasswordForm() {
         <div className="mt-6 flex flex-col gap-3">
           <Link
             to="/forgot-password"
-            className="w-full rounded-xl bg-accent py-3 text-center text-sm font-bold text-[#062c2a] hover:bg-accent/90 transition-colors"
+            className="w-full rounded-xl bg-accent py-3 text-center text-sm font-bold text-on-accent hover:bg-accent/90 transition-colors"
           >
             Solicitar novo link
           </Link>
@@ -60,7 +60,7 @@ export function ResetPasswordForm() {
   if (isSuccess) {
     return (
       <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm text-center animate-in fade-in duration-300">
-        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-accent/15 text-accent mb-5">
+        <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-positive/10 text-positive mb-5">
           <CheckCircle2 size={32} />
         </div>
 
@@ -73,7 +73,7 @@ export function ResetPasswordForm() {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className="w-full rounded-xl bg-accent py-3.5 text-center text-sm font-extrabold text-[#062c2a] hover:bg-accent/90 transition-colors shadow-md shadow-accent/15"
+            className="w-full rounded-xl bg-accent py-3.5 text-center text-sm font-extrabold text-on-accent hover:bg-accent/90 transition-colors shadow-md shadow-accent/15"
           >
             Fazer login agora
           </button>
@@ -96,7 +96,7 @@ export function ResetPasswordForm() {
       </p>
 
       {submitError && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}

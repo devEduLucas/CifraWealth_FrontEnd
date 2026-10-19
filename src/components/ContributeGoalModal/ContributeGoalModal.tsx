@@ -50,7 +50,7 @@ export function ContributeGoalModal({
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="contribution-title" className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line bg-surface p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/15 text-accent">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-progress/10 text-progress">
               <PiggyBank size={18} />
             </span>
             <h2 id="contribution-title" className="text-base font-semibold text-foreground">Registrar valor guardado</h2>
@@ -70,10 +70,10 @@ export function ContributeGoalModal({
           <p className="text-sm font-semibold text-foreground">{goal.titulo}</p>
           <div className="mt-2 flex items-baseline justify-between text-xs text-muted">
             <span>
-              Atual: <strong className="text-accent">{formatCurrency(goal.valorAtual)}</strong> de{' '}
+              Atual: <strong className="text-progress">{formatCurrency(goal.valorAtual)}</strong> de{' '}
               {formatCurrency(goal.valorObjetivo)}
             </span>
-            <span className="font-semibold text-accent">{progress}%</span>
+            <span className="font-semibold text-progress">{progress}%</span>
           </div>
           <div className="mt-2">
             <ProgressBar value={progress} colorClassName={progressColor} />
@@ -90,7 +90,7 @@ export function ContributeGoalModal({
           <div className="flex flex-col gap-1.5">
             <label htmlFor="contribution-value" className="text-sm font-medium text-secondary">Quanto você já reservou para esta meta?</label>
             <div className="field-shell">
-              <span className="pointer-events-none absolute left-4 text-sm font-semibold text-accent">R$</span>
+              <span className="pointer-events-none absolute left-4 text-sm font-semibold text-accent-ink">R$</span>
               <input
                 id="contribution-value"
                 required
@@ -112,7 +112,7 @@ export function ContributeGoalModal({
               type="button"
               disabled={saving}
               onClick={() => handleQuickAdd(50)}
-              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-teal-400/50 hover:text-accent"
+              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-accent hover:text-accent-ink"
             >
               + R$ 50
             </button>
@@ -120,7 +120,7 @@ export function ContributeGoalModal({
               type="button"
               disabled={saving}
               onClick={() => handleQuickAdd(100)}
-              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-teal-400/50 hover:text-accent"
+              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-accent hover:text-accent-ink"
             >
               + R$ 100
             </button>
@@ -128,7 +128,7 @@ export function ContributeGoalModal({
               type="button"
               disabled={saving}
               onClick={() => handleQuickAdd(500)}
-              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-teal-400/50 hover:text-accent"
+              className="rounded-lg border border-line-strong bg-elevated px-2.5 py-1 text-xs font-semibold text-secondary transition-colors hover:border-accent hover:text-accent-ink"
             >
               + R$ 500
             </button>
@@ -137,7 +137,7 @@ export function ContributeGoalModal({
                 type="button"
                 disabled={saving}
               onClick={() => handleQuickAdd(faltam)}
-                className="rounded-lg border border-teal-500/30 bg-teal-500/10 px-2.5 py-1 text-xs font-semibold text-accent transition-colors hover:bg-teal-500/20"
+                className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent-ink transition-colors hover:bg-accent/20"
               >
                 Completar meta ({formatCurrency(faltam)})
               </button>

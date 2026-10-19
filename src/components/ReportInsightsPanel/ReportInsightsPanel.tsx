@@ -6,9 +6,9 @@ interface ReportInsightsPanelProps {
 }
 
 const ICONS: Record<ReportInsightType, { icon: typeof Sparkles; className: string }> = {
-  positivo: { icon: Sparkles, className: 'bg-teal-500/15 text-accent' },
-  negativo: { icon: Info, className: 'bg-red-500/15 text-danger' },
-  neutro: { icon: Info, className: 'bg-sky-500/15 text-info' },
+  positivo: { icon: Sparkles, className: 'bg-positive/10 text-positive' },
+  negativo: { icon: Info, className: 'bg-danger/15 text-danger' },
+  neutro: { icon: Info, className: 'bg-info/15 text-info' },
 };
 
 export function ReportInsightsPanel({ insights }: ReportInsightsPanelProps) {
@@ -17,7 +17,7 @@ export function ReportInsightsPanel({ insights }: ReportInsightsPanelProps) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-accent">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent-ink">
           <Sparkles size={15} />
         </span>
         <div>

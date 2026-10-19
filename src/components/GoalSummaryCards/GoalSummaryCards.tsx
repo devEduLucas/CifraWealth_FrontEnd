@@ -21,7 +21,7 @@ export function GoalSummaryCards({
         label="Metas Ativas"
         value={String(metasAtivas)}
         icon={Target}
-        iconClassName="bg-teal-500/15 text-accent"
+        iconClassName="bg-accent/10 text-accent-ink"
         footnote={metasAtivas === 0 ? 'Nenhuma meta em andamento.' : 'Em andamento'}
         footnoteClassName="text-subtle"
       />
@@ -29,7 +29,7 @@ export function GoalSummaryCards({
         label="Valor Objetivo"
         value={formatCurrency(valorObjetivo)}
         icon={DollarSign}
-        iconClassName="bg-sky-500/15 text-info"
+        iconClassName="bg-info/15 text-info"
         footnote="Soma das metas não canceladas"
         footnoteClassName="text-subtle"
       />
@@ -37,7 +37,7 @@ export function GoalSummaryCards({
         label="Valor Economizado"
         value={formatCurrency(valorEconomizado)}
         icon={Heart}
-        iconClassName="bg-teal-500/15 text-accent"
+        iconClassName="bg-progress/10 text-progress"
         footnote="Total guardado até agora"
         footnoteClassName="text-subtle"
       />
@@ -45,7 +45,7 @@ export function GoalSummaryCards({
         label="Progresso Geral"
         value={`${progressoGeralPercentual}%`}
         icon={BarChart3}
-        iconClassName="bg-amber-500/15 text-warning"
+        iconClassName="bg-warning/15 text-warning"
         footnote="Do total alcançado"
         footnoteClassName="text-subtle"
       />

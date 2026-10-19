@@ -62,7 +62,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
               value={values.titulo}
               onChange={(event) => setValues((prev) => ({ ...prev, titulo: event.target.value }))}
               placeholder="Ex: Reserva de Emergência"
-              className="h-11 rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground outline-none focus:border-teal-400/60"
+              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
             />
           </div>
 
@@ -75,7 +75,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
               value={values.descricao}
               onChange={(event) => setValues((prev) => ({ ...prev, descricao: event.target.value }))}
               placeholder="Ex: Meta para imprevistos e segurança"
-              className="h-11 rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground outline-none focus:border-teal-400/60"
+              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
             />
           </div>
 
@@ -92,7 +92,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
               value={values.valorObjetivo}
               onChange={(event) => setValues((prev) => ({ ...prev, valorObjetivo: event.target.value }))}
               placeholder="0,00"
-              className="h-11 rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground outline-none focus:border-teal-400/60"
+              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
             />
           </div>
 
@@ -104,7 +104,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
               disabled={saving}
               value={values.dataFim}
               onChange={(event) => setValues((prev) => ({ ...prev, dataFim: event.target.value }))}
-              className="h-11 rounded-xl border border-line-strong bg-elevated px-4 text-sm text-foreground outline-none focus:border-teal-400/60"
+              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
             />
           </div>
 

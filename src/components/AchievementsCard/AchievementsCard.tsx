@@ -20,12 +20,12 @@ export function AchievementsCard({ items }: AchievementsCardProps) {
             const Icon = item.icon;
             return (
               <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-500/15 text-accent">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-progress/10 text-progress">
                   <Icon size={16} />
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{item.titulo}</p>
-                  <p className="text-xs text-accent">Faltam {formatCurrency(item.faltam)}</p>
+                  <p className="text-xs text-progress">Faltam {formatCurrency(item.faltam)}</p>
                   {item.dataFim && (
                     <p className="mt-0.5 text-xs text-subtle">Meta: {formatMonthYear(item.dataFim)}</p>
                   )}

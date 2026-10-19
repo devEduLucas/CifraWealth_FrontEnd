@@ -1,4 +1,4 @@
-export type BadgeVariant = 'teal' | 'sky' | 'red' | 'slate' | 'amber';
+export type BadgeVariant = 'teal' | 'positive' | 'sky' | 'red' | 'slate' | 'amber';
 
 interface BadgeProps {
   label: string;
@@ -6,11 +6,12 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  teal: 'bg-teal-500/15 text-accent',
-  sky: 'bg-sky-500/15 text-info',
-  red: 'bg-red-500/15 text-danger',
+  teal: 'bg-progress/10 text-progress',
+  positive: 'bg-positive/10 text-positive',
+  sky: 'bg-info/15 text-info',
+  red: 'bg-danger/15 text-danger',
   slate: 'bg-slate-500/15 text-secondary',
-  amber: 'bg-amber-500/15 text-warning',
+  amber: 'bg-warning/15 text-warning',
 };
 
 export function Badge({ label, variant }: BadgeProps) {

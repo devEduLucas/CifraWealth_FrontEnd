@@ -13,25 +13,25 @@ const TIPS: Tip[] = [
   {
     id: 'despesas-fixas',
     icon: BarChart3,
-    iconClassName: 'bg-teal-500/15 text-accent',
+    iconClassName: 'bg-accent/10 text-accent-ink',
     texto: 'Evite gastar mais de 30% da sua renda com despesas fixas mensais.',
   },
   {
     id: 'reserva-emergencia',
     icon: ShieldCheck,
-    iconClassName: 'bg-red-500/15 text-danger',
+    iconClassName: 'bg-danger/15 text-danger',
     texto: 'Monte uma reserva de emergência equivalente a 6 meses de despesas.',
   },
   {
     id: 'investir-regularmente',
     icon: TrendingUp,
-    iconClassName: 'bg-teal-500/15 text-accent',
+    iconClassName: 'bg-accent/10 text-accent-ink',
     texto: 'Invista regularmente, mesmo que pequenos valores, para o longo prazo.',
   },
   {
     id: 'revisar-metas',
     icon: RefreshCw,
-    iconClassName: 'bg-amber-500/15 text-warning',
+    iconClassName: 'bg-warning/15 text-warning',
     texto: 'Revise suas metas financeiras todo mês para manter o foco.',
   },
 ];
@@ -40,7 +40,7 @@ export function TipsCard() {
   return (
     <Card>
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-warning">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-warning/15 text-warning">
           <Lightbulb size={15} />
         </span>
         <h2 className="text-base font-semibold text-foreground">Dicas Financeiras</h2>

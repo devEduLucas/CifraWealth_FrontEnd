@@ -58,7 +58,7 @@ export function RegisterForm() {
     <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
       {verificationEmail ? (
         <>
-          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-400/10 text-accent">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
             <CheckCircle2 size={26} />
           </div>
           <h1 className="text-[28px] font-bold text-foreground">Confirme seu e-mail</h1>
@@ -78,19 +78,19 @@ export function RegisterForm() {
           </button>
 
           {resendMessage && (
-            <p role="status" className="mt-3 rounded-lg border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs leading-5 text-accent">
+            <p role="status" className="mt-3 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2 text-xs leading-5 text-accent-ink">
               {resendMessage}
             </p>
           )}
           {resendError && (
-            <p role="alert" className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs leading-5 text-danger">
+            <p role="alert" className="mt-3 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-xs leading-5 text-danger">
               {resendError}
             </p>
           )}
 
           <p className="mt-6 text-center text-sm text-subtle">
             Já confirmou?{' '}
-            <Link to="/login" className="font-medium text-accent hover:underline">
+            <Link to="/login" className="font-medium text-accent-ink hover:underline">
               Entrar
             </Link>
           </p>
@@ -103,7 +103,7 @@ export function RegisterForm() {
           </p>
 
           {submitError && (
-            <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+            <p role="alert" className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
               {submitError}
             </p>
           )}
@@ -175,11 +175,11 @@ export function RegisterForm() {
               label={
                 <>
                   Aceito os{' '}
-                  <a href="/termos-de-uso" className="text-accent hover:underline">
+                  <a href="/termos-de-uso" className="text-accent-ink hover:underline">
                     Termos de Uso
                   </a>{' '}
                   e{' '}
-                  <a href="/politica-de-privacidade" className="text-accent hover:underline">
+                  <a href="/politica-de-privacidade" className="text-accent-ink hover:underline">
                     Política de Privacidade
                   </a>
                 </>
@@ -212,7 +212,7 @@ export function RegisterForm() {
 
           <p className="mt-6 text-center text-sm text-subtle">
             Já possui conta?{' '}
-            <Link to="/login" className="font-medium text-accent hover:underline">
+            <Link to="/login" className="font-medium text-accent-ink hover:underline">
               Entrar
             </Link>
           </p>

@@ -44,7 +44,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
           aria-label="Comparação mensal de receitas e despesas"
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           preserveAspectRatio="none"
-          className={`h-full w-full ${hasData ? '' : 'opacity-20'}`}
+          className="h-full w-full"
         >
           {ticks.map((tick) => {
             const y = yFor(tick);
@@ -102,11 +102,11 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
 
       <div className="mt-4 flex items-center justify-center gap-6 text-xs text-muted">
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-teal-400" />
+          <span className="h-2 w-2 rounded-full bg-positive" />
           Receitas
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-400" />
+          <span className="h-2 w-2 rounded-full bg-danger" />
           Despesas
         </span>
       </div>

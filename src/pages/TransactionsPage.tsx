@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ArrowDownRight, ArrowUpRight, Plus, Trash2 } from 'lucide-react';
 import {
   api,
   ApiError,
   type CategoryResponse,
+  type CategoryType,
   type TransactionResponse,
 } from '../lib/api';
 import { session } from '../lib/session';
@@ -21,6 +23,7 @@ import {
 } from '../components/CategoryFormModal/CategoryFormModal';
 
 export function TransactionsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
 
@@ -30,16 +33,19 @@ export function TransactionsPage() {
   const [pageError, setPageError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [defaultTipo, setDefaultTipo] = useState<CategoryType>('despesa');
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categoryDefaultTipo, setCategoryDefaultTipo] = useState<CategoryType>('despesa');
   const [categorySaving, setCategorySaving] = useState(false);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryResponse | null>(null);
 
   function loadData() {
     setLoading(true);
+    setPageError(null);
     Promise.all([api.listTransactions(), api.listCategories()])
       .then(([transactionsResult, categoriesResult]) => {
         setTransactions(transactionsResult);
@@ -53,12 +59,25 @@ export function TransactionsPage() {
 
   useEffect(loadData, []);
 
+  useEffect(() => {
+    if (loading || searchParams.get('new') !== '1') return;
+    setDefaultTipo(searchParams.get('tipo') === 'receita' ? 'receita' : 'despesa');
+    setModalError(null);
+    setSelectedCategory(null);
+    setModalOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('new');
+    next.delete('tipo');
+    setSearchParams(next, { replace: true });
+  }, [loading, searchParams, setSearchParams]);
+
   const categoriesById = new Map(categories.map((category) => [category.id_categoria, category]));
   const sortedTransactions = [...transactions].sort((a, b) =>
     b.data_transacao.localeCompare(a.data_transacao)
   );
 
   function openModal() {
+    setDefaultTipo('despesa');
     setModalError(null);
     setSelectedCategory(null);
     setModalOpen(true);
@@ -128,7 +147,7 @@ export function TransactionsPage() {
       />
 
       {pageError && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-danger">
+        <p className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {pageError}
         </p>
       )}
@@ -153,7 +172,7 @@ export function TransactionsPage() {
               >
                 <span
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                    isReceita ? 'bg-teal-500/15 text-accent' : 'bg-red-500/15 text-danger'
+                    isReceita ? 'bg-positive/10 text-positive' : 'bg-danger/15 text-danger'
                   }`}
                 >
                   <Icon size={17} />
@@ -168,7 +187,7 @@ export function TransactionsPage() {
                 </div>
 
                 <span
-                  className={`text-sm font-semibold ${isReceita ? 'text-accent' : 'text-danger'}`}
+                  className={`text-sm font-semibold ${isReceita ? 'text-positive' : 'text-danger'}`}
                 >
                   {isReceita ? '+' : '-'}
                   {formatCurrency(transaction.valor)}
@@ -190,13 +209,15 @@ export function TransactionsPage() {
 
       <TransactionFormModal
         open={modalOpen}
+        defaultTipo={defaultTipo}
         categories={categories}
         selectedCategory={selectedCategory}
         saving={saving}
         error={modalError}
         onClose={closeModal}
         onSubmit={handleCreate}
-        onNewCategory={() => {
+        onNewCategory={(tipo) => {
+          setCategoryDefaultTipo(tipo);
           setCategoryError(null);
           setCategoryModalOpen(true);
         }}
@@ -204,6 +225,7 @@ export function TransactionsPage() {
 
       <CategoryFormModal
         open={categoryModalOpen}
+        defaultTipo={categoryDefaultTipo}
         saving={categorySaving}
         error={categoryError}
         onClose={closeCategoryModal}

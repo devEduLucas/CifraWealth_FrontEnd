@@ -12,7 +12,7 @@ function formatVariation(value: number | null, lowerIsBetter = false): { text: s
     return { text: 'Sem base no período anterior.', className: 'text-subtle' };
   }
   const arrow = value >= 0 ? '↑' : '↓';
-  const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-accent' : 'text-danger';
+  const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-positive' : 'text-danger';
   return { text: `${arrow} ${Math.abs(value)}% vs período anterior`, className };
 }
 
@@ -28,7 +28,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Receitas"
         value={formatCurrency(summary.receitas)}
         icon={TrendingUp}
-        iconClassName="bg-teal-500/15 text-accent"
+        iconClassName="bg-positive/10 text-positive"
         footnote={receitas.text}
         footnoteClassName={receitas.className}
       />
@@ -36,7 +36,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Despesas"
         value={formatCurrency(summary.despesas)}
         icon={TrendingDown}
-        iconClassName="bg-red-500/15 text-danger"
+        iconClassName="bg-danger/15 text-danger"
         footnote={despesas.text}
         footnoteClassName={despesas.className}
       />
@@ -44,7 +44,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Saldo do Período"
         value={formatCurrency(summary.saldo)}
         icon={Wallet}
-        iconClassName="bg-sky-500/15 text-info"
+        iconClassName="bg-info/15 text-info"
         footnote={saldo.text}
         footnoteClassName={saldo.className}
       />
@@ -52,7 +52,7 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
         label="Taxa de Economia"
         value={`${summary.taxaEconomiaPercentual}%`}
         icon={PieChart}
-        iconClassName="bg-teal-500/15 text-accent"
+        iconClassName="bg-positive/10 text-positive"
         footnote={taxa.text}
         footnoteClassName={taxa.className}
       />

@@ -31,7 +31,7 @@ export function GoalListCard({ goal, onEdit, onDelete, onContribute, disabled }:
     <Card>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-500/15 text-accent">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-progress/10 text-progress">
             <Icon size={19} />
           </span>
           <div>
@@ -47,7 +47,7 @@ export function GoalListCard({ goal, onEdit, onDelete, onContribute, disabled }:
           {formatCurrency(goal.valorAtual)}
           <span className="ml-1.5 text-sm font-normal text-muted">de {formatCurrency(goal.valorObjetivo)}</span>
         </p>
-        <p className="text-lg font-bold text-accent">{progress}%</p>
+        <p className="text-lg font-bold text-progress">{progress}%</p>
       </div>
 
       <div className="mt-2.5">

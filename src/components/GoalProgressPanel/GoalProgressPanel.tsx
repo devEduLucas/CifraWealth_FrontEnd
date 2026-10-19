@@ -15,7 +15,7 @@ export function GoalProgressPanel({ economizado, objetivo, percentual }: GoalPro
 
       <div className="mt-4 flex items-center justify-between text-sm">
         <span className="text-muted">Economizado</span>
-        <span className="font-semibold text-accent">{formatCurrency(economizado)}</span>
+        <span className="font-semibold text-progress">{formatCurrency(economizado)}</span>
       </div>
       <div className="mt-1.5 flex items-center justify-between text-sm">
         <span className="text-muted">Objetivo</span>
@@ -26,7 +26,7 @@ export function GoalProgressPanel({ economizado, objetivo, percentual }: GoalPro
         <ProgressBar value={percentual} heightClassName="h-2.5" />
       </div>
 
-      <p className="mt-5 text-center text-3xl font-bold text-accent">{percentual}%</p>
+      <p className="mt-5 text-center text-3xl font-bold text-progress">{percentual}%</p>
       <p className="text-center text-xs text-subtle">do total alcançado</p>
     </Card>
   );

@@ -70,7 +70,7 @@ export function getGoalProgress(goal: { valorAtual: number; valorObjetivo: numbe
 export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; variant: BadgeVariant } {
   switch (status) {
     case 'concluida':
-      return { label: 'Concluída', variant: 'sky' };
+      return { label: 'Concluída', variant: 'positive' };
     case 'atrasada':
       return { label: 'Atrasada', variant: 'red' };
     case 'cancelada':
@@ -82,9 +82,10 @@ export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; 
 }
 
 export function getGoalProgressColorClassName(status: GoalDisplayStatus): string {
-  if (status === 'atrasada') return 'bg-red-400';
-  if (status === 'cancelada') return 'bg-slate-500';
-  return 'bg-teal-400';
+  if (status === 'atrasada') return 'bg-danger';
+  if (status === 'cancelada') return 'bg-subtle';
+  if (status === 'concluida') return 'bg-positive';
+  return 'bg-progress';
 }
 
 export function formatMonthYear(isoDate: string): string {

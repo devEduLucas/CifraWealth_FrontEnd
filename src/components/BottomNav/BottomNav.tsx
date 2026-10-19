@@ -8,7 +8,6 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'categories', label: 'Categorias', path: '/categories', icon: 'categories' },
   { key: 'goals', label: 'Metas', path: '/goals', icon: 'goals' },
   { key: 'reports', label: 'Relatórios', path: '/reports', icon: 'reports' },
-  { key: 'profile', label: 'Perfil', path: '/profile', icon: 'profile' },
 ];
 
 const ICONS: Record<NavItem['icon'], typeof LayoutDashboard> = {
@@ -31,7 +30,7 @@ export function BottomNav() {
             to={item.path}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors ${
-                isActive ? 'text-accent' : 'text-subtle'
+                isActive ? 'text-accent-ink' : 'text-subtle'
               }`
             }
           >
