@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test:e2e": "playwright test",
-    "test": "node --experimental-strip-types --test test/reports.test.mjs test/config.test.mjs test/notifications.test.mjs"
+    "test": "node --experimental-strip-types --test test/reports.test.mjs test/config.test.mjs test/notifications.test.mjs test/money.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.462.0",

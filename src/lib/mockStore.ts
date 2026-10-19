@@ -11,6 +11,7 @@ import type {
   UserResponse,
 } from './api';
 import type { DetailedReportResponse } from '../types/reports.types';
+import { localDateOnly } from '../utils/reports';
 
 const STORAGE_KEY = 'cifrawealth:mock_store:v1';
 
@@ -297,6 +298,7 @@ class MockStore {
   }
 
   createCategory(input: CategoryInput): CategoryResponse {
+    if (this.data.categories.some((c) => c.tipo === input.tipo && c.nome.localeCompare(input.nome.trim(), 'pt-BR', { sensitivity: 'base' }) === 0)) throw new Error('Você já possui uma categoria com esse nome.');
     const nextId = this.data.categories.reduce((max, c) => Math.max(max, c.id_categoria), 0) + 1;
     const category: CategoryResponse = {
       id_categoria: nextId,
@@ -315,6 +317,8 @@ class MockStore {
     if (index === -1) {
       throw new Error('Categoria não encontrada.');
     }
+    if (input.tipo && input.tipo !== this.data.categories[index].tipo && this.data.transactions.some((t) => t.id_categoria === id)) throw new Error('Não é possível alterar o tipo de uma categoria em uso.');
+    if (this.data.categories.some((c) => c.id_categoria !== id && c.tipo === (input.tipo ?? this.data.categories[index].tipo) && c.nome.localeCompare(input.nome ?? this.data.categories[index].nome, 'pt-BR', { sensitivity: 'base' }) === 0)) throw new Error('Você já possui uma categoria com esse nome.');
     const updated = {
       ...this.data.categories[index],
       ...input,
@@ -325,6 +329,7 @@ class MockStore {
   }
 
   deleteCategory(id: number): void {
+    if (this.data.transactions.some((t) => t.id_categoria === id)) throw new Error('Não é possível excluir uma categoria que possui transações.');
     this.data.categories = this.data.categories.filter((c) => c.id_categoria !== id);
     this.save(this.data);
   }
@@ -365,7 +370,7 @@ class MockStore {
       tipo: input.tipo,
       descricao: input.descricao,
       data_transacao: input.data_transacao,
-      status: input.status ?? 'confirmada',
+      status: input.status ?? (input.data_transacao > localDateOnly() ? 'pendente' : 'confirmada'),
     };
     this.data.transactions.unshift(transaction);
     this.save(this.data);
@@ -619,6 +624,7 @@ class MockStore {
     this.save(this.data);
     return updated;
   }
+
 }
 
 export const mockStore = new MockStore();

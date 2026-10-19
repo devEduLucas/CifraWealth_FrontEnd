@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { api, ApiError, type CategoryResponse } from '../lib/api';
 import { session } from '../lib/session';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { Button } from '../components/Button/Button';
+import { ConfirmDialog } from '../components/ConfirmDialog/ConfirmDialog';
 import {
   CategoryFormModal,
   type CategoryFormValues,
@@ -21,9 +22,14 @@ export function CategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  const [editing, setEditing] = useState<CategoryResponse | null>(null);
+  const [deleting, setDeleting] = useState<CategoryResponse | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
 
   function loadCategories() {
     setLoading(true);
+    setPageError(null);
     api
       .listCategories()
       .then(setCategories)
@@ -37,7 +43,8 @@ export function CategoriesPage() {
 
   const sortedCategories = [...categories].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
-  function openModal() {
+  function openModal(category: CategoryResponse | null = null) {
+    setEditing(category);
     setModalError(null);
     setModalOpen(true);
   }
@@ -50,8 +57,7 @@ export function CategoriesPage() {
   function handleCreate(values: CategoryFormValues) {
     setSaving(true);
     setModalError(null);
-    api
-      .createCategory(values)
+    (editing ? api.updateCategory(editing.id_categoria, values) : api.createCategory(values))
       .then(() => {
         setModalOpen(false);
         loadCategories();
@@ -62,14 +68,16 @@ export function CategoriesPage() {
       .finally(() => setSaving(false));
   }
 
-  function handleDelete(id: number) {
-    setPageError(null);
+  function handleDelete() {
+    if (!deleting || deletingBusy) return;
+    setDeletingBusy(true);
+    setDeleteError(null);
     api
-      .deleteCategory(id)
-      .then(loadCategories)
+      .deleteCategory(deleting.id_categoria)
+      .then(() => { setDeleting(null); loadCategories(); })
       .catch((err: unknown) => {
-        setPageError(err instanceof ApiError ? err.message : 'Erro ao excluir categoria.');
-      });
+        setDeleteError(err instanceof ApiError ? err.message : 'Erro ao excluir categoria.');
+      }).finally(() => setDeletingBusy(false));
   }
 
   return (
@@ -78,16 +86,16 @@ export function CategoriesPage() {
         title="Categorias"
         subtitle="Organize suas receitas e despesas."
         action={
-          <Button icon={Plus} onClick={openModal}>
+          <Button icon={Plus} onClick={() => openModal()}>
             Nova Categoria
           </Button>
         }
       />
 
       {pageError && (
-        <p className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {pageError}
-        </p>
+        <div role="alert" className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+          <p>{pageError}</p><button onClick={loadCategories} className="min-h-11 font-semibold underline">Tentar novamente</button>
+        </div>
       )}
 
       {loading ? (
@@ -115,14 +123,17 @@ export function CategoriesPage() {
                     {isReceita ? 'Receita' : 'Despesa'}
                   </span>
                 </div>
+                <div className="flex shrink-0 gap-1">
+                <button type="button" aria-label="Editar categoria" onClick={() => openModal(category)} className="flex h-11 w-11 items-center justify-center rounded-lg text-accent-ink hover:bg-hover"><Pencil size={17} /></button>
                 <button
                   type="button"
                   aria-label="Excluir categoria"
-                  onClick={() => handleDelete(category.id_categoria)}
-                  className="text-subtle transition-colors hover:text-danger"
+                  onClick={() => { setDeleteError(null); setDeleting(category); }}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-hover hover:text-danger"
                 >
                   <Trash2 size={16} />
                 </button>
+                </div>
               </li>
             );
           })}
@@ -131,11 +142,13 @@ export function CategoriesPage() {
 
       <CategoryFormModal
         open={modalOpen}
+        category={editing}
         saving={saving}
         error={modalError}
         onClose={closeModal}
         onSubmit={handleCreate}
       />
+      <ConfirmDialog open={Boolean(deleting)} title="Excluir categoria" description={'Excluir “' + (deleting?.nome ?? '') + '”? Categorias com transações não podem ser removidas. Esta ação não pode ser desfeita.'} saving={deletingBusy} error={deleteError} onClose={() => { if (!deletingBusy) setDeleting(null); }} onConfirm={handleDelete} />
     </DashboardLayout>
   );
 }
