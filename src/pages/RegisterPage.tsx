@@ -18,7 +18,7 @@ export function RegisterPage() {
               financeira.
             </h1>
             <p className="max-w-sm text-base text-muted">
-              Organize receitas, despesas, acompanhe seu patrimônio e construa hábitos financeiros
+              Registre receitas e despesas, acompanhe suas metas e construa hábitos financeiros
               inteligentes.
             </p>
           </div>

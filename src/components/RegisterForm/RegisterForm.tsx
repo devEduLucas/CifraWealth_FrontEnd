@@ -175,11 +175,11 @@ export function RegisterForm() {
               label={
                 <>
                   Aceito os{' '}
-                  <a href="/termos-de-uso" className="text-accent-ink hover:underline">
+                  <a href="/termos-de-uso" target="_blank" rel="noopener noreferrer" className="text-accent-ink hover:underline" aria-label="Termos de Uso (abre em nova aba)">
                     Termos de Uso
                   </a>{' '}
                   e{' '}
-                  <a href="/politica-de-privacidade" className="text-accent-ink hover:underline">
+                  <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" className="text-accent-ink hover:underline" aria-label="Política de Privacidade (abre em nova aba)">
                     Política de Privacidade
                   </a>
                 </>
