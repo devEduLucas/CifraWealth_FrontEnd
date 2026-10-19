@@ -39,6 +39,7 @@ export function useResetPasswordForm(token?: string) {
   function handleSubmit(onSuccess?: () => void) {
     return async (event: FormEvent) => {
       event.preventDefault();
+      if (submitting) return;
       setFieldTouched('password');
       setFieldTouched('confirmPassword');
 
@@ -51,11 +52,9 @@ export function useResetPasswordForm(token?: string) {
       setSubmitError(null);
 
       try {
-        if (token) {
-          await api.resetPassword(token, data.password);
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 600));
-        }
+        if (!token) throw new Error('Solicite um novo link de recuperação para redefinir a senha.');
+        await api.resetPassword(token, data.password);
+        setData({ password: '', confirmPassword: '' });
         setIsSuccess(true);
         onSuccess?.();
       } catch (err) {
