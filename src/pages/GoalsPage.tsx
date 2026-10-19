@@ -12,6 +12,11 @@ import { TipsCard } from '../components/TipsCard/TipsCard';
 import { GoalHistoryTable } from '../components/GoalHistoryTable/GoalHistoryTable';
 import { ContributeGoalModal } from '../components/ContributeGoalModal/ContributeGoalModal';
 import { NewGoalModal } from '../components/NewGoalModal/NewGoalModal';
+import { GoalAmountModal } from '../components/GoalAmountModal/GoalAmountModal';
+import { Modal } from '../components/Modal/Modal';
+import { ConfirmDialog } from '../components/ConfirmDialog/ConfirmDialog';
+import { formatCurrency } from '../utils/format';
+import { formatMonthYear } from '../utils/goals';
 import { useGoals } from '../hooks/useGoals';
 import { getGoalIcon, getGoalProgress } from '../utils/goals';
 import type { GoalFilter, GoalFormValues, GoalViewModel } from '../types/goals.types';
@@ -20,7 +25,7 @@ export function GoalsPage() {
   const user = session.getUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
 
-  const { goals, loading, error, saving, formError, clearFormError, createGoal, updateGoal, contributeGoal, deleteGoal } = useGoals();
+  const { goals, loading, error, saving, formError, clearFormError, createGoal, updateGoal, contributeGoal, adjustGoal, changeGoalStatus, deleteGoal, reload } = useGoals();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [contributingGoal, setContributingGoal] = useState<GoalViewModel | null>(null);
@@ -28,6 +33,9 @@ export function GoalsPage() {
   const [filter, setFilter] = useState<GoalFilter>('todas');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<GoalViewModel | null>(null);
+  const [adjustingGoal, setAdjustingGoal] = useState<GoalViewModel | null>(null);
+  const [viewingGoal, setViewingGoal] = useState<GoalViewModel | null>(null);
+  const [deletingGoal, setDeletingGoal] = useState<GoalViewModel | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -92,9 +100,17 @@ export function GoalsPage() {
     }).catch(() => undefined);
   }
   function handleDelete(goal: GoalViewModel) {
-    if (window.confirm(`Excluir a meta "${goal.titulo}"?`)) {
-      deleteGoal(goal.id).catch(() => undefined);
-    }
+    setDeletingGoal(goal);
+  }
+  function openAdjustment(goal: GoalViewModel) { clearFormError(); setAdjustingGoal(goal); }
+  function handleAdjustment(value: number, mode: 'total' | 'withdraw') {
+    if (!adjustingGoal || saving) return;
+    adjustGoal(adjustingGoal.id, value, mode).then(() => { setAdjustingGoal(null); setSuccess('Valor guardado ajustado. O progresso foi recalculado.'); }).catch(() => undefined);
+  }
+  function toggleStatus(goal: GoalViewModel) {
+    if (saving) return;
+    clearFormError();
+    changeGoalStatus(goal.id, goal.status === 'cancelada' ? 'em_andamento' : 'cancelada').then(() => setSuccess(goal.status === 'cancelada' ? 'Meta reativada.' : 'Meta cancelada. Seus valores foram preservados.')).catch(() => undefined);
   }
 
   return (
@@ -102,6 +118,8 @@ export function GoalsPage() {
       <GoalsHeader filter={filter} onFilterChange={setFilter} onNewGoal={openCreateModal} />
       <p className="mt-3 text-sm text-muted">Crie uma meta e use “Registrar valor guardado” para acompanhar o dinheiro que você já reservou.</p>
       {success && <p role="status" className="mt-4 text-sm text-positive">{success}</p>}
+      {formError && !modalOpen && !adjustingGoal && !contributingGoal && <p role="alert" className="mt-4 text-sm text-danger">{formError}</p>}
+      {error && <div role="alert" className="mt-4 text-sm text-danger"><p>{error}</p><button onClick={reload} className="min-h-11 font-semibold underline">Tentar novamente</button></div>}
 
       <div className="mt-6">
         <GoalSummaryCards
@@ -111,12 +129,6 @@ export function GoalsPage() {
           progressoGeralPercentual={progressoGeralPercentual}
         />
       </div>
-
-      {error && (
-        <p className="mt-6 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </p>
-      )}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         <div>
@@ -134,7 +146,7 @@ export function GoalsPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {filteredGoals.map((goal) => (
-                <GoalListCard key={goal.id} goal={goal} onEdit={openEditModal} onDelete={handleDelete} onContribute={openContribution} disabled={saving} />
+                <GoalListCard key={goal.id} goal={goal} onEdit={openEditModal} onDelete={handleDelete} onContribute={openContribution} onAdjust={openAdjustment} onToggleStatus={toggleStatus} disabled={saving} />
               ))}
             </div>
           )}
@@ -152,7 +164,7 @@ export function GoalsPage() {
       </div>
 
       <div className="mt-6">
-        <GoalHistoryTable goals={goals} onView={openEditModal} onEdit={openEditModal} onDelete={handleDelete} />
+        <GoalHistoryTable goals={goals} disabled={saving} onView={setViewingGoal} onEdit={openEditModal} onDelete={handleDelete} />
       </div>
 
       <ContributeGoalModal key={contributingGoal?.id ?? "closed"} open={Boolean(contributingGoal)} goal={contributingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setContributingGoal(null); }} onSubmit={handleContribution} />
@@ -164,6 +176,11 @@ export function GoalsPage() {
         onClose={() => { if (!saving) setModalOpen(false); }}
         onSubmit={handleModalSubmit}
       />
+      {adjustingGoal && <GoalAmountModal key={adjustingGoal.id} goal={adjustingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setAdjustingGoal(null); }} onSubmit={handleAdjustment} />}
+      <Modal open={Boolean(viewingGoal)} title="Detalhes da meta" saving={false} onClose={() => setViewingGoal(null)}>
+        {viewingGoal && <div className="space-y-3 text-sm text-muted"><h3 className="break-words font-semibold text-foreground">{viewingGoal.titulo}</h3>{viewingGoal.descricao && <p className="break-words">{viewingGoal.descricao}</p>}<p>Guardado: {formatCurrency(viewingGoal.valorAtual)}</p><p>Objetivo: {formatCurrency(viewingGoal.valorObjetivo)}</p><p>Progresso: {getGoalProgress(viewingGoal)}%</p><p>Prazo: {viewingGoal.dataFim ? formatMonthYear(viewingGoal.dataFim) : 'Sem prazo definido'}</p></div>}
+      </Modal>
+      <ConfirmDialog open={Boolean(deletingGoal)} title="Excluir meta" description={'Excluir “' + (deletingGoal?.titulo ?? '') + '” e seu acompanhamento? Esta ação não movimenta dinheiro e não pode ser desfeita.'} saving={saving} error={error} onClose={() => { if (!saving) setDeletingGoal(null); }} onConfirm={() => { if (deletingGoal && !saving) deleteGoal(deletingGoal.id).then(() => setDeletingGoal(null)).catch(() => undefined); }} />
     </DashboardLayout>
   );
 }

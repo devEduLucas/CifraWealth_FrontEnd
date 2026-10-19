@@ -84,7 +84,7 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await dialog.getByLabel('Nome da meta').fill('Reserva Sprint 5');await dialog.getByLabel('Valor objetivo').fill('1000');await dialog.getByLabel('Prazo (opcional)').fill('2026-10-25');
   await dialog.getByRole('button',{name:'Salvar',exact:true}).click();await expect(dialog).not.toBeVisible();
   await page.getByRole('button',{name:'Registrar valor guardado',exact:true}).click();await expect(dialog).toBeVisible();
-  await expect(dialog.getByText(/não transfere dinheiro/)).toBeVisible();await dialog.getByLabel('Quanto você já reservou para esta meta?').fill('250');
+  await expect(dialog.getByText(/não transfere dinheiro/)).toBeVisible();await dialog.getByLabel('Valor deste aporte').fill('250');
   await dialog.getByRole('button',{name:'Registrar valor',exact:true}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('status')).toContainText('progresso');
   await page.reload();await expect(page.getByText('25%',{exact:true}).first()).toBeVisible();
   await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('metas.png'),fullPage:true});

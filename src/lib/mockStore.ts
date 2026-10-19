@@ -596,6 +596,7 @@ class MockStore {
       ...this.data.goals[index],
       ...input,
     };
+    updated.status = updated.status === 'cancelada' ? 'cancelada' : updated.valor_atual >= updated.valor_objetivo ? 'concluida' : 'em_andamento';
     this.data.goals[index] = updated;
     this.save(this.data);
     return updated;
@@ -612,7 +613,9 @@ class MockStore {
       throw new Error('Meta não encontrada.');
     }
     const goal = this.data.goals[index];
-    const newCurrent = goal.valor_atual + valor;
+    if (goal.status === 'cancelada' || valor <= 0) throw new Error('Esta meta não recebe aportes.');
+    const newCurrent = (Math.round(goal.valor_atual * 100) + Math.round(valor * 100)) / 100;
+    if (newCurrent > 99999999.99) throw new Error('Valor máximo excedido.');
     const isCompleted = newCurrent >= goal.valor_objetivo;
 
     const updated: GoalResponse = {
@@ -625,6 +628,11 @@ class MockStore {
     return updated;
   }
 
+  withdrawGoal(id: number, valor: number): GoalResponse {
+    const goal = this.data.goals.find((g) => g.id_meta === id);
+    if (!goal || goal.status === 'cancelada' || valor <= 0 || valor > goal.valor_atual) throw new Error('Retirada inválida.');
+    return this.updateGoal(id, { valor_atual: (Math.round(goal.valor_atual * 100) - Math.round(valor * 100)) / 100 });
+  }
 }
 
 export const mockStore = new MockStore();

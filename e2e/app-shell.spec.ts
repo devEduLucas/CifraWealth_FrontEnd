@@ -136,7 +136,7 @@ test('notificações mostram dados reais, abrem a meta e permitem recuperar falh
   expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('notificacoes.png') });
   await panel.getByRole('link', { name: /Reserva com prazo/ }).click();
-  await expect(page.getByRole('dialog', { name: 'Registrar valor guardado', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Adicionar valor guardado', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await page.route('**/api/goals', (route) => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ message: 'Falha temporária nos lembretes' }) }));
   await bell.click();

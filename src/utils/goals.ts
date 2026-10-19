@@ -90,6 +90,6 @@ export function getGoalProgressColorClassName(status: GoalDisplayStatus): string
 
 export function formatMonthYear(isoDate: string): string {
   const date = new Date(`${isoDate}T00:00:00`);
-  const label = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const label = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }

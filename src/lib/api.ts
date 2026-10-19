@@ -145,6 +145,7 @@ export interface GoalInput {
   valor_atual?: number;
   data_inicio?: string | null;
   data_fim?: string | null;
+  status?: GoalStatus;
 }
 
 export const api = {
@@ -322,6 +323,11 @@ export const api = {
   async deleteGoal(id: number): Promise<void> {
     if (isDemoMode) return (await getDemoStore()).deleteGoal(id);
     return authRequest<void>(`/goals/${id}`, { method: 'DELETE' });
+  },
+
+  async withdrawGoal(id: number, valor: number): Promise<GoalResponse> {
+    if (isDemoMode) return (await getDemoStore()).withdrawGoal(id, valor);
+    return authRequest<GoalResponse>(`/goals/${id}/withdraw`, { method: 'POST', body: JSON.stringify({ valor }) });
   },
 
   async contributeGoal(id: number, valor: number): Promise<GoalResponse> {

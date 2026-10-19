@@ -2,6 +2,8 @@ import { useModalFocus } from '../../hooks/useModalFocus';
 import { useEffect, useState, type FormEvent } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../Button/Button';
+import { MoneyInput } from '../MoneyInput/MoneyInput';
+import { formatMoneyInput, parseMoney } from '../../utils/format';
 import type { GoalFormValues, GoalViewModel } from '../../types/goals.types';
 
 interface NewGoalModalProps {
@@ -26,7 +28,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
         ? {
             titulo: goal.titulo,
             descricao: goal.descricao ?? '',
-            valorObjetivo: String(goal.valorObjetivo),
+            valorObjetivo: formatMoneyInput(goal.valorObjetivo),
             dataFim: goal.dataFim ?? '',
           }
         : EMPTY_VALUES
@@ -37,7 +39,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (saving || !values.titulo.trim() || Number(values.valorObjetivo) <= 0) return;
+    if (saving || !values.titulo.trim() || !Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0) return;
     onSubmit(values);
   }
 
@@ -79,22 +81,8 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="goal-target" className="text-sm font-medium text-muted">Valor objetivo</label>
-            <input
-              type="number"
-              min="0.01"
-              max="99999999.99"
-              required
-              step="0.01"
-              id="goal-target"
-              disabled={saving}
-              value={values.valorObjetivo}
-              onChange={(event) => setValues((prev) => ({ ...prev, valorObjetivo: event.target.value }))}
-              placeholder="0,00"
-              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
-            />
-          </div>
+          <MoneyInput label="Valor objetivo" required disabled={saving} value={values.valorObjetivo} onValueChange={(value) => setValues((prev) => ({ ...prev, valorObjetivo: value }))} />
+          {values.valorObjetivo && (!Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0) && <p role="alert" className="text-xs text-danger">Informe um valor entre R$ 0,01 e R$ 99.999.999,99, com até duas casas decimais.</p>}
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="goal-deadline" className="text-sm font-medium text-muted">Prazo (opcional)</label>
@@ -114,7 +102,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={saving || !values.titulo.trim() || !values.valorObjetivo}>
+            <Button type="submit" disabled={saving || !values.titulo.trim() || !Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0}>
               {saving ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
