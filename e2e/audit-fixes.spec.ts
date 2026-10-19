@@ -67,3 +67,23 @@ test('metas diferenciam aporte, correção, retirada, detalhes e cancelamento', 
   await page.getByRole('button',{name:'Visualizar',exact:true}).click();dialog=page.getByRole('dialog',{name:'Detalhes da meta'});await expect(dialog.getByText(/25 de outubro de 2026/)).toBeVisible();await expect(dialog.locator('input')).toHaveCount(0);await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'Cancelar meta',exact:true}).click();await expect(page.getByRole('button',{name:'Reativar meta',exact:true})).toBeVisible();await page.getByRole('button',{name:'Reativar meta',exact:true}).click();await expect(page.getByRole('button',{name:'Registrar valor guardado',exact:true})).toBeVisible();await page.reload();await expect(page.getByText('40%',{exact:true}).first()).toBeVisible();
 });
+
+test('falha parcial do dashboard preserva o saldo e permite nova tentativa', async ({ page }) => {
+  await page.route('**/api/goals',route=>route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({message:'Falha temporária de metas'})}));await page.goto('/dashboard');await expect(page.getByRole('alert')).toContainText('Falha temporária');await expect(page.getByText('Saldo dos lançamentos',{exact:true})).toBeVisible();await expect(page.getByText('Metas indisponíveis no momento. Use “Tentar novamente” acima.',{exact:true})).toBeVisible();
+  await page.unroute('**/api/goals');await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(page.getByRole('alert')).toHaveCount(0);await expect(page.getByText('Meta ajustável',{exact:true})).toBeVisible();
+});
+
+test('textos e valores máximos não causam rolagem horizontal da página', async ({ page, request }, testInfo) => {
+  const category=await request.post(API+'/categories',{headers:headers(),data:{nome:'X'.repeat(50),tipo:'despesa'}});expect(category.status()).toBe(201);
+  expect((await request.post(API+'/transactions',{headers:headers(),data:{descricao:'Z'.repeat(200),valor:99999999.99,tipo:'despesa',id_categoria:(await category.json()).id_categoria,data_transacao:today}})).status()).toBe(201);
+  expect((await request.post(API+'/goals',{headers:headers(),data:{titulo:'X'.repeat(100),descricao:'Y'.repeat(255),valor_objetivo:99999999.99}})).status()).toBe(201);
+  for(const width of [320,390,1440])for(const route of ['/dashboard','/transactions','/categories','/goals','/reports']){
+    await page.setViewportSize({width,height:900});await page.goto(route);await expect(page.getByText(/Carregando/)).toHaveCount(0);
+    await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    if(route==='/dashboard'){
+      const amount=page.getByText('Saldo dos lançamentos',{exact:true}).locator('..').locator('..').locator(':scope > p').first();
+      expect(await amount.evaluate((el)=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+    }
+    if(width===320&&['/dashboard','/goals','/reports'].includes(route))await page.screenshot({animations:'disabled',path:testInfo.outputPath(route.slice(1)+'-320.png')});
+  }
+});

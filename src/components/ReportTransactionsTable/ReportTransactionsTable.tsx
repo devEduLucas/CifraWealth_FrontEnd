@@ -7,8 +7,9 @@ export function ReportTransactionsTable({ items }: { items: DetailedReportRespon
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [page, setPage] = useState(0);
-  const normalized = search.toLocaleLowerCase('pt-BR');
-  const filtered = items.filter((item) => (!type || item.tipo === type) && (item.descricao + ' ' + item.categoria).toLocaleLowerCase('pt-BR').includes(normalized));
+  const normalize = (text: string) => text.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const normalized = normalize(search);
+  const filtered = items.filter((item) => (!type || item.tipo === type) && normalize(item.descricao + ' ' + item.categoria).includes(normalized));
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   return <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
     <h2 className="text-base font-semibold text-foreground">Transações detalhadas</h2><p className="mt-1 text-xs text-muted">Transações confirmadas que compõem o relatório. A busca abaixo filtra somente esta tabela.</p>

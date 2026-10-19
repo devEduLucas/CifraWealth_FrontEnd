@@ -72,13 +72,14 @@ export function ReportsPage() {
       {loading && <p role="status" className="mt-8 text-sm text-muted">Carregando relatório...</p>}
       {error && <div role="alert" className="mt-6 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"><p>{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 font-semibold underline">Tentar novamente</button></div>}
       {report && !loading && !error && <>
+        <a href="#transacoes-detalhadas" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink underline">Ver transações detalhadas deste período</a>
         {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-line p-4 text-sm text-muted">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-accent-ink">Registrar transação</Link> ou selecione outras datas.</div>}
         <div className="mt-6"><ReportSummaryCards summary={report.summary} /></div>
         <div className="mt-6"><FinancialEvolutionChart data={report.evolution} periodLabel={label} /></div>
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2"><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /><MonthlyComparisonChart data={report.monthlyComparison} /></div>
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2"><ReportInsightsPanel insights={report.insights} /><ReportGoalsPanel goals={report.goals} /></div>
         <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} /></div>
-        <div className="mt-6"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} /></div>
+        <div id="transacoes-detalhadas" className="mt-6 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} /></div>
       </>}
     </DashboardLayout>
   );

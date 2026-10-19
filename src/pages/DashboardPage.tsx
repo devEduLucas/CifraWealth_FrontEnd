@@ -20,6 +20,7 @@ import { QuickActionButton } from '../components/QuickActionButton/QuickActionBu
 import { FinanceChart } from '../components/FinanceChart/FinanceChart';
 import { TransactionList } from '../components/TransactionList/TransactionList';
 import { GoalCard } from '../components/GoalCard/GoalCard';
+import { localDateOnly } from '../utils/reports';
 
 export function DashboardPage() {
   const user = session.getUser();
@@ -37,37 +38,44 @@ export function DashboardPage() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [goals, setGoals] = useState<GoalResponse[]>([]);
+  const [retry, setRetry] = useState(0);
+  const [available, setAvailable] = useState({ balance: false, monthly: false, goals: false, transactions: false });
+  const today = localDateOnly();
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
+    let active = true;
     // When in early months of the year, fetch previous year too for continuous 6-month chart
     const monthlyPromise =
       currentMonthIndex < 5
         ? Promise.all([
-            api.getMonthlyReport(currentYear - 1).catch(() => []),
-            api.getMonthlyReport(currentYear),
+            api.getMonthlyReport(currentYear - 1, today),
+            api.getMonthlyReport(currentYear, today),
           ]).then(([prev, cur]) => [...prev, ...cur])
-        : api.getMonthlyReport(currentYear);
+        : api.getMonthlyReport(currentYear, today);
 
-    Promise.all([
+    Promise.allSettled([
       api.getDashboard(),
       monthlyPromise,
-      api.listTransactions({ status: 'confirmada', limit: 6 }),
+      api.listTransactions({ status: 'confirmada', data_fim: today, limit: 6 }),
       api.listCategories(),
       api.listGoals(),
     ])
       .then(([dashboard, monthlyReport, transactionsResult, categoriesResult, goalsResult]) => {
-        setSaldo(dashboard.saldo);
-        setMonthly(monthlyReport);
-        setTransactions(transactionsResult);
-        setCategories(categoriesResult);
-        setGoals(goalsResult);
+        if (!active) return;
+        setAvailable({ balance: dashboard.status === 'fulfilled', monthly: monthlyReport.status === 'fulfilled', transactions: transactionsResult.status === 'fulfilled', goals: goalsResult.status === 'fulfilled' });
+        if (dashboard.status === 'fulfilled') setSaldo(dashboard.value.saldo);
+        if (monthlyReport.status === 'fulfilled') setMonthly(monthlyReport.value);
+        if (transactionsResult.status === 'fulfilled') setTransactions(transactionsResult.value);
+        if (categoriesResult.status === 'fulfilled') setCategories(categoriesResult.value);
+        if (goalsResult.status === 'fulfilled') setGoals(goalsResult.value);
+        const failures = [dashboard, monthlyReport, transactionsResult, categoriesResult, goalsResult].filter((item) => item.status === 'rejected');
+        if (failures.length) setError(failures.map((item) => item.status === 'rejected' && item.reason instanceof ApiError ? item.reason.message : 'Parte dos dados está indisponível.').filter((text, index, values) => values.indexOf(text) === index).join(' '));
       })
-      .catch((err: unknown) => {
-        setError(err instanceof ApiError ? err.message : 'Erro ao carregar o dashboard.');
-      })
-      .finally(() => setLoading(false));
-  }, [currentYear, currentMonthIndex]);
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [currentYear, currentMonthIndex, retry, today]);
 
   const categoriesById = useMemo(
     () =>
@@ -146,22 +154,22 @@ export function DashboardPage() {
 
       {loading && <p className="text-sm text-muted">Carregando dados financeiros...</p>}
       {error && (
-        <p className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </p>
+        <div role="alert" className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+          <p>{error}</p><button onClick={() => setRetry((old) => old + 1)} className="min-h-11 font-semibold underline">Tentar novamente</button>
+        </div>
       )}
 
-      {!loading && !error && (
+      {!loading && (
         <>
-          <BalanceCard total={saldo} />
+          {available.balance ? <BalanceCard total={saldo} /> : <p className="text-sm text-muted">Saldo indisponível no momento.</p>}
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {available.monthly && <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <SummaryCard
               label="Receitas"
               value={formatCurrency(receitasMes)}
               icon={TrendingUp}
               iconClassName="bg-positive/10 text-positive"
-              footnote="Este mês"
+              footnote="Este mês, até hoje"
               footnoteClassName="text-positive"
             />
             <SummaryCard
@@ -171,20 +179,20 @@ export function DashboardPage() {
               iconClassName="bg-danger/15 text-danger"
               footnote={
                 despesasVariacao === null
-                  ? 'Este mês'
+                  ? 'Este mês, até hoje'
                   : `${despesasVariacao > 0 ? '↑' : '↓'} ${despesasVariacao}% vs mês anterior`
               }
               footnoteClassName="text-danger"
             />
             <SummaryCard
-              label="Economia"
+              label="Resultado do mês"
               value={formatCurrency(economiaMes)}
               icon={Clock}
               iconClassName="bg-info/15 text-info"
-              footnote={receitasMes > 0 ? `${economiaPercentual}% da receita` : 'Este mês'}
+              footnote={receitasMes > 0 ? `${economiaPercentual}% da receita · até hoje` : 'Este mês, até hoje'}
               footnoteClassName="text-info"
             />
-          </div>
+          </div>}
 
           <div className="mt-6">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">
@@ -213,8 +221,8 @@ export function DashboardPage() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            <FinanceChart data={chartData} year={currentYear} subtitle={chartSubtitle} />
-            <TransactionList transactions={recentTransactions} />
+            {available.monthly ? <FinanceChart data={chartData} year={currentYear} subtitle={chartSubtitle + ' · até hoje'} /> : <p className="text-sm text-muted">Resumo mensal indisponível.</p>}
+            {available.transactions ? <TransactionList transactions={recentTransactions} /> : <p className="text-sm text-muted">Últimos lançamentos indisponíveis.</p>}
           </div>
 
           <div className="mt-6">
@@ -233,7 +241,7 @@ export function DashboardPage() {
               </Link>
             </div>
 
-            {goalItems.length === 0 ? (
+            {!available.goals ? <p className="mt-4 text-sm text-muted">Metas indisponíveis no momento. Use “Tentar novamente” acima.</p> : goalItems.length === 0 ? (
               <div className="mt-4 rounded-2xl border border-line bg-surface p-8 text-center">
                 <p className="text-sm text-muted">Nenhuma meta criada ainda.</p>
               </div>

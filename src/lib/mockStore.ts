@@ -266,7 +266,7 @@ class MockStore {
     }
 
     for (const t of this.data.transactions) {
-      if (t.status === 'pendente') continue;
+      if (t.status === 'pendente' || t.data_transacao > localDateOnly()) continue;
       if (t.tipo === 'receita') {
         total_receitas += t.valor;
       } else {
@@ -396,7 +396,7 @@ class MockStore {
     this.save(this.data);
   }
 
-  getMonthlyReport(year: number): MonthlyReportItem[] {
+  getMonthlyReport(year: number, end?: string): MonthlyReportItem[] {
     const pad = (n: number) => String(n).padStart(2, '0');
     const result: MonthlyReportItem[] = [];
 
@@ -406,7 +406,7 @@ class MockStore {
       let despesas = 0;
 
       for (const t of this.data.transactions) {
-        if (t.data_transacao.startsWith(monthPrefix) && t.status !== 'pendente') {
+        if (t.data_transacao.startsWith(monthPrefix) && t.status !== 'pendente' && (!end || t.data_transacao <= end)) {
           if (t.tipo === 'receita') {
             receitas += t.valor;
           } else {

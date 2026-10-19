@@ -294,9 +294,11 @@ export const api = {
     return authRequest<void>(`/transactions/${id}`, { method: 'DELETE' });
   },
 
-  async getMonthlyReport(ano: number): Promise<MonthlyReportItem[]> {
-    if (isDemoMode) return (await getDemoStore()).getMonthlyReport(ano);
-    return authRequest<MonthlyReportItem[]>(`/reports/monthly?ano=${ano}`, { method: 'GET' });
+  async getMonthlyReport(ano: number, end?: string): Promise<MonthlyReportItem[]> {
+    if (isDemoMode) return (await getDemoStore()).getMonthlyReport(ano, end);
+    const params = new URLSearchParams({ ano: String(ano) });
+    if (end) params.set('data_fim', end);
+    return authRequest<MonthlyReportItem[]>(`/reports/monthly?${params}`, { method: 'GET' });
   },
 
   async listGoals(): Promise<GoalResponse[]> {

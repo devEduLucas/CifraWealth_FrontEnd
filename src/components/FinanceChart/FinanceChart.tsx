@@ -1,6 +1,7 @@
 import { useRef, useState, type MouseEvent } from 'react';
 import type { ChartPoint } from '../../types/dashboard.types';
 import { formatCurrency } from '../../utils/validation';
+import { useChartWidth } from '../../hooks/useChartWidth';
 
 interface FinanceChartProps {
   data: ChartPoint[];
@@ -8,7 +9,6 @@ interface FinanceChartProps {
   subtitle: string;
 }
 
-const WIDTH = 700;
 const HEIGHT = 240;
 const PADDING_X = 12;
 const PADDING_TOP = 16;
@@ -35,6 +35,7 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
 }
 
 export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
+  const { ref, width: WIDTH } = useChartWidth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
@@ -74,7 +75,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const activeX = activeIndex !== null ? xFor(activeIndex) : null;
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <div ref={ref} className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-base font-semibold text-foreground">Receitas x Despesas</h2>

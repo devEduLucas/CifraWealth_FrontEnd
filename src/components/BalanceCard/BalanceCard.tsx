@@ -9,23 +9,24 @@ interface BalanceCardProps {
 
 export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
   const [visible, setVisible] = useState(true);
+  const amountLabel = visible ? formatCurrency(total) : 'R$ ••••••';
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-line bg-surface p-6">
       <div className="flex items-center gap-2">
-        <p className="text-sm text-muted">Saldo Total</p>
+        <p className="text-sm text-muted">Saldo dos lançamentos</p>
         <button
           type="button"
           aria-label={visible ? 'Ocultar saldo' : 'Mostrar saldo'}
           onClick={() => setVisible((prev) => !prev)}
-          className="text-subtle transition-colors hover:text-secondary"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-hover hover:text-secondary"
         >
           {visible ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
 
-      <p className={`mt-2 text-4xl font-bold tracking-tight ${total < 0 ? 'text-danger' : 'text-foreground'}`}>
-        {visible ? formatCurrency(total) : 'R$ ••••••'}
+      <p style={{ fontSize: `clamp(0.875rem, calc((100vw - 6rem) / ${amountLabel.length * 0.65}), 2.25rem)` }} className={`mt-2 whitespace-nowrap font-bold tabular-nums tracking-tight ${total < 0 ? 'text-danger' : 'text-foreground'}`}>
+        {amountLabel}
       </p>
 
       {variacaoPercentual !== undefined && (
@@ -36,20 +37,7 @@ export function BalanceCard({ total, variacaoPercentual }: BalanceCardProps) {
         </span>
       )}
 
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 160 60"
-        className="pointer-events-none absolute bottom-4 right-4 h-14 w-36 opacity-90"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,45 C20,48 30,38 45,36 C60,34 65,44 80,40 C95,36 100,20 115,16 C130,12 140,18 160,4"
-          fill="none"
-          stroke="var(--chart-balance)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
+      <p className="mt-3 max-w-xl text-xs leading-relaxed text-muted">Receitas menos despesas confirmadas até hoje, a partir dos registros feitos aqui. Não consulta seu banco nem desconta reservas das metas.</p>
     </div>
   );
 }
