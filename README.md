@@ -38,7 +38,8 @@ Para apresentar a interface sem backend, configure VITE_DEMO_MODE=true e reinici
 - Registrar valor guardado acompanha uma reserva que o usuário já fez em sua conta ou investimento. Não realiza transferências bancárias, não debita o saldo e não cria receita ou despesa automaticamente.
 - Relatórios: receitas, despesas, saldo, taxa de economia, evolução mensal, distribuição de despesas, comparativos e transações detalhadas. Somente transações confirmadas são incluídas. Datas inicial e final são inclusivas; intervalos inválidos e maiores que cinco anos são rejeitados.
 - Presets de 3, 6 e 12 meses incluem o mês atual até hoje. Personalizado permite selecionar e aplicar datas exatas. As variações comparam o intervalo anterior de mesma duração; base zero aparece sem variação.
-- Exportação CSV inclui resumo, meses, categorias, transações e situação atual das metas. A busca e o tipo na tabela filtram somente a tabela; a exportação inclui todas as transações do período aplicado.
+- Baixar PDF gera um relatório A4 com identificação, período aplicado, resumo, gráfico de evolução, detalhamento mensal, categorias, observações, metas atuais e todas as transações confirmadas. O arquivo tem texto selecionável, acentos preservados, cabeçalhos repetidos e páginas numeradas. O botão CSV continua disponível para planilhas.
+- A busca, o tipo e a paginação na tabela filtram somente a tela; PDF e CSV incluem todas as transações do período aplicado. Datas personalizadas precisam ser aplicadas antes de baixar. Metas representam a posição atual, independente dessas datas.
 - Todas as categorias pertencem ao usuário. Cada nova conta recebe suas próprias categorias iniciais; categorias com transações não podem ser excluídas nem mudar de tipo.
 - Metas nos relatórios mostram o progresso acumulado atual, independente das datas selecionadas.
 
@@ -48,14 +49,14 @@ Para apresentar a interface sem backend, configure VITE_DEMO_MODE=true e reinici
 2. Use Registrar valor guardado e informe R$ 250,00. Confira 25% e recarregue a página para verificar persistência.
 3. Registre o restante com Completar meta. Confira 100% e o filtro Concluídas.
 4. Em Categorias, crie uma receita Salário e uma despesa Mercado. Em Transações, registre receita de R$ 2.000,00 em 05/10/2026 e despesa de R$ 350,00 em 25/10/2026.
-5. Em Relatórios, escolha Personalizado, aplique 05/10/2026 a 25/10/2026 e confira saldo de R$ 1.650,00, detalhes, gráficos e CSV.
+5. Em Relatórios, escolha Personalizado, aplique 05/10/2026 a 25/10/2026 e confira saldo de R$ 1.650,00, detalhes, gráficos, PDF e CSV.
 6. Selecione somente 25/10/2026 para conferir saldo negativo; selecione um período sem transações para conferir o estado vazio. Inverta as datas para conferir a validação.
 
 ## Verificação automatizada
 
 - npm run build: TypeScript e build de produção.
 - npm run lint: ESLint.
-- npm test: configuração de API/demonstração, regras dos lembretes, validações de datas, períodos e exportação CSV, sem depender do backend. Requer Node.js 22.18 ou superior.
+- npm test: configuração de API/demonstração, regras dos lembretes, validações de datas, períodos, CSV e agrupamento do gráfico do PDF sem perder centavos. Não depende do backend. Requer Node.js 22.18 ou superior.
 - npm run test:e2e: Playwright no Chrome instalado, em desktop e celular. A configuração inicia instâncias exclusivas de API (3101) e Vite (5174), com modo demonstração desligado, além de uma instância de demonstração (5175) para validar seu isolamento. Os testes usam somente MySQL local com migrations aplicadas, criam contas temporárias verificadas e removem seus dados ao terminar. Cobrem menu, temas, atalhos, landing, informações e recuperação. O fluxo de envio é coberto por um servidor HTTP local na integração do backend; os testes de interface da recuperação interceptam a API. Não há envio externo de e-mails.
 - Testes de cálculos, validações e integração da API ficam no backend.
 ## Correções de usabilidade
@@ -67,3 +68,11 @@ Metas diferenciam novos aportes, correção do total e retirada. O valor posteri
 O dashboard mostra lançamentos confirmados até hoje e conserva os blocos disponíveis em caso de falha parcial. Documentos do cadastro abrem em outra aba para preservar o formulário; o perfil continua acessível pelo avatar, com cinco destinos no menu móvel.
 
 O React Router foi atualizado para a linha 7 corrigida, mantendo a aplicação React 18. Use Node 20 ou superior. `npm test` inclui regressões de valores monetários; `npm run test:e2e` cobre também edição, previsões, confirmação, exclusões, correção/retirada das metas, falhas parciais e textos no limite permitido.
+
+## Relatório em PDF
+
+Em Relatórios, escolha 3, 6 ou 12 meses, ou selecione Personalizado e aplique as datas. Depois, use **Baixar PDF**. O nome do arquivo inclui as datas do período aplicado. Durante a geração, filtros e downloads ficam desabilitados; uma falha permite tentar novamente sem perder o relatório carregado.
+
+A geração ocorre no navegador, com jsPDF, AutoTable e Noto Sans incorporada sob licença OFL. Bibliotecas e fontes são carregadas apenas ao pedir o PDF; nenhum dado financeiro é enviado a um serviço de conversão. A aparência de impressão é clara e permanece igual independentemente do tema da interface. Períodos longos usam trimestres ou anos no gráfico para preservar a leitura; as tabelas continuam mostrando cada mês e todos os registros.
+
+Os testes Playwright de exportação verificam os três presets, datas personalizadas, PDF válido, CSV completo e nova tentativa após falha das fontes em desktop e celular. Os testes reais da Sprint 5 também cobrem o download a partir da API e do MySQL local.

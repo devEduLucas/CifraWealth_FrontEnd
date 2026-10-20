@@ -4,6 +4,7 @@ import type { ReportPeriod } from '../../types/reports.types';
 interface ReportPeriodFilterProps {
   value: ReportPeriod;
   onChange: (value: ReportPeriod) => void;
+  disabled?: boolean;
 }
 
 const OPTIONS: { value: ReportPeriod; label: string }[] = [
@@ -13,11 +14,12 @@ const OPTIONS: { value: ReportPeriod; label: string }[] = [
   { value: 'custom', label: 'Personalizado' },
 ];
 
-export function ReportPeriodFilter({ value, onChange }: ReportPeriodFilterProps) {
+export function ReportPeriodFilter({ value, onChange, disabled = false }: ReportPeriodFilterProps) {
   return (
     <div className="field-shell h-11">
       <Calendar size={16} className="pointer-events-none absolute left-3.5 text-muted" />
       <select
+        disabled={disabled}
         value={value}
         onChange={(event) => onChange(event.target.value as ReportPeriod)}
         aria-label="Selecionar período do relatório"
