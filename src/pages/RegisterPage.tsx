@@ -2,18 +2,18 @@ import { ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Layout } from '../components/Layout/Layout';
 import { Logo } from '../components/Logo/Logo';
 import { BenefitItem } from '../components/BenefitItem/BenefitItem';
-import { IllustrationSection } from '../components/IllustrationSection/IllustrationSection';
+import { AuthFinancialIllustration } from '../components/IllustrationSection/AuthFinancialIllustration';
 import { RegisterForm } from '../components/RegisterForm/RegisterForm';
 
 export function RegisterPage() {
   return (
     <Layout
       left={
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col items-center gap-6 lg:items-start">
           <Logo showTagline />
 
-          <div className="flex max-w-md flex-col gap-4">
-            <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
+          <div className="hidden max-w-lg flex-col gap-4 lg:flex">
+            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground lg:text-5xl xl:text-[52px]">
               Comece hoje a <span className="text-accent-ink">transformar</span> sua vida
               financeira.
             </h1>
@@ -23,7 +23,7 @@ export function RegisterPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="hidden flex-col gap-5 lg:flex">
             <BenefitItem
               icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança"
@@ -41,7 +41,9 @@ export function RegisterPage() {
             />
           </div>
 
-          <IllustrationSection />
+          <div className="auth-illustration" aria-hidden="true">
+            <AuthFinancialIllustration variant="register" />
+          </div>
         </div>
       }
       right={<RegisterForm />}

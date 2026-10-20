@@ -55,7 +55,7 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
+    <div className="auth-card auth-register w-full max-w-lg rounded-2xl border border-line bg-surface p-5 sm:p-6">
       {verificationEmail ? (
         <>
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
@@ -97,7 +97,7 @@ export function RegisterForm() {
         </>
       ) : (
         <>
-          <h1 className="text-[28px] font-bold text-foreground">Criar conta</h1>
+          <h1 className="text-[28px] font-bold leading-tight text-foreground">Criar conta</h1>
           <p className="mt-1.5 text-sm text-muted">
             <span className="text-secondary">Comece gratuitamente.</span> Sem cartão de crédito.
           </p>
@@ -109,7 +109,7 @@ export function RegisterForm() {
           )}
 
           <form
-            className="mt-6 flex flex-col gap-4"
+            className="auth-form mt-4 flex flex-col gap-3"
             onSubmit={handleSubmit((email) => setVerificationEmail(email))}
             noValidate
           >
@@ -136,8 +136,8 @@ export function RegisterForm() {
               error={touched.email ? errors.email : undefined}
             />
 
-            <p className="-mt-2 text-xs leading-5 text-subtle">
-              Enviaremos um link para este endereço. Você só poderá entrar depois de confirmar que tem acesso a ele.
+            <p className="-mt-1 text-xs leading-5 text-subtle">
+              Você receberá um link para confirmar seu cadastro.
             </p>
 
             <div>
@@ -191,13 +191,13 @@ export function RegisterForm() {
             </PrimaryButton>
           </form>
 
-          <div className="my-6 flex items-center gap-4">
+          <div className="auth-divider my-3 flex items-center gap-4">
             <span className="h-px flex-1 bg-line" />
             <span className="text-xs text-subtle">ou</span>
             <span className="h-px flex-1 bg-line" />
           </div>
 
-          <div className={`relative flex min-h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
+          <div className={`auth-provider relative flex min-h-12 w-full items-center justify-center overflow-hidden ${!data.acceptTerms ? 'opacity-60' : ''}`}>
             <div ref={googleButtonRef} className="w-full max-w-[400px]" />
             {!data.acceptTerms && (
               <button
@@ -210,7 +210,7 @@ export function RegisterForm() {
           </div>
           {googleError && <p className="mt-2 text-center text-xs text-danger">{googleError}</p>}
 
-          <p className="mt-6 text-center text-sm text-subtle">
+          <p className="auth-switch mt-3 text-center text-sm text-subtle">
             Já possui conta?{' '}
             <Link to="/login" className="font-medium text-accent-ink hover:underline">
               Entrar
