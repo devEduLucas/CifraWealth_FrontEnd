@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import process from 'node:process';
+import { readFile } from 'node:fs/promises';
 import { prisma } from '../../CifraWealth_BackEnd/src/lib/prisma';
 import { hashPassword } from '../../CifraWealth_BackEnd/src/utils/hashPassword';
 import { DEFAULT_CATEGORIES } from '../../CifraWealth_BackEnd/src/utils/defaultCategories';
@@ -117,7 +118,7 @@ test('modal de categoria permanece aberto enquanto salva', async ({ page }) => {
     await expect(dialog).not.toBeVisible();
   } finally { release(); }
 });
-test('relatórios reais, período personalizado, detalhes, CSV e estados de erro', async ({ page, request }, testInfo) => {
+test('relatórios reais, período personalizado, PDF, CSV e estados de erro', async ({ page, request }, testInfo) => {
   const headers={Authorization:'Bearer '+auth.token};
   const income=await request.post(API+'/categories',{headers,data:{nome:'Salário Sprint 5',tipo:'receita'}});expect(income.status()).toBe(201);
   const expense=await request.post(API+'/categories',{headers,data:{nome:'Mercado Sprint 5',tipo:'despesa'}});expect(expense.status()).toBe(201);
@@ -129,7 +130,8 @@ test('relatórios reais, período personalizado, detalhes, CSV e estados de erro
   await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText('Compra do período',{exact:true})).toBeVisible();await expect(page.getByText('Salário do período',{exact:true})).toBeVisible();
   await expect(page.getByText('Despesa fora do período',{exact:true})).toHaveCount(0);await expect(page.getByText('Despesa pendente',{exact:true})).toHaveCount(0);
   await expect(page.getByText(/1[.]650,00/).first()).toBeVisible();await expect(page.getByRole('img',{name:'Evolução mensal de receitas, despesas e saldo'})).toBeVisible();
-  const download=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar Relatório'}).click();expect((await download).suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.csv');
+  const download=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar PDF',exact:true}).click();const pdf=await download;expect(pdf.suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.pdf');expect((await readFile((await pdf.path())!)).subarray(0,5).toString()).toBe('%PDF-');
+  const csvDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar planilha CSV'}).click();expect((await csvDownload).suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.csv');
   await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('relatorios.png'),fullPage:true});
   await page.getByRole('button', { name: 'Ativar modo claro' }).click();
   await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('relatorios-claro.png'),fullPage:true});
@@ -137,6 +139,6 @@ test('relatórios reais, período personalizado, detalhes, CSV e estados de erro
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-25');await page.getByLabel('Data final',{exact:true}).fill('2026-10-25');await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText(/-R\$\s*350,00/).first()).toBeVisible();
   await page.getByLabel('Data inicial',{exact:true}).fill('2025-01-01');await page.getByLabel('Data final',{exact:true}).fill('2025-01-01');await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText(/Nenhuma transação confirmada neste período/)).toBeVisible();
   await page.route('**/api/reports/detailed?*',route=>route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({message:'Falha de teste'})}));
-  await page.getByRole('button',{name:'Atualizar relatório'}).click();await expect(page.getByRole('alert')).toContainText('Falha de teste');await expect(page.getByRole('button',{name:'Exportar Relatório'})).toBeDisabled();
-  await page.unroute('**/api/reports/detailed?*');await page.getByRole('button',{name:'Tentar novamente'}).click();await expect(page.getByRole('button',{name:'Exportar Relatório'})).toBeEnabled();
+  await page.getByRole('button',{name:'Atualizar relatório'}).click();await expect(page.getByRole('alert')).toContainText('Falha de teste');await expect(page.getByRole('button',{name:'Baixar PDF',exact:true})).toBeDisabled();
+  await page.unroute('**/api/reports/detailed?*');await page.getByRole('button',{name:'Tentar novamente'}).click();await expect(page.getByRole('button',{name:'Baixar PDF',exact:true})).toBeEnabled();
 });

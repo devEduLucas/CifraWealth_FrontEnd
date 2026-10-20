@@ -17,8 +17,8 @@ export function LoginForm() {
   const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signin_with');
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-8 shadow-sm">
-      <h1 className="text-[28px] font-bold text-foreground">Entrar</h1>
+    <div className="auth-card w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-8">
+      <h1 className="text-[28px] font-bold leading-tight text-foreground">Entrar</h1>
       <p className="mt-1.5 text-sm text-muted">Acesse sua conta para continuar.</p>
 
       {submitError && (

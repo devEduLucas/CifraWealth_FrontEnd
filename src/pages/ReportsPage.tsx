@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { session } from '../lib/session';
+import { isDemoMode } from '../lib/config';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { ReportPeriodFilter } from '../components/ReportPeriodFilter/ReportPeriodFilter';
 import { ReportExportButton } from '../components/ReportExportButton/ReportExportButton';
@@ -27,9 +28,12 @@ export function ReportsPage() {
   const [report, setReport] = useState<DetailedReportResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const exportLock = useRef(false);
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true); setError(null); setReport(null);
+    setLoading(true); setError(null); setReport(null); setExportError(null);
     api.getDetailedReport(range.start, range.end, controller.signal).then((result) => {
       if (!controller.signal.aborted) setReport(result);
     }).catch((err: unknown) => {
@@ -47,28 +51,44 @@ export function ReportsPage() {
     if (!message) setRange({ ...draft });
   }
   function viewMonth(id: string) {
+    if (exportLock.current) return;
     const first = id + '-01';
     const date = new Date(first + 'T00:00:00Z');
     const last = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).toISOString().slice(0,10);
     const updated = { start: first < range.start ? range.start : first, end: last > range.end ? range.end : last };
     setPeriod('custom'); setFilterError(null); setRange(updated); setDraft(updated);
   }
+  async function exportPdf() {
+    if (!report || loading || error || exportLock.current) return;
+    exportLock.current = true;
+    setExporting(true); setExportError(null);
+    try {
+      const { downloadReportPdf } = await import('../utils/reportPdf');
+      await downloadReportPdf(report, { userName: fullName, demo: isDemoMode });
+    } catch {
+      setExportError('Não foi possível gerar o PDF. Confira sua conexão e tente baixar novamente.');
+    } finally {
+      exportLock.current = false; setExporting(false);
+    }
+  }
   const label = formatReportDate(range.start) + ' a ' + formatReportDate(range.end);
   return (
     <DashboardLayout userName={fullName}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h1 className="text-2xl font-bold text-foreground">Relatórios</h1><p className="mt-1 text-sm text-muted">Acompanhe receitas, despesas e saldo a partir das suas transações confirmadas.</p></div>
-        <div className="flex flex-wrap items-center gap-3"><ReportPeriodFilter value={period} onChange={changePeriod} /><ReportExportButton onExport={report && !loading ? () => downloadReport(report) : undefined} /></div>
+        <div className="flex flex-wrap items-center gap-3"><ReportPeriodFilter value={period} onChange={changePeriod} disabled={exporting} /><ReportExportButton onExport={report && !loading && !error ? exportPdf : undefined} onExportCsv={report && !loading && !error ? () => downloadReport(report) : undefined} exporting={exporting} /></div>
       </div>
       {period === 'custom' && (
         <form onSubmit={applyDates} className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-line bg-surface p-4">
-          <div><label htmlFor="report-start" className="mb-1 block text-xs text-muted">Data inicial</label><input id="report-start" type="date" required value={draft.start} onChange={(event) => setDraft((old) => ({ ...old, start: event.target.value }))} className="h-11 rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground" /></div>
-          <div><label htmlFor="report-end" className="mb-1 block text-xs text-muted">Data final</label><input id="report-end" type="date" required value={draft.end} onChange={(event) => setDraft((old) => ({ ...old, end: event.target.value }))} className="h-11 rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground" /></div>
-          <button type="submit" className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover">Aplicar datas</button>
+          <div><label htmlFor="report-start" className="mb-1 block text-xs text-muted">Data inicial</label><input id="report-start" type="date" required disabled={exporting} value={draft.start} onChange={(event) => setDraft((old) => ({ ...old, start: event.target.value }))} className="h-11 rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground" /></div>
+          <div><label htmlFor="report-end" className="mb-1 block text-xs text-muted">Data final</label><input id="report-end" type="date" required disabled={exporting} value={draft.end} onChange={(event) => setDraft((old) => ({ ...old, end: event.target.value }))} className="h-11 rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground" /></div>
+          <button type="submit" disabled={exporting} className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-40">Aplicar datas</button>
           {filterError && <p role="alert" className="w-full text-sm text-danger">{filterError}</p>}
         </form>
       )}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted">Período aplicado: {label} · Comparação com o período anterior de mesma duração.</p><button type="button" disabled={loading} onClick={() => setRetry((value) => value + 1)} className="text-sm font-semibold text-accent-ink disabled:opacity-40">Atualizar relatório</button></div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted">Período aplicado: {label} · Comparação com o período anterior de mesma duração.</p><button type="button" disabled={loading || exporting} onClick={() => setRetry((value) => value + 1)} className="text-sm font-semibold text-accent-ink disabled:opacity-40">Atualizar relatório</button></div>
+      {exporting && <p role="status" className="mt-4 text-sm text-muted">Preparando o PDF completo de {label}...</p>}
+      {exportError && <p role="alert" className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">{exportError}</p>}
       {loading && <p role="status" className="mt-8 text-sm text-muted">Carregando relatório...</p>}
       {error && <div role="alert" className="mt-6 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"><p>{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 font-semibold underline">Tentar novamente</button></div>}
       {report && !loading && !error && <>

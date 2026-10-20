@@ -9,9 +9,11 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test:e2e": "playwright test",
-    "test": "node --experimental-strip-types --test test/reports.test.mjs test/config.test.mjs test/notifications.test.mjs test/money.test.mjs"
+    "test": "node --experimental-strip-types --test test/reports.test.mjs test/config.test.mjs test/notifications.test.mjs test/money.test.mjs test/reportPdf.test.mjs"
   },
   "dependencies": {
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
     "lucide-react": "^0.462.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

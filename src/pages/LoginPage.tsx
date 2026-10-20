@@ -2,18 +2,18 @@ import { ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Layout } from '../components/Layout/Layout';
 import { Logo } from '../components/Logo/Logo';
 import { BenefitItem } from '../components/BenefitItem/BenefitItem';
-import { IllustrationSection } from '../components/IllustrationSection/IllustrationSection';
+import { AuthFinancialIllustration } from '../components/IllustrationSection/AuthFinancialIllustration';
 import { LoginForm } from '../components/LoginForm/LoginForm';
 
 export function LoginPage() {
   return (
     <Layout
       left={
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col items-center gap-6 lg:items-start">
           <Logo showTagline />
 
-          <div className="flex max-w-md flex-col gap-4">
-            <h1 className="text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
+          <div className="hidden max-w-lg flex-col gap-4 lg:flex">
+            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground lg:text-5xl xl:text-[52px]">
               Bem-vindo de <span className="text-accent-ink">volta</span>.
             </h1>
             <p className="max-w-sm text-base text-muted">
@@ -21,7 +21,7 @@ export function LoginPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-5">
+          <div className="hidden flex-col gap-5 lg:flex">
             <BenefitItem
               icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança"
@@ -39,7 +39,9 @@ export function LoginPage() {
             />
           </div>
 
-          <IllustrationSection />
+          <div className="auth-illustration" aria-hidden="true">
+            <AuthFinancialIllustration variant="login" />
+          </div>
         </div>
       }
       right={<LoginForm />}
