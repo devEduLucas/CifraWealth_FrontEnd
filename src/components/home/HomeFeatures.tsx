@@ -5,23 +5,23 @@ export function HomeFeatures({ isLogged }: {
   isLogged: boolean;
 }) {
   return (<section id="recursos" className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 w-full border-t border-line">
-    <div className="text-center max-w-2xl mx-auto mb-16">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent-ink text-xs font-bold uppercase tracking-wider mb-3">
+    <div data-reveal-stagger className="text-center max-w-2xl mx-auto mb-16">
+      <div data-reveal="up" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent-ink text-xs font-bold uppercase tracking-wider mb-3">
         <Layers size={14} />
         <span>ECOSSISTEMA INTEGRADO</span>
       </div>
-      <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-4">
+      <h2 data-reveal="up" className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-4">
         Recursos pensados para o seu controle real.
       </h2>
-      <p className="text-secondary text-base leading-relaxed">
+      <p data-reveal="up" className="text-secondary text-base leading-relaxed">
         Diga adeus a anotações soltas e planilhas complexas. Conheça as ferramentas que transformam dados brutos em decisões claras.
       </p>
     </div>
 
     {/* Grid Estilo Bento com 4 cards distintos */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    <div data-reveal-stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
       {/* Card 1: Categorização Customizada (Ocupa 2 colunas em telas grandes) */}
-      <article className="lg:col-span-2 rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
+      <article data-reveal="up" className="lg:col-span-2 rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent-ink flex items-center justify-center">
@@ -77,7 +77,7 @@ export function HomeFeatures({ isLogged }: {
       </article>
 
       {/* Card 2: Metas Financeiras */}
-      <article className="rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
+      <article data-reveal="up" className="rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-progress/10 text-progress flex items-center justify-center">
@@ -103,7 +103,7 @@ export function HomeFeatures({ isLogged }: {
                 <span className="text-progress font-mono font-bold">78%</span>
               </div>
               <div className="w-full h-2 bg-line rounded-full overflow-hidden">
-                <div className="h-full bg-progress rounded-full" style={{ width: '78%' }} />
+                <div data-reveal="bar" data-reveal-delay="4" className="h-full bg-progress rounded-full" style={{ width: '78%' }} />
               </div>
               <span className="text-[10px] text-muted block mt-1">R$ 15.600 de R$ 20.000</span>
             </div>
@@ -113,7 +113,7 @@ export function HomeFeatures({ isLogged }: {
                 <span className="text-progress font-mono font-bold">60%</span>
               </div>
               <div className="w-full h-2 bg-line rounded-full overflow-hidden">
-                <div className="h-full bg-progress rounded-full" style={{ width: '60%' }} />
+                <div data-reveal="bar" data-reveal-delay="5" className="h-full bg-progress rounded-full" style={{ width: '60%' }} />
               </div>
               <span className="text-[10px] text-muted block mt-1">R$ 6.000 de R$ 10.000</span>
             </div>
@@ -127,7 +127,7 @@ export function HomeFeatures({ isLogged }: {
       </article>
 
       {/* Card 3: Registro de Transações */}
-      <article className="rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
+      <article data-reveal="up" className="rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-positive/10 text-positive flex items-center justify-center">
@@ -165,7 +165,7 @@ export function HomeFeatures({ isLogged }: {
       </article>
 
       {/* Card 4: Relatórios Analíticos (Ocupa 2 colunas em telas grandes) */}
-      <article className="lg:col-span-2 rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
+      <article data-reveal="up" className="lg:col-span-2 rounded-2xl bg-surface border border-line p-7 flex flex-col justify-between hover:border-line-strong hover:shadow-lg transition-all">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 rounded-xl bg-purple/15 text-purple flex items-center justify-center">
@@ -191,19 +191,19 @@ export function HomeFeatures({ isLogged }: {
             </div>
             <div className="flex items-end gap-3 h-16 pt-2 border-t border-line/60">
               <div className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full bg-accent/40 rounded-t h-[50%]" />
+                <div data-reveal="rise" data-reveal-delay="3" className="w-full bg-accent/40 rounded-t h-[50%]" />
                 <span className="text-[10px] font-mono text-muted">Jul</span>
               </div>
               <div className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full bg-accent/50 rounded-t h-[65%]" />
+                <div data-reveal="rise" data-reveal-delay="4" className="w-full bg-accent/50 rounded-t h-[65%]" />
                 <span className="text-[10px] font-mono text-muted">Ago</span>
               </div>
               <div className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full bg-accent/70 rounded-t h-[78%]" />
+                <div data-reveal="rise" data-reveal-delay="5" className="w-full bg-accent/70 rounded-t h-[78%]" />
                 <span className="text-[10px] font-mono text-muted">Set</span>
               </div>
               <div className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full bg-accent rounded-t h-[92%]" />
+                <div data-reveal="rise" data-reveal-delay="6" className="w-full bg-accent rounded-t h-[92%]" />
                 <span className="text-[10px] font-mono text-accent-ink font-bold">Out</span>
               </div>
             </div>

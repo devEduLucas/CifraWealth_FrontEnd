@@ -1,0 +1,67 @@
+/*
+ * Scroll reveal — animações disparadas pela rolagem (ver src/hooks/useScrollReveal.ts).
+ *
+ * Uso no JSX:
+ *   data-reveal="up|fade|scale|left|right|bar|rise"   -> variante da animação
+ *   data-reveal-delay="1..6"                           -> atraso em passos de 80 ms
+ *   data-reveal-stagger (no contêiner)                 -> filhos diretos com data-reveal
+ *                                                         recebem atraso crescente automático
+ *
+ * Segurança: o estado "oculto" só existe sob [data-reveal-ready], atributo que o hook
+ * define após o carregamento do JS. Sem JS (ou com falha) o conteúdo permanece visível.
+ * Só opacity e transform são animados (compositor, sem layout/repaint pesado).
+ */
+:root {
+  --reveal-duration: 700ms;
+  --reveal-distance: 24px;
+  --reveal-step: 80ms;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Estado inicial (oculto) */
+[data-reveal-ready] [data-reveal] {
+  opacity: 0;
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+[data-reveal-ready] [data-reveal='up'] { transform: translate3d(0, var(--reveal-distance), 0); }
+[data-reveal-ready] [data-reveal='left'] { transform: translate3d(calc(var(--reveal-distance) * -1), 0, 0); }
+[data-reveal-ready] [data-reveal='right'] { transform: translate3d(var(--reveal-distance), 0, 0); }
+[data-reveal-ready] [data-reveal='scale'] { transform: scale(0.94); }
+/* Barras de progresso / gráfico: crescem a partir da base, sem alterar opacidade */
+[data-reveal-ready] [data-reveal='bar'] { opacity: 1; transform: scaleX(0); transform-origin: left center; }
+[data-reveal-ready] [data-reveal='rise'] { opacity: 1; transform: scaleY(0); transform-origin: center bottom; }
+
+/* Estado final (visível) */
+[data-reveal-ready] [data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Atrasos explícitos */
+[data-reveal-delay='1'] { --reveal-delay: calc(var(--reveal-step) * 1); }
+[data-reveal-delay='2'] { --reveal-delay: calc(var(--reveal-step) * 2); }
+[data-reveal-delay='3'] { --reveal-delay: calc(var(--reveal-step) * 3); }
+[data-reveal-delay='4'] { --reveal-delay: calc(var(--reveal-step) * 4); }
+[data-reveal-delay='5'] { --reveal-delay: calc(var(--reveal-step) * 5); }
+[data-reveal-delay='6'] { --reveal-delay: calc(var(--reveal-step) * 6); }
+
+/* Atrasos automáticos por posição (cascata) */
+[data-reveal-stagger] > [data-reveal]:nth-child(2) { --reveal-delay: calc(var(--reveal-step) * 1); }
+[data-reveal-stagger] > [data-reveal]:nth-child(3) { --reveal-delay: calc(var(--reveal-step) * 2); }
+[data-reveal-stagger] > [data-reveal]:nth-child(4) { --reveal-delay: calc(var(--reveal-step) * 3); }
+[data-reveal-stagger] > [data-reveal]:nth-child(5) { --reveal-delay: calc(var(--reveal-step) * 4); }
+[data-reveal-stagger] > [data-reveal]:nth-child(6) { --reveal-delay: calc(var(--reveal-step) * 5); }
+
+/* Preferência por menos movimento: tudo visível, sem transição */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+}
