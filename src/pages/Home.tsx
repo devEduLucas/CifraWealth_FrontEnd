@@ -17,7 +17,7 @@ export function Home() {
   return (
     <div ref={rootRef} className="min-h-screen overflow-x-clip bg-canvas text-foreground flex flex-col font-sans selection:bg-accent/20 selection:text-foreground transition-colors duration-200">
       <HomeHeader isLogged={isLogged} />
-      <main className="flex-1">
+      <main id="conteudo-principal" tabIndex={-1} className="flex-1">
         <HomeHero isLogged={isLogged} />
         <HomeFeatures isLogged={isLogged} />
         <HomeHowItWorks />

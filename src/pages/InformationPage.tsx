@@ -37,7 +37,7 @@ export function InformationPage({ kind }: { kind: keyof typeof CONTENT }) {
         <Link to={home} aria-label="CifraWealth — início"><Logo /></Link>
         <Link to={home} className="rounded-lg px-3 py-2 text-sm font-semibold text-accent-ink hover:bg-elevated">Voltar ao início</Link>
       </header>
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6">
+      <main id="conteudo-principal" tabIndex={-1} className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-bold">{content.title}</h1>
         <p className="mt-3 text-muted">{content.intro}</p>
         <div className="mt-8 space-y-6">

@@ -51,7 +51,7 @@ export function VerifyEmailPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-canvas text-foreground">
-      <main className="flex flex-1 items-center justify-center px-5 py-12">
+      <main id="conteudo-principal" tabIndex={-1} className="flex flex-1 items-center justify-center px-5 py-12">
         <section className="w-full max-w-md rounded-2xl border border-line bg-surface p-8">
           <div className={'mb-5 flex h-12 w-12 items-center justify-center rounded-xl ' + (success ? 'bg-positive/10 text-positive' : 'bg-accent/10 text-accent-ink')}>
             {success ? <CheckCircle2 size={26} /> : <MailCheck size={26} />}

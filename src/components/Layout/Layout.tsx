@@ -20,7 +20,7 @@ export function Layout({ left, right }: LayoutProps) {
           Voltar ao início
         </Link>
       </div>
-      <main className="auth-main mx-auto grid w-full max-w-[1280px] flex-1 grid-cols-1 content-center items-center gap-5 px-4 py-4 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:px-10">
+      <main id="conteudo-principal" tabIndex={-1} className="auth-main mx-auto grid w-full max-w-[1280px] flex-1 grid-cols-1 content-center items-center gap-5 px-4 py-4 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:px-10">
         <div className="min-w-0">{left}</div>
         <div className="flex min-w-0 justify-center">{right}</div>
       </main>

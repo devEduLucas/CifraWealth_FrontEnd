@@ -26,6 +26,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Widget oficial do VLibras: permanece fora da árvore React e não duplica nas rotas. -->
+    <div vw class="enabled" id="cifrawealth-vlibras-root">
+      <div vw-access-button class="active" aria-label="Abrir opções de tradução para Libras" title="Traduzir para Libras"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" async></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
