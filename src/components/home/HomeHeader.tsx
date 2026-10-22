@@ -43,7 +43,7 @@ export function HomeHeader({ isLogged }: {
       <nav className="hidden xl:flex items-center gap-7" aria-label="Navegação principal">
         {NAV_LINKS.map((link) => {
           const isActive = activeSection === link.id;
-          return (<a key={link.id} href={`#${link.id}`} className={`relative text-sm transition-all duration-200 py-1.5 focus-visible:outline-none focus-visible:text-accent-ink ${isActive
+          return (<a key={link.id} href={`#${link.id}`} aria-current={isActive ? 'location' : undefined} className={`relative text-sm transition-all duration-200 py-1.5 focus-visible:outline-none focus-visible:text-accent-ink ${isActive
             ? 'text-accent-ink font-semibold'
             : 'text-muted hover:text-foreground font-medium'}`}>
             <span>{link.label}</span>
@@ -77,8 +77,8 @@ export function HomeHeader({ isLogged }: {
         </div>)}
 
         {/* Botão Hambúrguer Mobile */}
-        <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="xl:hidden p-2 rounded-xl border border-line text-secondary hover:text-foreground hover:bg-elevated transition-colors" aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'} aria-expanded={mobileMenuOpen}>
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="xl:hidden p-2 rounded-xl border border-line text-secondary hover:text-foreground hover:bg-elevated transition-colors" aria-label={mobileMenuOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'} aria-expanded={mobileMenuOpen} aria-controls={mobileMenuOpen ? 'home-mobile-nav' : undefined}>
+          <svg aria-hidden="true" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileMenuOpen ? (<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />) : (<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />)}
           </svg>
         </button>
@@ -86,14 +86,14 @@ export function HomeHeader({ isLogged }: {
     </div>
 
     {/* Menu Mobile Dropdown */}
-    {mobileMenuOpen && (<div className="xl:hidden border-b border-line bg-surface px-6 py-5 flex flex-col gap-2 animate-in fade-in duration-200">
+    {mobileMenuOpen && (<nav id="home-mobile-nav" aria-label="Navegação móvel" className="xl:hidden border-b border-line bg-surface px-6 py-5 flex flex-col gap-2 animate-in fade-in duration-200">
       {NAV_LINKS.map((link) => {
         const isActive = activeSection === link.id;
-        return (<a key={link.id} href={`#${link.id}`} onClick={() => setMobileMenuOpen(false)} className={`text-sm py-2 px-3 rounded-xl flex items-center justify-between transition-colors ${isActive
+        return (<a key={link.id} href={`#${link.id}`} aria-current={isActive ? 'location' : undefined} onClick={() => setMobileMenuOpen(false)} className={`text-sm py-2 px-3 rounded-xl flex items-center justify-between transition-colors ${isActive
           ? 'bg-accent/10 text-accent-ink font-semibold'
           : 'text-muted hover:text-foreground font-medium hover:bg-elevated'}`}>
           <span>{link.label}</span>
-          {isActive && <span className="w-2 h-2 rounded-full bg-accent shadow-sm shadow-accent/30" />}
+          {isActive && <span aria-hidden="true" className="w-2 h-2 rounded-full bg-accent shadow-sm shadow-accent/30" />}
         </a>);
       })}
 
@@ -111,6 +111,6 @@ export function HomeHeader({ isLogged }: {
           </Link>
         </>)}
       </div>
-    </div>)}
+    </nav>)}
   </header>);
 }

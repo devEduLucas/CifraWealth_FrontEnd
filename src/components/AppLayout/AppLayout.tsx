@@ -92,7 +92,7 @@ export function AppLayout({ title, subtitle, action, children }: AppLayoutProps)
         ))}
       </nav>
 
-      <main className="flex flex-1 flex-col px-6 py-8 md:px-10">
+      <main id="conteudo-principal" tabIndex={-1} className="flex flex-1 flex-col px-6 py-8 md:px-10">
         <div className="mx-auto w-full max-w-4xl flex-1">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>

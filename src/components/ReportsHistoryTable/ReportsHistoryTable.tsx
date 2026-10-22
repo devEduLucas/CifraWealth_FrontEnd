@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { ReportHistoryItem } from '../../types/reports.types';
 import { formatCurrency } from '../../utils/validation';
 
@@ -7,20 +8,21 @@ interface ReportsHistoryTableProps {
 }
 
 export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps) {
+  const tableTitleId = useId();
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo mensal do período</p>
+      <h2 id={tableTitleId} className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo mensal do período</h2>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+        <table aria-labelledby={tableTitleId} className="w-full min-w-[640px] border-collapse text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-subtle">
-              <th className="pb-3 font-medium">Período</th>
-              <th className="pb-3 font-medium">Receitas</th>
-              <th className="pb-3 font-medium">Despesas</th>
-              <th className="pb-3 font-medium">Saldo</th>
-              <th className="pb-3 font-medium">Variação</th>
-              <th className="pb-3 text-right font-medium">Ações</th>
+              <th scope="col" className="pb-3 font-medium">Período</th>
+              <th scope="col" className="pb-3 font-medium">Receitas</th>
+              <th scope="col" className="pb-3 font-medium">Despesas</th>
+              <th scope="col" className="pb-3 font-medium">Saldo</th>
+              <th scope="col" className="pb-3 font-medium">Variação</th>
+              <th scope="col" className="pb-3 text-right font-medium">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">

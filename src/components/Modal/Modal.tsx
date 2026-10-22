@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { useModalFocus } from '../../hooks/useModalFocus';
 
@@ -12,6 +12,7 @@ interface ModalProps {
 
 export function Modal({ open, title, onClose, children, saving = false }: ModalProps) {
   const dialogRef = useModalFocus(open, saving, onClose);
+  const titleId = useId();
   const close = () => { if (!saving) onClose(); };
 
   if (!open) return null;
@@ -25,12 +26,12 @@ export function Modal({ open, title, onClose, children, saving = false }: ModalP
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line bg-surface p-6"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-foreground">{title}</h2>
+          <h2 id={titleId} className="text-lg font-bold text-foreground">{title}</h2>
           <button
             type="button"
             onClick={close}
@@ -38,7 +39,7 @@ export function Modal({ open, title, onClose, children, saving = false }: ModalP
             aria-label="Fechar"
             className="rounded-lg p-1 text-muted transition-colors hover:bg-hover hover:text-foreground"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
         {children}

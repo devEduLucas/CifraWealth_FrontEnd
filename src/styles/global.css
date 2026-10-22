@@ -199,3 +199,230 @@ body {
   input[type='number'] { appearance: textfield; }
   input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 }
+
+/* Acesso rápido ao conteúdo principal (visível ao receber foco pelo teclado). */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(calc(-100% - 1rem));
+  border: 2px solid rgb(var(--color-accent-ink));
+  border-radius: 0.75rem;
+  background: rgb(var(--color-surface));
+  padding: 0.75rem 1rem;
+  color: rgb(var(--color-foreground));
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* Estilos próprios do painel global de acessibilidade. */
+.accessibility-tools {
+  position: fixed;
+  z-index: 70;
+  left: 1rem;
+  bottom: 6rem;
+  font-family: inherit;
+}
+.accessibility-tools-trigger {
+  display: inline-flex;
+  min-height: 2.875rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid rgb(var(--color-line-strong));
+  border-radius: 999px;
+  background: rgb(var(--color-surface));
+  padding: 0.65rem 1rem;
+  color: rgb(var(--color-foreground));
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+  transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.accessibility-tools-trigger:hover { background: rgb(var(--color-elevated)); }
+.accessibility-tools-panel {
+  position: absolute;
+  bottom: calc(100% + 0.75rem);
+  left: 0;
+  display: flex;
+  width: min(21rem, calc(100vw - 2rem));
+  max-height: min(72vh, 39rem);
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid rgb(var(--color-line-strong));
+  border-radius: 1rem;
+  background: rgb(var(--color-surface));
+  color: rgb(var(--color-foreground));
+  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+}
+.accessibility-tools-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgb(var(--color-line));
+  padding: 1rem 1rem 0.875rem;
+}
+.accessibility-tools-panel-header h2 { margin: 0; font-size: 1rem; font-weight: 800; }
+.accessibility-tools-panel-header p { margin-top: 0.25rem; color: rgb(var(--color-muted)); font-size: 0.75rem; }
+.accessibility-tools-close {
+  display: inline-flex;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  color: rgb(var(--color-foreground));
+}
+.accessibility-tools-close:hover { background: rgb(var(--color-hover)); }
+.accessibility-tools-section { border-bottom: 1px solid rgb(var(--color-line)); padding: 0.9rem 1rem; }
+.accessibility-tools-section h3 { margin-bottom: 0.65rem; color: rgb(var(--color-secondary)); font-size: 0.75rem; font-weight: 800; }
+.accessibility-text-size-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.375rem; }
+.accessibility-text-size-options button {
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  border: 1px solid rgb(var(--color-line));
+  border-radius: 0.625rem;
+  background: rgb(var(--color-canvas));
+  padding: 0.375rem 0.25rem;
+  color: rgb(var(--color-foreground));
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.accessibility-text-size-options button[aria-pressed='true'] {
+  border-color: rgb(var(--color-accent-ink));
+  background: rgb(var(--color-accent) / 12%);
+  box-shadow: inset 0 0 0 1px rgb(var(--color-accent-ink) / 60%);
+}
+.accessibility-text-size-xl { font-size: 1.125rem; font-weight: 800; }
+.accessibility-setting-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 3.75rem;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.25rem;
+  text-align: left;
+}
+.accessibility-setting-toggle + .accessibility-setting-toggle { margin-top: 0.25rem; }
+.accessibility-setting-toggle:hover { background: rgb(var(--color-hover)); }
+.accessibility-setting-icon { display: inline-flex; width: 2.25rem; height: 2.25rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 0.625rem; background: rgb(var(--color-elevated)); color: rgb(var(--color-accent-ink)); }
+.accessibility-setting-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 0.15rem; }
+.accessibility-setting-label { color: rgb(var(--color-foreground)); font-size: 0.8125rem; font-weight: 750; }
+.accessibility-setting-description { color: rgb(var(--color-muted)); font-size: 0.6875rem; line-height: 1.45; }
+.accessibility-toggle-indicator { display: inline-flex; width: 1.375rem; height: 1.375rem; flex: 0 0 auto; align-items: center; justify-content: center; border: 1px solid rgb(var(--color-line-strong)); border-radius: 999px; color: rgb(var(--color-on-accent)); }
+.accessibility-toggle-indicator.is-active { border-color: rgb(var(--color-accent)); background: rgb(var(--color-accent)); }
+.accessibility-tools-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem 1rem; }
+.accessibility-reset-button, .accessibility-tools-footer a { display: inline-flex; min-height: 2.5rem; align-items: center; gap: 0.35rem; border-radius: 0.5rem; color: rgb(var(--color-accent-ink)); font-size: 0.7rem; font-weight: 750; }
+.accessibility-reset-button { padding: 0.35rem 0.25rem; }
+.accessibility-tools-footer a { padding: 0.35rem; }
+.accessibility-reset-button:hover, .accessibility-tools-footer a:hover { text-decoration: underline; }
+@media (min-width: 1024px) {
+  .accessibility-tools { bottom: 1.25rem; }
+}
+@media (max-width: 360px) {
+  .accessibility-tools { left: 0.5rem; }
+  .accessibility-tools-trigger { padding-inline: 0.75rem; }
+  .accessibility-tools-panel { width: calc(100vw - 1rem); }
+}
+
+/* Aumenta a tipografia baseada em rem sem alterar os dados ou a lógica das páginas. */
+html[data-a11y-text-size='large'] { font-size: 112.5%; }
+html[data-a11y-text-size='larger'] { font-size: 125%; }
+
+/* Alto contraste: preserva o tema escolhido, usando cores com separação mais forte. */
+html[data-theme='dark'][data-a11y-high-contrast='true'] {
+  --color-canvas: 0 0 0;
+  --color-surface: 0 0 0;
+  --color-elevated: 12 12 12;
+  --color-hover: 30 30 30;
+  --color-line: 255 255 255;
+  --color-line-strong: 255 255 255;
+  --color-field-border: 255 255 255;
+  --color-foreground: 255 255 255;
+  --color-secondary: 255 255 255;
+  --color-muted: 238 238 238;
+  --color-subtle: 224 224 224;
+  --color-accent: 255 255 0;
+  --color-accent-ink: 255 255 0;
+  --color-accent-hover: 255 255 120;
+  --color-on-accent: 0 0 0;
+  --color-progress: 255 255 0;
+  --color-positive: 255 255 255;
+  --color-danger: 255 255 255;
+  --color-warning: 255 255 0;
+  --color-info: 255 255 0;
+  --color-purple: 255 255 0;
+}
+html[data-theme='light'][data-a11y-high-contrast='true'] {
+  --color-canvas: 255 255 255;
+  --color-surface: 255 255 255;
+  --color-elevated: 255 255 255;
+  --color-hover: 238 238 238;
+  --color-line: 0 0 0;
+  --color-line-strong: 0 0 0;
+  --color-field-border: 0 0 0;
+  --color-foreground: 0 0 0;
+  --color-secondary: 0 0 0;
+  --color-muted: 25 25 25;
+  --color-subtle: 25 25 25;
+  --color-accent: 0 52 130;
+  --color-accent-ink: 0 39 106;
+  --color-accent-hover: 0 26 80;
+  --color-on-accent: 255 255 255;
+  --color-progress: 0 75 0;
+  --color-positive: 0 75 0;
+  --color-danger: 150 0 0;
+  --color-warning: 100 45 0;
+  --color-info: 0 50 120;
+  --color-purple: 75 0 115;
+}
+html[data-a11y-high-contrast='true'] :where(input, select, textarea, button, [role='dialog']) {
+  border-color: rgb(var(--color-line-strong));
+}
+
+html[data-a11y-underline-links='true'] a {
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+html[data-a11y-reduced-motion='true'] {
+  scroll-behavior: auto !important;
+}
+html[data-a11y-reduced-motion='true'] *,
+html[data-a11y-reduced-motion='true'] *::before,
+html[data-a11y-reduced-motion='true'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+}
+html[data-a11y-reduced-motion='true'] [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Foco forte e consistente para navegação por teclado. */
+:focus-visible {
+  outline: 3px solid rgb(var(--color-accent-ink)) !important;
+  outline-offset: 3px;
+}
+
+/* Variáveis do foco do botão flutuante do widget oficial do VLibras. */
+:root {
+  --vlibras-btn-focus-visible-outline: 3px solid currentColor;
+  --vlibras-btn-focus-visible-shadow: 0 0 0 4px rgb(var(--color-accent) / 35%);
+}

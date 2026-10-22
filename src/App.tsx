@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { RegisterPage } from './pages/RegisterPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
@@ -15,6 +15,7 @@ import { GoalsPage } from './pages/GoalsPage';
 import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { InformationPage } from './pages/InformationPage';
+import { AccessibilityTools } from './components/AccessibilityTools/AccessibilityTools';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
@@ -24,9 +25,28 @@ function PublicRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 }
 
+function RouteChangeAnnouncer() {
+  const { pathname } = useLocation();
+  const previousPath = useRef(pathname);
+  const [announcement, setAnnouncement] = useState('');
+
+  useEffect(() => {
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    const heading = document.querySelector<HTMLElement>('#conteudo-principal h1');
+    const title = heading?.textContent?.trim();
+    setAnnouncement(title ? `Página carregada: ${title}` : 'Página carregada.');
+  }, [pathname]);
+
+  return <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</span>;
+}
+
 export function App() {
   return (
     <>
+      <a href="#conteudo-principal" className="skip-link">Pular para o conteúdo principal</a>
+      <AccessibilityTools />
+      <RouteChangeAnnouncer />
       <DemoBanner />
       <Routes>
         {/* Raiz: Se autenticado vai para /dashboard, caso contrário exibe a Home */}

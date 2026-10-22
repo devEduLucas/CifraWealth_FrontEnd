@@ -96,7 +96,7 @@ export function ResetPasswordForm() {
       </p>
 
       {submitError && (
-        <p className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
           {submitError}
         </p>
       )}
@@ -104,8 +104,10 @@ export function ResetPasswordForm() {
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit()} noValidate>
         <div>
           <PasswordInput
+            id="reset-password"
             label="Nova senha"
             placeholder="Mínimo 8 caracteres"
+            aria-describedby={touched.password && Boolean(data.password) ? "reset-password-strength" : undefined}
             autoComplete="new-password"
             value={data.password}
             onChange={(event) => setField('password', event.target.value)}
@@ -113,6 +115,7 @@ export function ResetPasswordForm() {
             error={touched.password ? errors.password : undefined}
           />
           <PasswordStrengthIndicator
+            id="reset-password-strength"
             strength={passwordStrength}
             visible={touched.password && Boolean(data.password)}
           />

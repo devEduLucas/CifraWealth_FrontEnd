@@ -143,8 +143,8 @@ export function TransactionsPage() {
             <span className="text-xs text-muted">{future ? 'Prevista · fora do saldo atual' : item.status === 'pendente' ? 'Pendente · fora do saldo' : 'Confirmada'}</span>
             <div className="flex flex-wrap gap-1">
               {item.status === 'pendente' && !future && <Button size="sm" variant="secondary" icon={Check} disabled={busyId !== null} onClick={() => confirmTransaction(item)}>Confirmar</Button>}
-              <button aria-label="Editar transação" title={'Editar ' + item.descricao} disabled={busyId !== null} onClick={() => openModal(item)} className="flex h-11 w-11 items-center justify-center rounded-lg text-accent-ink hover:bg-hover disabled:opacity-40"><Pencil size={17} /></button>
-              <button aria-label="Excluir transação" title={'Excluir ' + item.descricao} disabled={busyId !== null} onClick={() => { setDeleteError(null); setDeleting(item); }} className="flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:bg-hover hover:text-danger disabled:opacity-40"><Trash2 size={17} /></button>
+              <button aria-label={'Editar transação ' + item.descricao} title={'Editar ' + item.descricao} disabled={busyId !== null} onClick={() => openModal(item)} className="flex h-11 w-11 items-center justify-center rounded-lg text-accent-ink hover:bg-hover disabled:opacity-40"><Pencil size={17} /></button>
+              <button aria-label={'Excluir transação ' + item.descricao} title={'Excluir ' + item.descricao} disabled={busyId !== null} onClick={() => { setDeleteError(null); setDeleting(item); }} className="flex h-11 w-11 items-center justify-center rounded-lg text-muted hover:bg-hover hover:text-danger disabled:opacity-40"><Trash2 size={17} /></button>
             </div>
           </div>
         </li>;
