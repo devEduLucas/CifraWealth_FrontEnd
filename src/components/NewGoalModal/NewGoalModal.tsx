@@ -20,9 +20,14 @@ const EMPTY_VALUES: GoalFormValues = { titulo: '', descricao: '', valorObjetivo:
 export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: NewGoalModalProps) {
   const dialogRef = useModalFocus(open, saving, onClose);
   const [values, setValues] = useState<GoalFormValues>(EMPTY_VALUES);
+  const [validationAttempted, setValidationAttempted] = useState(false);
+  const titleError = validationAttempted && !values.titulo.trim() ? 'Informe o nome da meta.' : undefined;
+  const amountInvalid = validationAttempted && (!Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0);
+  const amountError = amountInvalid ? 'Informe um valor entre R$ 0,01 e R$ 99.999.999,99, com até duas casas decimais.' : undefined;
 
   useEffect(() => {
     if (!open) return;
+    setValidationAttempted(false);
     setValues(
       goal
         ? {
@@ -39,6 +44,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    setValidationAttempted(true);
     if (saving || !values.titulo.trim() || !Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0) return;
     onSubmit(values);
   }
@@ -49,11 +55,11 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
         <div className="flex items-center justify-between">
           <h2 id="goal-modal-title" className="text-base font-semibold text-foreground">{goal ? 'Editar Meta' : 'Nova Meta'}</h2>
           <button type="button" aria-label="Fechar" disabled={saving} onClick={onClose} className="text-muted hover:text-foreground">
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} noValidate className="mt-5 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="goal-title" className="text-sm font-medium text-muted">Nome da meta</label>
             <input
@@ -61,11 +67,14 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
               maxLength={100}
               id="goal-title"
               disabled={saving}
+              aria-invalid={Boolean(titleError)}
+              aria-describedby={titleError ? "goal-title-error" : undefined}
               value={values.titulo}
               onChange={(event) => setValues((prev) => ({ ...prev, titulo: event.target.value }))}
               placeholder="Ex: Reserva de Emergência"
-              className="h-11 rounded-xl border border-field-border bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent"
+              className={`h-11 rounded-xl border ${titleError ? 'border-danger/60' : 'border-field-border'} bg-elevated px-4 text-sm text-foreground outline-none focus:border-accent`}
             />
+            {titleError && <p id="goal-title-error" role="alert" className="text-xs text-danger">{titleError}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -81,8 +90,7 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
             />
           </div>
 
-          <MoneyInput label="Valor objetivo" required disabled={saving} value={values.valorObjetivo} onValueChange={(value) => setValues((prev) => ({ ...prev, valorObjetivo: value }))} />
-          {values.valorObjetivo && (!Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0) && <p role="alert" className="text-xs text-danger">Informe um valor entre R$ 0,01 e R$ 99.999.999,99, com até duas casas decimais.</p>}
+          <MoneyInput id="goal-target-amount" label="Valor objetivo" required disabled={saving} value={values.valorObjetivo} error={amountError} onValueChange={(value) => setValues((prev) => ({ ...prev, valorObjetivo: value }))} />
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="goal-deadline" className="text-sm font-medium text-muted">Prazo (opcional)</label>
@@ -96,13 +104,13 @@ export function NewGoalModal({ open, goal, saving, error, onClose, onSubmit }: N
             />
           </div>
 
-          {error && <p className="text-xs text-danger">{error}</p>}
+          {error && <p role="alert" className="text-xs text-danger">{error}</p>}
 
           <div className="mt-1 flex items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={saving || !values.titulo.trim() || !Number.isFinite(parseMoney(values.valorObjetivo)) || parseMoney(values.valorObjetivo) <= 0}>
+            <Button type="submit" disabled={saving}>
               {saving ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>

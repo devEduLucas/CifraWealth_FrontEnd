@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
 
 interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   label: ReactNode;
@@ -6,7 +6,8 @@ interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Checkbox({ label, error, id, className, ...rest }: CheckboxProps) {
-  const inputId = id ?? 'checkbox';
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
 
   return (
@@ -27,9 +28,9 @@ export function Checkbox({ label, error, id, className, ...rest }: CheckboxProps
         </label>
       </div>
       {error && (
-        <span id={errorId} role="alert" className="pl-7 text-xs text-danger">
+        <p id={errorId} role="alert" className="pl-7 text-xs text-danger">
           {error}
-        </span>
+        </p>
       )}
     </div>
   );

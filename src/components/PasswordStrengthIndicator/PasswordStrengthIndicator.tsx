@@ -3,6 +3,7 @@ import type { PasswordStrengthResult } from '../../types/form.types';
 interface PasswordStrengthIndicatorProps {
   strength: PasswordStrengthResult;
   visible: boolean;
+  id?: string;
 }
 
 const LEVEL_BAR_COLOR: Record<PasswordStrengthResult['level'], string> = {
@@ -17,7 +18,7 @@ const LEVEL_LABEL_COLOR: Record<PasswordStrengthResult['level'], string> = {
   strong: 'text-positive',
 };
 
-export function PasswordStrengthIndicator({ strength, visible }: PasswordStrengthIndicatorProps) {
+export function PasswordStrengthIndicator({ strength, visible, id }: PasswordStrengthIndicatorProps) {
   if (!visible) {
     return null;
   }
@@ -25,8 +26,8 @@ export function PasswordStrengthIndicator({ strength, visible }: PasswordStrengt
   const bars = [0, 1, 2, 3];
 
   return (
-    <div className="mt-1 flex flex-col gap-1.5">
-      <div className="flex gap-1.5">
+    <div id={id} className="mt-1 flex flex-col gap-1.5" aria-live="polite">
+      <div className="flex gap-1.5" aria-hidden="true">
         {bars.map((index) => (
           <span
             key={index}

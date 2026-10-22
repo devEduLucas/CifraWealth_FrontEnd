@@ -134,23 +134,22 @@ export function RegisterForm() {
               onChange={(event) => setField('email', event.target.value)}
               onBlur={() => setFieldTouched('email')}
               error={touched.email ? errors.email : undefined}
+              helperText="Você receberá um link para confirmar seu cadastro."
             />
-
-            <p className="-mt-1 text-xs leading-5 text-subtle">
-              Você receberá um link para confirmar seu cadastro.
-            </p>
 
             <div>
               <PasswordInput
+                id="register-password"
                 label="Senha"
                 placeholder="Mínimo 8 caracteres"
+                aria-describedby={data.password.length > 0 ? "register-password-strength" : undefined}
                 autoComplete="new-password"
                 value={data.password}
                 onChange={(event) => setField('password', event.target.value)}
                 onBlur={() => setFieldTouched('password')}
                 error={touched.password ? errors.password : undefined}
               />
-              <PasswordStrengthIndicator strength={strength} visible={data.password.length > 0} />
+              <PasswordStrengthIndicator id="register-password-strength" strength={strength} visible={data.password.length > 0} />
             </div>
 
             <PasswordInput
@@ -208,7 +207,7 @@ export function RegisterForm() {
               />
             )}
           </div>
-          {googleError && <p className="mt-2 text-center text-xs text-danger">{googleError}</p>}
+          {googleError && <p role="alert" className="mt-2 text-center text-xs text-danger">{googleError}</p>}
 
           <p className="auth-switch mt-3 text-center text-sm text-subtle">
             Já possui conta?{' '}
