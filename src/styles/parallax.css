@@ -1,0 +1,36 @@
+/*
+ * Parallax decorativo (CSS puro, sem JS) — usa scroll-driven animations.
+ *
+ * Uso: data-parallax="-2|-1|1|2" em elementos decorativos (brilhos, widgets flutuantes).
+ *   valores negativos: o elemento "fica para trás" (fundo, mais lento)
+ *   valores positivos: o elemento "adianta" (primeiro plano, mais rápido)
+ *   módulo maior = deslocamento maior
+ *
+ * Só aplica onde há suporte (Chrome/Edge/Safari recentes) e sem prefers-reduced-motion.
+ * Em outros navegadores o elemento fica parado, sem prejuízo. Anima apenas transform.
+ * Não combinar no mesmo elemento com data-reveal (ambos usam transform): use um wrapper.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-parallax] {
+      --parallax-factor: 1;
+      animation: parallax-shift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+      will-change: transform;
+    }
+    [data-parallax='-2'] { --parallax-shift: -72px; }
+    [data-parallax='-1'] { --parallax-shift: -36px; }
+    [data-parallax='1'] { --parallax-shift: 28px; }
+    [data-parallax='2'] { --parallax-shift: 56px; }
+
+    @media (max-width: 767px) {
+      [data-parallax] { --parallax-factor: 0.5; }
+    }
+
+    @keyframes parallax-shift {
+      from { transform: translate3d(0, calc(var(--parallax-shift, 0px) * var(--parallax-factor) * -1), 0); }
+      to { transform: translate3d(0, calc(var(--parallax-shift, 0px) * var(--parallax-factor)), 0); }
+    }
+  }
+}

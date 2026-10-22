@@ -6,20 +6,20 @@ export function HomeHero({ isLogged }: {
 }) {
   return (<section className="relative overflow-hidden py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 w-full">
     {/* Luzes de ambientação sutis */}
-    <div className="absolute -top-24 -left-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
-    <div className="absolute top-1/2 -right-24 w-96 h-96 bg-info/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+    <div data-parallax="-2" className="absolute -top-24 -left-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+    <div data-parallax="-1" className="absolute top-1/2 -right-24 w-96 h-96 bg-info/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
       {/* Coluna de Texto & Chamada Principal */}
-      <div className="lg:col-span-7 flex flex-col items-start">
+      <div data-reveal-stagger className="lg:col-span-7 flex flex-col items-start">
         {/* Badge Kicker */}
-        <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/25 text-accent-ink text-xs font-semibold tracking-wide mb-6">
+        <div data-reveal="up" className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/25 text-accent-ink text-xs font-semibold tracking-wide mb-6">
           <span className="w-2 h-2 rounded-full bg-accent" />
           <span>Controle financeiro pessoal</span>
         </div>
 
         {/* Título Principal de Impacto */}
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
+        <h1 data-reveal="up" className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
           Mais clareza para cuidar do seu{' '}
           <span className="text-accent-ink underline decoration-accent/30 decoration-wavy underline-offset-8">
             dinheiro
@@ -28,16 +28,16 @@ export function HomeHero({ isLogged }: {
         </h1>
 
         {/* Descrição Concisa */}
-        <p className="text-base sm:text-lg text-secondary max-w-xl leading-relaxed mb-8">
+        <p data-reveal="up" className="text-base sm:text-lg text-secondary max-w-xl leading-relaxed mb-8">
           Registre suas receitas e despesas manualmente, organize categorias e acompanhe o dinheiro reservado para suas metas. Consulte relatórios para entender seus resultados, sem conectar contas bancárias.
         </p>
 
         {/* Ações Primárias / Secundárias */}
-        {isLogged ? (<div className="flex flex-wrap items-center gap-3.5 w-full sm:w-auto">
+        {isLogged ? (<div data-reveal="up" className="flex flex-wrap items-center gap-3.5 w-full sm:w-auto">
           <Link to="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-accent text-on-accent font-bold text-sm shadow-sm hover:bg-accent-hover active:scale-[0.98] transition-all">
             Acessar Painel Principal <ArrowRight size={18} />
           </Link>
-        </div>) : (<div className="flex flex-wrap items-center gap-3.5 w-full sm:w-auto">
+        </div>) : (<div data-reveal="up" className="flex flex-wrap items-center gap-3.5 w-full sm:w-auto">
           <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-accent text-on-accent font-bold text-sm shadow-sm hover:bg-accent-hover active:scale-[0.98] transition-all">
             Começar Gratuitamente <ArrowRight size={18} />
           </Link>
@@ -47,7 +47,7 @@ export function HomeHero({ isLogged }: {
         </div>)}
 
         {/* Marcadores de Confiança */}
-        <div className="flex flex-wrap items-center gap-y-3 gap-x-6 text-xs text-muted mt-8 pt-6 border-t border-line/80 w-full">
+        <div data-reveal="up" className="flex flex-wrap items-center gap-y-3 gap-x-6 text-xs text-muted mt-8 pt-6 border-t border-line/80 w-full">
           <div className="inline-flex items-center gap-2">
             <CheckCircle2 size={16} className="text-positive" />
             <span>Acesso protegido por autenticação</span>
@@ -65,7 +65,7 @@ export function HomeHero({ isLogged }: {
 
       {/* Coluna Visual: Mockup do Painel */}
       <div className="lg:col-span-5 relative">
-        <div className="relative rounded-2xl bg-surface border border-line-strong/80 p-5 sm:p-6 shadow-xl backdrop-blur-sm">
+        <div data-reveal="right" data-reveal-delay="2" className="relative rounded-2xl bg-surface border border-line-strong/80 p-5 sm:p-6 shadow-xl backdrop-blur-sm">
           {/* Cabeçalho da Janela Mockup */}
           <div className="flex flex-wrap items-center gap-3 pb-4 mb-5 border-b border-line">
             <div className="flex items-center gap-2.5">
@@ -168,7 +168,8 @@ export function HomeHero({ isLogged }: {
         </div>
 
         {/* Widget Flutuante Superior */}
-        <div className="hidden sm:flex absolute -top-4 -right-4 bg-surface/95 border border-line-strong rounded-xl p-3.5 shadow-xl items-center gap-3 backdrop-blur-sm">
+        <div data-parallax="2" className="hidden sm:block absolute -top-4 -right-4">
+        <div data-reveal="scale" data-reveal-delay="4" className="flex bg-surface/95 border border-line-strong rounded-xl p-3.5 shadow-xl items-center gap-3 backdrop-blur-sm">
           <div className="w-9 h-9 rounded-lg bg-progress/10 text-progress flex items-center justify-center">
             <Target size={18} />
           </div>
@@ -182,9 +183,11 @@ export function HomeHero({ isLogged }: {
             </div>
           </div>
         </div>
+        </div>
 
         {/* Widget Flutuante Inferior */}
-        <div className="hidden sm:flex absolute -bottom-4 -left-4 bg-surface/95 border border-line-strong rounded-xl p-3 shadow-xl items-center gap-2.5 backdrop-blur-sm">
+        <div data-parallax="-1" className="hidden sm:block absolute -bottom-4 -left-4">
+        <div data-reveal="scale" data-reveal-delay="5" className="flex bg-surface/95 border border-line-strong rounded-xl p-3 shadow-xl items-center gap-2.5 backdrop-blur-sm">
           <div className="w-8 h-8 rounded-lg bg-info/15 text-info flex items-center justify-center">
             <ShieldCheck size={16} />
           </div>
@@ -192,6 +195,7 @@ export function HomeHero({ isLogged }: {
             <b className="text-xs text-foreground block">Registros por conta</b>
             <span className="text-[10px] text-muted block">Seu planejamento em um só lugar</span>
           </div>
+        </div>
         </div>
       </div>
     </div>
