@@ -62,7 +62,7 @@ export function ProfilePage() {
       <div className="mt-6 rounded-2xl border border-line bg-surface p-6">
         <label htmlFor="theme-preference" className="text-sm font-semibold text-foreground">Aparência</label>
         <p id="theme-preference-hint" className="mt-1 text-sm text-muted">Acompanhe o tema do dispositivo ou escolha uma aparência para este navegador.</p>
-        <select id="theme-preference" aria-label="Preferência de tema" aria-describedby="theme-preference-hint" value={preference} onChange={(event) => setPreference(event.target.value as ThemePreference)} className="mt-4 h-11 w-full max-w-sm rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground">
+        <select id="theme-preference" aria-describedby="theme-preference-hint" value={preference} onChange={(event) => setPreference(event.target.value as ThemePreference)} className="mt-4 h-11 w-full max-w-sm rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground">
           <option value="system">Usar tema do dispositivo</option>
           <option value="light">Claro</option>
           <option value="dark">Escuro</option>

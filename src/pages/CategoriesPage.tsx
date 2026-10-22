@@ -124,10 +124,11 @@ export function CategoriesPage() {
                   </span>
                 </div>
                 <div className="flex shrink-0 gap-1">
-                <button type="button" aria-label="Editar categoria" onClick={() => openModal(category)} className="flex h-11 w-11 items-center justify-center rounded-lg text-accent-ink hover:bg-hover"><Pencil size={17} /></button>
+                <button type="button" aria-label={`Editar categoria ${category.nome}`} title={`Editar ${category.nome}`} onClick={() => openModal(category)} className="flex h-11 w-11 items-center justify-center rounded-lg text-accent-ink hover:bg-hover"><Pencil size={17} /></button>
                 <button
                   type="button"
-                  aria-label="Excluir categoria"
+                  aria-label={`Excluir categoria ${category.nome}`}
+                  title={`Excluir ${category.nome}`}
                   onClick={() => { setDeleteError(null); setDeleting(category); }}
                   className="flex h-11 w-11 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-hover hover:text-danger"
                 >
