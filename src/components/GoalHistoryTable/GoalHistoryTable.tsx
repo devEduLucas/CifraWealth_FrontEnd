@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
@@ -15,20 +16,21 @@ interface GoalHistoryTableProps {
 }
 
 export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: GoalHistoryTableProps) {
+  const tableTitleId = useId();
   return (
     <Card>
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo das metas</p>
+      <h2 id={tableTitleId} className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo das metas</h2>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+        <table aria-labelledby={tableTitleId} className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-subtle">
-              <th className="pb-3 font-medium">Nome</th>
-              <th className="pb-3 font-medium">Objetivo</th>
-              <th className="pb-3 font-medium">Economizado</th>
-              <th className="pb-3 font-medium">Status</th>
-              <th className="pb-3 font-medium">Data Final</th>
-              <th className="pb-3 text-right font-medium">Ações</th>
+              <th scope="col" className="pb-3 font-medium">Nome</th>
+              <th scope="col" className="pb-3 font-medium">Objetivo</th>
+              <th scope="col" className="pb-3 font-medium">Economizado</th>
+              <th scope="col" className="pb-3 font-medium">Status</th>
+              <th scope="col" className="pb-3 font-medium">Data Final</th>
+              <th scope="col" className="pb-3 text-right font-medium">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
