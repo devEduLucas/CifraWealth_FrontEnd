@@ -16,9 +16,10 @@ import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { InformationPage } from './pages/InformationPage';
 import { AccessibilityButton, AccessibilityProvider } from './components/AccessibilityTools/AccessibilityTools';
+import { useSessionUser } from './hooks/useSessionUser';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
+  return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace state={{ accountNotice: session.getEndNotice() }} />;
 }
 
 function PublicRoute({ children }: { children: ReactNode }) {
@@ -44,6 +45,7 @@ function RouteChangeAnnouncer() {
 
 function AppRoutes() {
   const { pathname } = useLocation();
+  useSessionUser();
   const hasAppHeader = ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile'].includes(pathname.replace(/\/+$/, ''));
   return (
     <>

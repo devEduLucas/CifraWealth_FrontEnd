@@ -1,479 +1,863 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
-  ArrowRight,
   Check,
-  ChevronRight,
   CircleHelp,
   Eye,
   EyeOff,
-  Fingerprint,
-  Mail,
+  LogOut,
+  LockKeyhole,
+  Paintbrush,
+  Monitor,
   Moon,
   ShieldCheck,
   Sun,
   Trash2,
   UserRound,
-  Wallet,
   X,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
+import { Modal } from '../components/Modal/Modal';
+import { Button } from '../components/Button/Button';
+import { Input } from '../components/Input/Input';
+import { PasswordInput } from '../components/PasswordInput/PasswordInput';
+import { UserAvatar } from '../components/UserAvatar/UserAvatar';
+import { GoogleAccountConfirmation } from '../components/GoogleAccountConfirmation/GoogleAccountConfirmation';
+import { ProfileCoverPresets } from '../components/ProfileCoverPresets/ProfileCoverPresets';
+import { api, type DeleteAccountInput } from '../lib/api';
 import { session } from '../lib/session';
+import { isDemoMode } from '../lib/config';
+import { useSessionUser } from '../hooks/useSessionUser';
 import { useTheme } from '../hooks/useTheme';
 import type { ThemePreference } from '../lib/theme';
+import { prepareProfileImage } from '../utils/profileImage';
 
-type DialogType = 'privacy' | 'logout' | 'delete-account' | null;
+const THEMES: {
+  value: ThemePreference;
+  title: string;
+  description: string;
+  icon: typeof Sun;
+}[] = [
+  {
+    value: 'system',
+    title: 'Automático',
+    description: 'Segue seu dispositivo',
+    icon: Monitor,
+  },
+  {
+    value: 'light',
+    title: 'Claro',
+    description: 'Visual iluminado',
+    icon: Sun,
+  },
+  {
+    value: 'dark',
+    title: 'Escuro',
+    description: 'Mais conforto visual',
+    icon: Moon,
+  },
+];
+type ImageKind = 'avatar' | 'cover';
+type Images = Record<ImageKind, string | null>;
+
+function ProfileImagePicker({
+  kind,
+  image,
+  name,
+  changed,
+  disabled,
+  error,
+  onFile,
+  onRemove,
+  onPreset,
+}: {
+  kind: ImageKind;
+  image: string | null;
+  name: string;
+  changed: boolean;
+  disabled: boolean;
+  error: string;
+  onFile: (file?: File) => void;
+  onRemove: () => void;
+  onPreset: (image: string) => void;
+}) {
+  const label = kind === 'avatar' ? 'Foto do avatar' : 'Capa do perfil';
+  const inputId = `profile-${kind}`;
+  return (
+    <fieldset className="min-w-0 rounded-xl border border-line p-3">
+      <legend className="px-1 text-sm font-semibold text-foreground">
+        {label}
+      </legend>
+      {kind === 'avatar' ? (
+        <UserAvatar
+          name={name}
+          photo={image}
+          className="mb-3 h-16 w-16 text-lg"
+        />
+      ) : (
+        <div className="mb-3 h-20 overflow-hidden rounded-lg bg-gradient-to-r from-blue-600/20 via-accent/10 to-teal-500/20">
+          {image && (
+            <img
+              src={image}
+              alt="Prévia da capa"
+              className="h-full w-full object-cover"
+            />
+          )}
+        </div>
+      )}
+      {kind === 'cover' && (
+        <ProfileCoverPresets
+          image={image}
+          disabled={disabled}
+          onSelect={onPreset}
+        />
+      )}
+      <label htmlFor={inputId} className="text-xs font-medium text-muted">
+        Escolher {kind === 'avatar' ? 'foto' : 'capa'}
+      </label>
+      <input
+        id={inputId}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        disabled={disabled}
+        aria-invalid={Boolean(error)}
+        aria-describedby={`${inputId}-help${error ? ` ${inputId}-error` : ''}`}
+        onChange={(event) => {
+          onFile(event.target.files?.[0]);
+          event.target.value = '';
+        }}
+        className="mt-2 block w-full min-w-0 text-xs text-muted file:mr-2 file:min-h-10 file:rounded-lg file:border file:border-line file:bg-elevated file:px-2 file:text-xs file:text-foreground"
+      />
+      <p id={`${inputId}-help`} className="mt-2 text-xs leading-5 text-muted">
+        JPG, PNG ou WebP, até 5 MB. A imagem será ajustada antes de salvar.
+      </p>
+      {error && (
+        <p
+          id={`${inputId}-error`}
+          role="alert"
+          className="mt-2 text-xs text-danger"
+        >
+          {error}
+        </p>
+      )}
+      {changed && (
+        <p role="status" className="mt-2 text-xs text-muted">
+          {image ? 'Nova imagem selecionada.' : 'A imagem será removida.'} Salve
+          para aplicar.
+        </p>
+      )}
+      {image && (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="mt-2"
+          disabled={disabled}
+          onClick={onRemove}
+        >
+          Remover {kind === 'avatar' ? 'foto' : 'capa'}
+        </Button>
+      )}
+    </fieldset>
+  );
+}
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const user = useSessionUser();
   const { preference, setPreference } = useTheme();
-  const [user, setUser] = useState(() => session.getUser());
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftName, setDraftName] = useState(() => user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : '');
-  const [draftEmail, setDraftEmail] = useState(() => user?.email ?? '');
-  const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
-  const initials = fullName
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase() || 'CW';
-
+  const fullName =
+    [user?.nome, user?.sobrenome].filter(Boolean).join(' ') || 'Usuário';
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [retry, setRetry] = useState(0);
   const [showEmail, setShowEmail] = useState(true);
-  const [dialog, setDialog] = useState<DialogType>(null);
+  const [dialog, setDialog] = useState<'edit' | 'logout' | 'delete' | null>(
+    null,
+  );
+  const [draftName, setDraftName] = useState('');
+  const [images, setImages] = useState<Images>({ avatar: null, cover: null });
+  const [imageChanges, setImageChanges] = useState({
+    avatar: false,
+    cover: false,
+  });
+  const [imageErrors, setImageErrors] = useState({ avatar: '', cover: '' });
+  const [processing, setProcessing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [saveError, setSaveError] = useState('');
   const [notice, setNotice] = useState('');
+  const [password, setPassword] = useState('');
+  const [proof, setProof] = useState<DeleteAccountInput | null>(null);
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const operation = useRef(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
-  function handleLogout() {
-    session.clear();
-    navigate('/login', { replace: true });
+  useEffect(() => {
+    if (deleteError && !deleting) passwordRef.current?.focus();
+  }, [deleteError, deleting]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError('');
+    api
+      .getProfile(controller.signal)
+      .then((profile) => {
+        if (!controller.signal.aborted) session.updateUser(profile);
+      })
+      .catch((cause: unknown) => {
+        if (!controller.signal.aborted)
+          setLoadError(
+            cause instanceof Error
+              ? cause.message
+              : 'Não foi possível carregar seu perfil.',
+          );
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [retry]);
+
+  function closeDialog() {
+    if (operation.current || processing) return;
+    setDialog(null);
+    setPassword('');
+    setProof(null);
+    setDeleteError('');
   }
 
-  function handleSaveProfile(event: React.FormEvent<HTMLFormElement>) {
+  function startEditing() {
+    setDraftName(fullName);
+    setImages({
+      avatar: user?.foto_perfil ?? null,
+      cover: user?.capa_perfil ?? null,
+    });
+    setImageChanges({ avatar: false, cover: false });
+    setImageErrors({ avatar: '', cover: '' });
+    setNameError('');
+    setSaveError('');
+    setDialog('edit');
+  }
+
+  async function chooseImage(kind: ImageKind, file?: File) {
+    if (!file) return;
+    setProcessing(true);
+    setImageErrors((current) => ({ ...current, [kind]: '' }));
+    try {
+      const prepared = await prepareProfileImage(file, kind);
+      setImages((current) => ({ ...current, [kind]: prepared }));
+      setImageChanges((current) => ({ ...current, [kind]: true }));
+    } catch (cause: unknown) {
+      setImageErrors((current) => ({
+        ...current,
+        [kind]:
+          cause instanceof Error
+            ? cause.message
+            : 'Não foi possível preparar a imagem.',
+      }));
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  async function saveProfile(event: FormEvent) {
     event.preventDefault();
-    if (!user || !draftName.trim() || !draftEmail.trim()) {
-      setNotice('Preencha nome e e-mail para salvar as alterações.');
+    if (operation.current || processing) return;
+    const cleanName = draftName.trim().replace(/\s+/g, ' ');
+    const [first = '', ...rest] = cleanName.split(' ');
+    if (
+      cleanName.length < 3 ||
+      first.length > 50 ||
+      rest.join(' ').length > 50
+    ) {
+      setNameError(
+        'Informe um nome com ao menos 3 caracteres e até 50 caracteres em cada parte.',
+      );
       return;
     }
-
-    const nameParts = draftName.trim().split(/\\s+/);
-    const updatedUser = {
-      ...user,
-      nome: nameParts[0],
-      sobrenome: nameParts.slice(1).join(' ') || null,
-      email: draftEmail.trim(),
-    };
-    const token = session.getToken();
-    if (token) session.save(token, updatedUser);
-    setUser(updatedUser);
-    setIsEditing(false);
-    setNotice('Perfil atualizado nesta sessão. A alteração no servidor depende de uma API de atualização de perfil.');
+    operation.current = true;
+    setSaving(true);
+    setSaveError('');
+    try {
+      const updated = await api.updateProfile({
+        fullName: cleanName,
+        ...(imageChanges.avatar ? { avatar: images.avatar } : {}),
+        ...(imageChanges.cover ? { cover: images.cover } : {}),
+      });
+      session.updateUser(updated);
+      setDialog(null);
+      setNotice(
+        isDemoMode
+          ? 'Perfil atualizado nesta demonstração.'
+          : 'Perfil atualizado com sucesso.',
+      );
+    } catch (cause: unknown) {
+      setSaveError(
+        cause instanceof Error
+          ? cause.message
+          : 'Não foi possível salvar seu perfil. Tente novamente.',
+      );
+    } finally {
+      operation.current = false;
+      setSaving(false);
+    }
   }
 
-  function handleDeleteAccountConfirmation() {
-    // A API atual não expõe uma operação de exclusão de conta.
-    // Não simular exclusão nem apagar apenas a sessão como se fosse a conta inteira.
-    setDialog(null);
-    setNotice(
-      'A exclusão de conta ainda não está disponível. Nenhuma conta foi excluída; é necessário integrar esta ação ao backend.'
-    );
+  async function deleteAccount(event?: FormEvent) {
+    event?.preventDefault();
+    if (operation.current || (!user?.tem_senha && !proof)) return;
+    operation.current = true;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const result = await api.deleteAccount(
+        user?.tem_senha ? { password } : proof!,
+      );
+      session.clear(result.message);
+      navigate('/login', {
+        replace: true,
+        state: { accountNotice: result.message },
+      });
+    } catch (cause: unknown) {
+      setDeleteError(
+        cause instanceof Error
+          ? cause.message
+          : 'Não foi possível excluir sua conta. Tente novamente.',
+      );
+      passwordRef.current?.focus();
+    } finally {
+      operation.current = false;
+      setDeleting(false);
+    }
   }
-
-  const themeOptions: { value: ThemePreference; title: string; description: string; icon: typeof Sun }[] = [
-    { value: 'system', title: 'Automático', description: 'Segue seu dispositivo', icon: Wallet },
-    { value: 'light', title: 'Claro', description: 'Visual iluminado', icon: Sun },
-    { value: 'dark', title: 'Escuro', description: 'Mais conforto visual', icon: Moon },
-  ];
 
   return (
     <DashboardLayout userName={fullName}>
       <div className="mx-auto w-full max-w-6xl">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-accent-ink">
-              Sua conta CifraWealth
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Perfil e preferências<span className="text-accent">.</span>
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
-              Cuide das suas informações e personalize seu espaço financeiro.
-            </p>
-          </div>
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-surface px-3 py-2 text-xs font-medium text-muted">
-            <UserRound size={15} className="text-accent-ink" />
-            Perfil da conta
-          </span>
+        <header>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Perfil
+          </h1>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            Sua vida financeira, do seu jeito. Acompanhe seu momento e
+            personalize seu espaço.
+          </p>
         </header>
-
-        <section className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
-          <div className="relative h-24 overflow-hidden bg-gradient-to-r from-blue-600/20 via-accent/10 to-teal-500/20 sm:h-32">
-            <div aria-hidden="true" className="absolute -right-8 -top-24 h-64 w-64 rounded-full border border-accent/20" />
-            <div aria-hidden="true" className="absolute -right-2 -top-16 h-48 w-48 rounded-full border border-accent/20" />
-            <div className="absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-lg border border-line bg-surface/90 px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] text-secondary sm:left-7">
-              <Fingerprint size={14} className="text-accent-ink" />
-              CIFRA ID <span className="text-accent">•</span> PERFIL PESSOAL
-            </div>
+        {loading && (
+          <p role="status" className="mt-4 text-sm text-muted">
+            Carregando perfil...
+          </p>
+        )}
+        {loadError && (
+          <div
+            role="alert"
+            className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"
+          >
+            <p>{loadError}</p>
+            <button
+              type="button"
+              onClick={() => setRetry((value) => value + 1)}
+              className="mt-2 min-h-11 font-semibold underline"
+            >
+              Tentar novamente
+            </button>
           </div>
-          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+        )}
+        {notice && (
+          <div
+            role="status"
+            className="mt-4 flex items-center gap-3 rounded-xl border border-positive/30 bg-positive/10 p-3 text-sm text-foreground"
+          >
+            <Check
+              size={18}
+              aria-hidden="true"
+              className="shrink-0 text-positive"
+            />
+            <p className="flex-1">{notice}</p>
+            <button
+              type="button"
+              aria-label="Dispensar aviso"
+              onClick={() => setNotice('')}
+              className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-hover"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
+        <section
+          aria-label="Seu perfil"
+          className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-sm"
+        >
+          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-600 sm:h-32">
+            {user?.capa_perfil && (
+              <img
+                src={user.capa_perfil}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            )}
+            <div className="absolute inset-0 bg-black/10" aria-hidden="true" />
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={Paintbrush}
+              disabled={loading || Boolean(loadError)}
+              onClick={startEditing}
+              className="absolute right-3 top-3 bg-surface text-foreground shadow-sm sm:right-5 sm:top-4"
+            >
+              Personalizar capa
+            </Button>
+          </div>
+          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div className="flex min-w-0 items-center gap-4">
-              <div className="-mt-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-4 border-surface bg-accent text-xl font-bold text-on-accent sm:-mt-12 sm:h-20 sm:w-20 sm:text-2xl">
-                {initials}
-              </div>
+              <UserAvatar
+                name={fullName}
+                photo={user?.foto_perfil}
+                className="relative z-10 -mt-12 h-20 w-20 self-start border-4 border-surface text-2xl"
+              />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="break-words text-lg font-bold text-foreground sm:text-xl">{fullName}</h2>
-                  <span className="rounded-full bg-accent/10 px-2 py-1 text-[10px] font-semibold text-accent-ink">
-                    Conta pessoal
-                  </span>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-accent-ink">
+                  Meu espaço financeiro
+                </p>
+                <h2 className="break-words text-lg font-bold text-foreground sm:text-xl">
+                  {fullName}
+                </h2>
+                <div className="mt-1 flex min-w-0 items-center gap-1 text-sm text-muted">
+                  <p className="min-w-0 break-all">
+                    <span aria-hidden={!showEmail}>
+                      {showEmail ? user?.email : '••••••••••••••••'}
+                    </span>
+                    {!showEmail && (
+                      <span className="sr-only">E-mail oculto</span>
+                    )}
+                  </p>
+                  <button
+                    type="button"
+                    aria-label={showEmail ? 'Ocultar e-mail' : 'Mostrar e-mail'}
+                    title={showEmail ? 'Ocultar e-mail' : 'Mostrar e-mail'}
+                    aria-pressed={!showEmail}
+                    onClick={() => setShowEmail((value) => !value)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-hover hover:text-foreground"
+                  >
+                    {showEmail ? (
+                      <EyeOff size={16} aria-hidden="true" />
+                    ) : (
+                      <Eye size={16} aria-hidden="true" />
+                    )}
+                  </button>
                 </div>
-                <p className="mt-1 break-all text-sm text-muted">
-                  {showEmail ? (user?.email ?? 'E-mail não disponível') : '••••••••••••••••'}
-                </p>
-                <p className="mt-2 flex items-center gap-2 text-xs text-subtle">
-                  <span className="h-1.5 w-1.5 rounded-full bg-positive" />
-                  Perfil da sua conta
-                </p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setShowEmail((visible) => !visible)}
-                aria-pressed={!showEmail}
-                className="inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-xl border border-line bg-elevated px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-hover sm:self-center"
+              <Button
+                icon={UserRound}
+                disabled={loading || Boolean(loadError)}
+                onClick={startEditing}
               >
-                {showEmail ? <EyeOff size={16} /> : <Eye size={16} />}
-                {showEmail ? 'Ocultar e-mail' : 'Mostrar e-mail'}
-              </button>
-              {!isEditing && (
-                <button
-                  type="button"
-                  onClick={() => { setDraftName(fullName); setDraftEmail(user?.email ?? ''); setIsEditing(true); }}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover"
-                >
-                  <UserRound size={16} /> Editar perfil
-                </button>
-              )}
+                Editar perfil
+              </Button>
             </div>
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
-          <div className="flex min-w-0 flex-col gap-6">
-            <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-ink">Informações pessoais</p>
-                  <h3 className="mt-1 text-lg font-bold text-foreground">Dados da conta</h3>
-                  <p className="mt-1 text-sm leading-5 text-muted">Informações associadas ao seu perfil CifraWealth.</p>
-                </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                  <UserRound size={18} />
-                </span>
-              </div>
-              {isEditing ? (
-                <form onSubmit={handleSaveProfile} className="mt-5 flex flex-col gap-4">
-                  <label className="block text-sm font-medium text-foreground">
-                    Nome completo
-                    <input
-                      autoComplete="name"
-                      required
-                      maxLength={120}
-                      value={draftName}
-                      onChange={(event) => setDraftName(event.target.value)}
-                      className="mt-2 h-11 w-full rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground"
-                    />
-                  </label>
-                  <label className="block text-sm font-medium text-foreground">
-                    E-mail
-                    <input
-                      type="email"
-                      autoComplete="email"
-                      required
-                      maxLength={254}
-                      value={draftEmail}
-                      onChange={(event) => setDraftEmail(event.target.value)}
-                      className="mt-2 h-11 w-full rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground"
-                    />
-                  </label>
-                  <p className="text-xs leading-5 text-muted">As alterações são mantidas na sessão local; a sincronização com o servidor depende de uma API de atualização de perfil.</p>
-                  <div className="flex flex-wrap justify-end gap-2">
-                    <button type="button" onClick={() => setIsEditing(false)} className="min-h-10 rounded-xl border border-line px-4 py-2 text-sm font-semibold text-foreground hover:bg-elevated">Cancelar</button>
-                    <button type="submit" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:bg-accent-hover"><Check size={16} /> Salvar alterações</button>
-                  </div>
-                </form>
-              ) : (
-              <dl className="divide-y divide-line">
-                <div className="flex items-center gap-3 py-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                    <UserRound size={17} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <dt className="text-xs text-muted">Nome completo</dt>
-                    <dd className="mt-1 break-words text-sm font-semibold text-foreground">{fullName}</dd>
-                  </div>
-                  <span className="rounded-full border border-line px-2 py-1 text-[10px] font-medium text-muted">Principal</span>
-                </div>
-                <div className="flex items-center gap-3 py-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                    <Mail size={17} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <dt className="text-xs text-muted">E-mail de acesso</dt>
-                    <dd className="mt-1 break-all text-sm font-semibold text-foreground">
-                      {showEmail ? (user?.email ?? 'E-mail não disponível') : '••••••••••••••••'}
-                    </dd>
-                  </div>
-                  <span className="rounded-full border border-line px-2 py-1 text-[10px] font-medium text-muted">Login</span>
-                </div>
-              </dl>
-              )}
-            </section>
 
-            <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-ink">Sua experiência</p>
-                  <h3 className="mt-1 text-lg font-bold text-foreground">Aparência da plataforma</h3>
-                  <p className="mt-1 text-sm leading-5 text-muted">Escolha o tema que funciona melhor para você.</p>
-                </div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                  <Sun size={18} />
-                </span>
-              </div>
-              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {themeOptions.map(({ value, title, description, icon: Icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setPreference(value)}
-                    aria-pressed={preference === value}
-                    className={`flex min-h-[104px] items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
-                      preference === value
-                        ? 'border-accent bg-accent/10'
-                        : 'border-line bg-elevated hover:bg-hover'
-                    }`}
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-accent-ink">
-                      <Icon size={18} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-foreground">{title}</span>
-                      <span className="mt-1 block text-xs leading-4 text-muted">{description}</span>
-                    </span>
-                    <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
-                      preference === value ? 'border-accent' : 'border-line-strong'
-                    }`}>
-                      {preference === value && <span className="h-2 w-2 rounded-full bg-accent" />}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <div className="mt-4 flex flex-col gap-1 border-t border-line pt-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-                <span>Preferência atual: <strong className="font-semibold text-foreground">{themeOptions.find((option) => option.value === preference)?.title}</strong></span>
-                <span>Salva neste navegador</span>
-              </div>
-            </section>
-          </div>
-
-          <aside className="flex min-w-0 flex-col gap-6">
-            <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-ink">Central de controle</p>
-                <h3 className="mt-1 text-lg font-bold text-foreground">Conta e suporte</h3>
-                <p className="mt-1 text-sm leading-5 text-muted">Informações importantes sempre à mão.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDialog('privacy')}
-                className="mt-5 flex w-full items-center gap-3 rounded-xl border border-transparent p-3 text-left transition-colors hover:border-line hover:bg-elevated"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-info/10 text-info"><ShieldCheck size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-foreground">Privacidade e dados</span>
-                  <span className="mt-1 block text-xs leading-5 text-muted">Saiba como suas informações são tratadas</span>
-                </span>
-                <ChevronRight size={17} className="shrink-0 text-subtle" />
-              </button>
-              <a
-                href="/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 flex items-center gap-3 rounded-xl border border-transparent p-3 transition-colors hover:border-line hover:bg-elevated"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-positive/10 text-positive"><CircleHelp size={18} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-foreground">Educação financeira</span>
-                  <span className="mt-1 block text-xs leading-5 text-muted">Consulte conteúdos públicos da Rico</span>
-                </span>
-                <ArrowRight size={16} className="shrink-0 text-subtle" />
-              </a>
-              <div className="mt-4 flex items-start gap-3 rounded-xl border border-line bg-elevated p-4">
-                <ShieldCheck size={17} className="mt-0.5 shrink-0 text-accent-ink" />
-                <p className="text-xs leading-5 text-muted">
-                  <strong className="text-foreground">Seus dados merecem cuidado.</strong><br />
-                  Use dispositivos confiáveis e não compartilhe suas credenciais.
-                </p>
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                <Fingerprint size={20} />
-              </span>
-              <h3 className="mt-4 text-lg font-bold text-foreground">Seu espaço, suas escolhas.</h3>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Personalizar sua conta é um passo simples para ter uma experiência financeira que combina com você.
-              </p>
-              <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-[10px] font-bold tracking-[0.12em] text-subtle">
-                <span>PRIVACIDADE EM PRIMEIRO LUGAR</span>
-                <ShieldCheck size={15} />
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
-                  <ArrowRight size={17} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-foreground">Encerrar sessão</h3>
-                  <p className="mt-1 text-xs leading-5 text-muted">Saia da sua conta neste dispositivo.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setDialog('logout')}
-                  aria-label="Encerrar sessão"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-elevated text-foreground transition-colors hover:bg-hover"
-                >
-                  <ArrowRight size={17} />
-                </button>
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-danger/30 bg-danger/5 p-5 sm:p-6">
-              <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger/10 text-danger">
-                  <Trash2 size={18} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-foreground">Excluir conta</h3>
-                  <p className="mt-1 text-xs leading-5 text-muted">
-                    A exclusão é uma ação permanente. Você precisará confirmar antes de continuar.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDialog('delete-account')}
-                className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-danger/40 bg-danger/10 px-4 py-2.5 text-sm font-semibold text-danger transition-colors hover:bg-danger/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
-              >
-                <Trash2 size={16} />
-                Excluir minha conta
-              </button>
-            </section>
-          </aside>
-        </div>
-
-        <footer className="mt-8 flex flex-col gap-2 border-t border-line py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 CifraWealth</span>
-          <span>Organização financeira com clareza e autonomia.</span>
-          <button type="button" onClick={() => setDialog('privacy')} className="inline-flex w-fit items-center gap-1 font-medium text-accent-ink hover:underline">
-            Privacidade <ArrowRight size={12} />
-          </button>
-        </footer>
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-line bg-surface p-6">
-        <label htmlFor="theme-preference" className="text-sm font-semibold text-foreground">Aparência</label>
-        <p id="theme-preference-hint" className="mt-1 text-sm text-muted">Acompanhe o tema do dispositivo ou escolha uma aparência para este navegador.</p>
-        <select id="theme-preference" aria-describedby="theme-preference-hint" value={preference} onChange={(event) => setPreference(event.target.value as ThemePreference)} className="mt-4 h-11 w-full max-w-sm rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground">
-          <option value="system">Usar tema do dispositivo</option>
-          <option value="light">Claro</option>
-          <option value="dark">Escuro</option>
-        </select>
-      </div>
-      {dialog && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/60 p-4"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setDialog(null);
-          }}
-        >
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <section
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="profile-dialog-title"
-            aria-describedby="profile-dialog-description"
-            className="relative my-auto w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-2xl"
+            className="rounded-2xl border border-line bg-surface p-5 sm:p-6"
+            aria-labelledby="profile-data-title"
           >
-            <button
-              type="button"
-              onClick={() => setDialog(null)}
-              aria-label="Fechar diálogo"
-              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-elevated hover:text-foreground"
+            <h2
+              id="profile-data-title"
+              className="text-lg font-bold text-foreground"
             >
-              <X size={18} />
-            </button>
-
-            {dialog === 'privacy' ? (
-              <>
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent-ink"><ShieldCheck size={23} /></span>
-                <h2 id="profile-dialog-title" className="mt-4 text-xl font-bold text-foreground">Privacidade e dados</h2>
-                <p id="profile-dialog-description" className="mt-2 text-sm leading-6 text-muted">
-                  As informações de perfil exibidas aqui vêm da sessão atual da CifraWealth. Consulte a política de privacidade do serviço para entender como os dados são tratados.
-                </p>
-                <button type="button" onClick={() => setDialog(null)} className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover">
-                  Entendi
-                </button>
-              </>
-            ) : dialog === 'logout' ? (
-              <>
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent-ink"><ArrowRight size={22} /></span>
-                <h2 id="profile-dialog-title" className="mt-4 text-xl font-bold text-foreground">Encerrar sessão?</h2>
-                <p id="profile-dialog-description" className="mt-2 text-sm leading-6 text-muted">
-                  Você sairá da sua conta neste dispositivo e precisará entrar novamente para acessar a plataforma.
-                </p>
-                <button type="button" onClick={handleLogout} className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover">
-                  Confirmar e sair
-                </button>
-                <button type="button" onClick={() => setDialog(null)} className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-elevated">
-                  Cancelar
-                </button>
-              </>
-            ) : (
-              <>
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger/10 text-danger"><Trash2 size={22} /></span>
-                <h2 id="profile-dialog-title" className="mt-4 text-xl font-bold text-foreground">Confirmar exclusão da conta?</h2>
-                <p id="profile-dialog-description" className="mt-2 text-sm leading-6 text-muted">
-                  Esta ação é permanente. Confirme somente se realmente deseja excluir sua conta. No momento, a API deste projeto não disponibiliza uma operação de exclusão; confirmar exibirá essa limitação e não apagará seus dados.
-                </p>
+              Acesso e privacidade
+            </h2>
+            <dl className="mt-4 divide-y divide-line">
+              <div className="py-4">
+                <dt className="flex items-center gap-2 text-xs text-muted">
+                  <LockKeyhole size={16} aria-hidden="true" />
+                  Forma de acesso
+                </dt>
+                <dd className="mt-2 break-words text-sm font-semibold text-foreground">
+                  {user?.tem_senha
+                    ? user.acesso_google
+                      ? 'E-mail e senha ou conta Google'
+                      : 'E-mail e senha'
+                    : user?.acesso_google
+                      ? 'Conta Google'
+                      : 'Carregando informações de acesso...'}
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt className="flex items-center gap-2 text-xs text-muted">
+                  <ShieldCheck size={16} aria-hidden="true" />
+                  Informações da conta
+                </dt>
+                <dd className="mt-2 break-all text-sm font-semibold text-foreground">
+                  Nome, avatar e capa personalizáveis
+                </dd>
+              </div>
+            </dl>
+            <p className="text-xs leading-5 text-muted">
+              Seu e-mail permanece o mesmo para entrar e recuperar o acesso. Use
+              o olho ao lado dele para ocultá-lo nesta tela.
+            </p>
+          </section>
+          <section
+            className="rounded-2xl border border-line bg-surface p-5 sm:p-6"
+            aria-labelledby="profile-theme-title"
+          >
+            <h2
+              id="profile-theme-title"
+              className="text-lg font-bold text-foreground"
+            >
+              Aparência
+            </h2>
+            <p className="mt-2 text-sm leading-5 text-muted">
+              Escolha como quer acompanhar suas finanças.
+            </p>
+            <div
+              role="group"
+              aria-label="Aparência"
+              className="mt-5 grid grid-cols-1 gap-3 min-[440px]:grid-cols-3"
+            >
+              {THEMES.map(({ value, title, description, icon: Icon }) => (
                 <button
+                  key={value}
                   type="button"
-                  onClick={handleDeleteAccountConfirmation}
-                  className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-danger/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
+                  aria-pressed={preference === value}
+                  onClick={() => setPreference(value)}
+                  className={`relative flex min-w-0 items-center gap-3 rounded-xl border p-3 text-left transition-colors min-[440px]:flex-col min-[440px]:items-start min-[440px]:gap-2 ${preference === value ? 'border-accent bg-accent/10 ring-1 ring-accent/40' : 'border-line bg-elevated hover:bg-hover'}`}
                 >
-                  <Trash2 size={16} />
-                  Confirmar solicitação
+                  <span
+                    aria-hidden="true"
+                    className="relative flex h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-line p-1.5 min-[440px]:h-16 min-[440px]:w-full"
+                    style={{
+                      background:
+                        value === 'dark'
+                          ? '#111d30'
+                          : value === 'light'
+                            ? '#f5f8fc'
+                            : 'linear-gradient(110deg, #f5f8fc 50%, #111d30 50%)',
+                    }}
+                  >
+                    <span className="w-1/5 rounded-sm bg-blue-500/25" />
+                    <span className="ml-1.5 flex flex-1 flex-col gap-1">
+                      <span className="h-1.5 w-2/3 rounded-full bg-blue-500/40" />
+                      <span className="flex flex-1 gap-1">
+                        <span className="flex-1 rounded bg-blue-500/15" />
+                        <span className="flex-1 rounded bg-cyan-500/20" />
+                      </span>
+                    </span>
+                    {preference === value && (
+                      <span className="absolute right-1 top-1 rounded-full bg-accent p-0.5 text-on-accent">
+                        <Check size={12} />
+                      </span>
+                    )}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Icon
+                      size={16}
+                      aria-hidden="true"
+                      className="text-accent-ink"
+                    />
+                    <span className="text-sm font-semibold text-foreground">
+                      {title}
+                    </span>
+                  </span>
+                  <span className="hidden text-xs leading-5 text-muted min-[440px]:inline">
+                    {description}
+                  </span>
                 </button>
-                <button type="button" onClick={() => setDialog(null)} className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-line px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-elevated">
-                  Cancelar
-                </button>
-              </>
-            )}
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-muted">
+              Salvo neste navegador. O modo automático acompanha seu
+              dispositivo.
+            </p>
           </section>
         </div>
-      )}
 
-      {notice && (
-        <div role="status" className="fixed bottom-5 left-4 right-4 z-[110] mx-auto flex max-w-xl items-start gap-3 rounded-xl border border-line bg-surface p-4 text-sm text-foreground shadow-xl sm:left-auto sm:right-6">
-          <span className="mt-0.5 text-accent-ink"><Check size={17} /></span>
-          <p className="flex-1 leading-5">{notice}</p>
-          <button type="button" onClick={() => setNotice('')} aria-label="Dispensar aviso" className="text-muted hover:text-foreground"><X size={16} /></button>
+        <section
+          className="mt-6 rounded-2xl border border-line bg-surface p-5 sm:p-6"
+          aria-labelledby="profile-help-title"
+        >
+          <h2
+            id="profile-help-title"
+            className="text-lg font-bold text-foreground"
+          >
+            Privacidade e ajuda
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+            <Link
+              to="/politica-de-privacidade"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent-ink underline"
+            >
+              <ShieldCheck size={17} aria-hidden="true" />
+              Política de privacidade{' '}
+              <span className="sr-only">(abre em nova aba)</span>
+            </Link>
+            <Link
+              to="/home#como-funciona"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent-ink underline"
+            >
+              <CircleHelp size={17} aria-hidden="true" />
+              Como usar a CifraWealth{' '}
+              <span className="sr-only">(abre em nova aba)</span>
+            </Link>
+          </div>
+        </section>
+
+        <section
+          className="mt-6 flex flex-col gap-5 rounded-2xl border border-line bg-surface p-5 sm:p-6"
+          aria-labelledby="profile-account-title"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2
+                id="profile-account-title"
+                className="text-lg font-bold text-foreground"
+              >
+                Sua conta
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                Saia da conta neste dispositivo quando terminar.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              icon={LogOut}
+              onClick={() => setDialog('logout')}
+            >
+              Encerrar sessão
+            </Button>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-danger">
+                Excluir conta
+              </h3>
+              <p className="mt-1 max-w-lg text-xs leading-5 text-muted">
+                Remove permanentemente sua conta e os dados financeiros
+                associados.
+              </p>
+            </div>
+            <Button
+              variant="danger"
+              icon={Trash2}
+              disabled={loading || Boolean(loadError)}
+              onClick={() => {
+                setPassword('');
+                setProof(null);
+                setDeleteError('');
+                setDialog('delete');
+              }}
+            >
+              Excluir minha conta
+            </Button>
+          </div>
+        </section>
+      </div>
+
+      <Modal
+        open={dialog === 'edit'}
+        title="Editar perfil"
+        saving={saving || processing}
+        onClose={closeDialog}
+      >
+        <form onSubmit={saveProfile} className="flex flex-col gap-5">
+          <Input
+            label="Nome completo"
+            autoComplete="name"
+            value={draftName}
+            maxLength={101}
+            required
+            onChange={(event) => {
+              setDraftName(event.target.value);
+              setNameError('');
+            }}
+            error={nameError || undefined}
+            disabled={saving}
+          />
+          {(['avatar', 'cover'] as const).map((kind) => (
+            <ProfileImagePicker
+              key={kind}
+              kind={kind}
+              name={draftName}
+              image={images[kind]}
+              changed={imageChanges[kind]}
+              disabled={saving || processing}
+              error={imageErrors[kind]}
+              onFile={(file) => void chooseImage(kind, file)}
+              onPreset={(image) => {
+                setImages((current) => ({ ...current, cover: image }));
+                setImageChanges((current) => ({ ...current, cover: true }));
+                setImageErrors((current) => ({ ...current, cover: '' }));
+              }}
+              onRemove={() => {
+                setImages((current) => ({ ...current, [kind]: null }));
+                setImageChanges((current) => ({ ...current, [kind]: true }));
+                setImageErrors((current) => ({ ...current, [kind]: '' }));
+              }}
+            />
+          ))}
+          {processing && (
+            <p role="status" className="text-sm text-muted">
+              Preparando imagem...
+            </p>
+          )}
+          {saveError && (
+            <p role="alert" className="text-sm text-danger">
+              {saveError}
+            </p>
+          )}
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              variant="outline"
+              disabled={saving || processing}
+              onClick={closeDialog}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={saving || processing}>
+              {saving ? 'Salvando...' : 'Salvar alterações'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+      <Modal
+        open={dialog === 'logout'}
+        title="Encerrar sessão?"
+        onClose={closeDialog}
+      >
+        <p className="text-sm leading-6 text-muted">
+          Você precisará entrar novamente para acessar seus dados neste
+          dispositivo.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
+          <Button variant="outline" onClick={closeDialog}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={() => {
+              session.clear();
+              navigate('/login', { replace: true });
+            }}
+          >
+            Confirmar e sair
+          </Button>
         </div>
-      )}
+      </Modal>
+      <Modal
+        open={dialog === 'delete'}
+        title="Excluir sua conta?"
+        saving={deleting}
+        onClose={closeDialog}
+      >
+        <p className="text-sm leading-6 text-muted">
+          Esta ação apaga sua conta, transações, categorias e metas. Ela não
+          pode ser desfeita.
+        </p>
+        {user?.tem_senha ? (
+          <form onSubmit={deleteAccount} className="mt-5 flex flex-col gap-4">
+            <PasswordInput
+              ref={passwordRef}
+              label="Sua senha"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setDeleteError('');
+              }}
+              required
+              disabled={deleting}
+              error={deleteError || undefined}
+              helperText={
+                isDemoMode
+                  ? 'Na demonstração, digite excluir. Apenas os dados fictícios deste navegador serão removidos.'
+                  : 'Digite a senha usada para entrar na sua conta.'
+              }
+            />
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button
+                variant="outline"
+                disabled={deleting}
+                onClick={closeDialog}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                type="submit"
+                disabled={deleting || !password}
+              >
+                {deleting ? 'Excluindo...' : 'Excluir conta permanentemente'}
+              </Button>
+            </div>
+          </form>
+        ) : user?.acesso_google ? (
+          <div>
+            <p className="mt-4 text-sm leading-6 text-muted">
+              Sua conta usa o Google. Confirme sua identidade com a mesma conta
+              antes de excluir.
+            </p>
+            {proof ? (
+              <div
+                role="status"
+                className="mt-4 flex flex-wrap items-center gap-2 text-sm text-positive"
+              >
+                <Check size={17} aria-hidden="true" />
+                Identidade confirmada.
+                <Button
+                  variant="ghost"
+                  disabled={deleting}
+                  onClick={() => {
+                    setProof(null);
+                    setDeleteError('');
+                  }}
+                >
+                  Confirmar novamente
+                </Button>
+              </div>
+            ) : (
+              <GoogleAccountConfirmation onVerified={setProof} />
+            )}
+            {deleteError && (
+              <p role="alert" className="mt-3 text-sm text-danger">
+                {deleteError}
+              </p>
+            )}
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <Button
+                variant="outline"
+                disabled={deleting}
+                onClick={closeDialog}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                disabled={deleting || !proof}
+                onClick={() => void deleteAccount()}
+              >
+                {deleting ? 'Excluindo...' : 'Excluir conta permanentemente'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p role="alert" className="mt-4 text-sm text-danger">
+            Não foi possível identificar a forma de acesso desta conta. Feche
+            esta janela e carregue o perfil novamente.
+          </p>
+        )}
+      </Modal>
     </DashboardLayout>
   );
 }

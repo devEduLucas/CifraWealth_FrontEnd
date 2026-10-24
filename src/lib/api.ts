@@ -30,6 +30,7 @@ async function request<T>(path: string, options: RequestInit, authenticated = fa
   try {
     response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch (netErr) {
+    if (options.signal?.aborted) throw netErr;
     console.error(`[CifraWealth API Error] Falha de conexão em ${API_URL}${path}:`, netErr);
     throw new ApiError('Não foi possível conectar ao servidor. Verifique se o backend está ligado e acessível.', 0);
   }
@@ -59,7 +60,14 @@ export interface UserResponse {
   nome: string;
   sobrenome: string | null;
   email: string;
+  foto_perfil?: string | null;
+  capa_perfil?: string | null;
+  tem_senha?: boolean;
+  acesso_google?: boolean;
 }
+
+export interface ProfileInput { fullName: string; avatar?: string | null; cover?: string | null; }
+export type DeleteAccountInput = { password: string } | { googleIdToken: string; challengeToken: string };
 
 export interface AuthResponse {
   user: UserResponse;
@@ -149,6 +157,21 @@ export interface GoalInput {
 }
 
 export const api = {
+  async getProfile(signal?: AbortSignal): Promise<UserResponse> {
+    if (isDemoMode) return (await getDemoStore()).getProfile();
+    return authRequest<UserResponse>('/users/me', { method: 'GET', signal });
+  },
+  async updateProfile(input: ProfileInput): Promise<UserResponse> {
+    if (isDemoMode) return (await getDemoStore()).updateProfile(input);
+    return authRequest<UserResponse>('/users/me', { method: 'PATCH', body: JSON.stringify(input) });
+  },
+  async accountDeletionChallenge(): Promise<{ nonce: string; challengeToken: string }> {
+    return authRequest('/users/me/deletion-challenge', { method: 'POST', body: '{}' });
+  },
+  async deleteAccount(input: DeleteAccountInput): Promise<{ message: string }> {
+    if (isDemoMode) return (await getDemoStore()).deleteAccount(input);
+    return authRequest('/users/me', { method: 'DELETE', body: JSON.stringify(input) });
+  },
   async getDetailedReport(start: string, end: string, signal?: AbortSignal): Promise<DetailedReportResponse> {
     if (isDemoMode) return (await getDemoStore()).getDetailedReport(start, end);
     const params = new URLSearchParams({ data_inicio: start, data_fim: end });

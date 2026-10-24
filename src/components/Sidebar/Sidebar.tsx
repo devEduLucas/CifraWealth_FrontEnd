@@ -3,6 +3,8 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Logo } from '../Logo/Logo';
 import { session } from '../../lib/session';
 import type { NavItem } from '../../types/dashboard.types';
+import { UserAvatar } from '../UserAvatar/UserAvatar';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
@@ -30,18 +32,12 @@ interface SidebarProps {
 
 export function Sidebar({ userName, collapsed, onToggle }: SidebarProps) {
   const navigate = useNavigate();
+  const user = useSessionUser();
 
   function handleLogout() {
     session.clear();
     navigate('/login', { replace: true });
   }
-
-  const initials = userName
-    .split(' ')
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
   return (
     <aside aria-label="Menu lateral" className="app-sidebar fixed bottom-0 left-0 z-40 hidden flex-col justify-between overflow-x-hidden border-r border-line bg-surface lg:flex">
@@ -87,9 +83,7 @@ export function Sidebar({ userName, collapsed, onToggle }: SidebarProps) {
 
       <div className={'flex shrink-0 items-center gap-3 border-t border-line py-5 ' + (collapsed ? 'mx-3 flex-col' : 'mx-4 px-2')}>
         <Link to="/profile" aria-label={'Abrir perfil de ' + userName} title="Meu perfil" className={'flex min-w-0 items-center gap-3 rounded-xl ' + (collapsed ? '' : 'flex-1')}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-on-accent">
-            {initials}
-          </span>
+          <UserAvatar name={userName} photo={user?.foto_perfil} className="h-9 w-9 text-xs" />
           <span className={collapsed ? 'sr-only' : 'min-w-0 flex-1 truncate text-sm font-medium text-secondary'}>{userName}</span>
         </Link>
         <button

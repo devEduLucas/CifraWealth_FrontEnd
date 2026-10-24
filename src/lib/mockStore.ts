@@ -9,6 +9,8 @@ import type {
   TransactionInput,
   TransactionResponse,
   UserResponse,
+  ProfileInput,
+  DeleteAccountInput,
 } from './api';
 import type { DetailedReportResponse } from '../types/reports.types';
 import { localDateOnly } from '../utils/reports';
@@ -182,6 +184,24 @@ function getInitialData(): MockStoreData {
 
 class MockStore {
   private data: MockStoreData;
+
+  getProfile(): UserResponse {
+    return { ...this.data.user, tem_senha: true, acesso_google: false };
+  }
+
+  updateProfile(input: ProfileInput): UserResponse {
+    const [nome, ...rest] = input.fullName.trim().split(/\s+/);
+    this.data.user = { ...this.data.user, nome, sobrenome: rest.join(' ') || null, ...(input.avatar !== undefined ? { foto_perfil: input.avatar } : {}), ...(input.cover !== undefined ? { capa_perfil: input.cover } : {}) };
+    this.save(this.data);
+    return this.getProfile();
+  }
+
+  deleteAccount(input: DeleteAccountInput): { message: string } {
+    if (!('password' in input) || input.password !== 'excluir') throw new Error('Na demonstração, digite excluir para confirmar.');
+    localStorage.removeItem(STORAGE_KEY);
+    this.data = getInitialData();
+    return { message: 'Dados desta demonstração removidos.' };
+  }
 
   constructor() {
     this.data = this.load();

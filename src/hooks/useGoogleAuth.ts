@@ -6,7 +6,7 @@ import { isDemoMode } from '../lib/config';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 export type GoogleButtonText = 'signin_with' | 'signup_with';
 
-function waitForGoogleScript(callback: () => void | (() => void)): () => void {
+export function waitForGoogleScript(callback: () => void | (() => void)): () => void {
   let cleanup: void | (() => void);
   if (window.google?.accounts?.id) {
     cleanup = callback();

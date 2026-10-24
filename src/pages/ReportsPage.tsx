@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { session } from '../lib/session';
+import { useSessionUser } from '../hooks/useSessionUser';
 import { isDemoMode } from '../lib/config';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { ReportPeriodFilter } from '../components/ReportPeriodFilter/ReportPeriodFilter';
@@ -18,7 +18,7 @@ import type { DetailedReportResponse, ReportPeriod } from '../types/reports.type
 import { downloadReport, formatReportDate, presetReportRange, validateReportRange } from '../utils/reports';
 
 export function ReportsPage() {
-  const user = session.getUser();
+  const user = useSessionUser();
   const fullName = user ? (user.nome + ' ' + (user.sobrenome ?? '')).trim() : 'Usuário';
   const [period, setPeriod] = useState<ReportPeriod>('6m');
   const [range, setRange] = useState(() => presetReportRange('6m'));

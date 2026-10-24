@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { session } from '../lib/session';
+import { useSessionUser } from '../hooks/useSessionUser';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { GoalsHeader } from '../components/GoalsHeader/GoalsHeader';
 import { GoalSummaryCards } from '../components/GoalSummaryCards/GoalSummaryCards';
@@ -22,7 +22,7 @@ import { getGoalIcon, getGoalProgress } from '../utils/goals';
 import type { GoalFilter, GoalFormValues, GoalViewModel } from '../types/goals.types';
 
 export function GoalsPage() {
-  const user = session.getUser();
+  const user = useSessionUser();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
 
   const { goals, loading, error, saving, formError, clearFormError, createGoal, updateGoal, contributeGoal, adjustGoal, changeGoalStatus, deleteGoal, reload } = useGoals();
