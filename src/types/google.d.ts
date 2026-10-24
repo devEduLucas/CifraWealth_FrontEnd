@@ -8,6 +8,8 @@ interface GoogleAccountsId {
   initialize: (config: {
     client_id: string;
     callback: (response: GoogleCredentialResponse) => void;
+    nonce?: string;
+    auto_select?: boolean;
   }) => void;
   renderButton: (
     parent: HTMLElement,

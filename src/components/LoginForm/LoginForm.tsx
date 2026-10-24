@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Mail } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLoginForm } from '../../hooks/useLoginForm';
 import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 import { Input } from '../Input/Input';
@@ -9,6 +9,8 @@ import { PrimaryButton } from '../PrimaryButton/PrimaryButton';
 
 export function LoginForm() {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const accountNotice = (state as { accountNotice?: unknown } | null)?.accountNotice;
   const { data, errors, touched, setField, setFieldTouched, handleSubmit, isValid, submitting, submitError } =
     useLoginForm();
 
@@ -20,6 +22,7 @@ export function LoginForm() {
     <div className="auth-card w-full max-w-md rounded-2xl border border-line bg-surface p-6 shadow-sm sm:p-8">
       <h1 className="text-[28px] font-bold leading-tight text-foreground">Entrar</h1>
       <p className="mt-1.5 text-sm text-muted">Acesse sua conta para continuar.</p>
+      {typeof accountNotice === 'string' && <p role="status" className="mt-4 rounded-lg border border-positive/30 bg-positive/10 px-3 py-2 text-sm text-foreground">{accountNotice}</p>}
 
       {submitError && (
         <p role="alert" className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">

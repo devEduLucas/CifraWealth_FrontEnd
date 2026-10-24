@@ -19,11 +19,12 @@ const CONTENT = {
     title: 'Privacidade',
     intro: 'Estas informações descrevem os dados utilizados pelas funcionalidades atuais da plataforma.',
     sections: [
-      ['Dados da conta e registros', 'A aplicação utiliza nome, e-mail e informações de acesso para identificar sua conta. Categorias, transações e metas que você informa são armazenadas no servidor e associadas ao seu usuário.'],
+      ['Dados da conta e registros', 'A aplicação utiliza nome, e-mail e informações de acesso para identificar sua conta. Categorias, transações e metas que você informa são armazenadas no servidor e associadas ao seu usuário. Se você adicionar foto ou capa ao perfil, as imagens ajustadas também serão armazenadas com a conta.'],
       ['Senha e sessões', 'A senha é armazenada como hash. O navegador guarda o token de sessão necessário para acessar a API, além das preferências de aparência e do menu. Ao sair, os dados da sessão são removidos deste navegador.'],
       ['Serviços de autenticação e e-mail', 'Quando habilitado, o login Google utiliza os dados de identificação fornecidos por essa integração. O envio de confirmação e recuperação de senha utiliza a Brevo, que recebe o destinatário e o conteúdo da mensagem.'],
       ['Proteção durante o acesso', 'A API verifica a autenticação e restringe os registros à conta correspondente. Em ambientes publicados com HTTPS, os dados também são protegidos durante o transporte. Isso não equivale a criptografia de ponta a ponta dos registros financeiros.'],
-      ['Dúvidas sobre seus dados', 'Para solicitações sobre os dados da sua conta, entre em contato com a equipe responsável por disponibilizar esta aplicação.'],
+      ['Controle do perfil', 'No Perfil, você pode alterar o nome, a foto e a capa. O e-mail de acesso não é alterado por essa tela. A opção Excluir minha conta remove a conta e seus registros financeiros após confirmar sua senha ou, em contas que usam apenas Google, confirmar novamente sua identidade pelo Google.'],
+      ['Dúvidas sobre seus dados', 'Para outras solicitações sobre os dados da sua conta, entre em contato com a equipe responsável por disponibilizar esta aplicação.'],
     ],
   },
 };

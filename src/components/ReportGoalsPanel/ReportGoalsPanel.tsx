@@ -5,9 +5,10 @@ import { formatCurrency } from '../../utils/validation';
 
 interface ReportGoalsPanelProps {
   goals: GoalPerformanceItem[];
+  valuesVisible?: boolean;
 }
 
-export function ReportGoalsPanel({ goals }: ReportGoalsPanelProps) {
+export function ReportGoalsPanel({ goals, valuesVisible = true }: ReportGoalsPanelProps) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
@@ -37,16 +38,16 @@ export function ReportGoalsPanel({ goals }: ReportGoalsPanelProps) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-foreground">{goal.nome}</p>
                     <p className="text-xs text-muted">
-                      {formatCurrency(goal.valorAtual)} / {formatCurrency(goal.valorAlvo)}
+                      {valuesVisible ? `${formatCurrency(goal.valorAtual)} / ${formatCurrency(goal.valorAlvo)}` : 'R$ •••••• / R$ ••••••'}
                     </p>
                   </div>
                   <span className="shrink-0 rounded-full bg-progress/10 px-2.5 py-1 text-xs font-semibold text-progress">
-                    {progress}%
+                    {valuesVisible ? `${progress}%` : '•••%'}
                   </span>
                 </div>
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hover">
+                {valuesVisible && <div aria-hidden="true" className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hover">
                   <div className="h-full rounded-full bg-progress" style={{ width: `${progress}%` }} />
-                </div>
+                </div>}
               </li>
             );
           })}

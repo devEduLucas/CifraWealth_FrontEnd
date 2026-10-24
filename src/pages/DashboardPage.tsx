@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
-import { Clock, Plus, Minus, Settings, TrendingDown, TrendingUp } from 'lucide-react';
-import { session } from '../lib/session';
+import {
+  Clock,
+  Plus,
+  Minus,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  EyeOff,
+} from 'lucide-react';
+import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
+import { useSessionUser } from '../hooks/useSessionUser';
 import {
   api,
   ApiError,
@@ -10,8 +19,16 @@ import {
   type MonthlyReportItem,
   type TransactionResponse,
 } from '../lib/api';
-import { formatCurrency, formatRelativeDate, SHORT_MONTH_LABELS } from '../utils/validation';
-import type { ChartPoint, GoalItem, TransactionItem } from '../types/dashboard.types';
+import {
+  formatCurrency,
+  formatRelativeDate,
+  SHORT_MONTH_LABELS,
+} from '../utils/validation';
+import type {
+  ChartPoint,
+  GoalItem,
+  TransactionItem,
+} from '../types/dashboard.types';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { DashboardHeader } from '../components/DashboardHeader/DashboardHeader';
 import { BalanceCard } from '../components/BalanceCard/BalanceCard';
@@ -23,8 +40,11 @@ import { GoalCard } from '../components/GoalCard/GoalCard';
 import { localDateOnly } from '../utils/reports';
 
 export function DashboardPage() {
-  const user = session.getUser();
-  const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
+  const { valuesVisible } = useFinancialPrivacy();
+  const user = useSessionUser();
+  const fullName = user
+    ? `${user.nome} ${user.sobrenome ?? ''}`.trim()
+    : 'Usuário';
   const firstName = fullName.split(' ')[0];
 
   const now = new Date();
@@ -39,7 +59,12 @@ export function DashboardPage() {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [goals, setGoals] = useState<GoalResponse[]>([]);
   const [retry, setRetry] = useState(0);
-  const [available, setAvailable] = useState({ balance: false, monthly: false, goals: false, transactions: false });
+  const [available, setAvailable] = useState({
+    balance: false,
+    monthly: false,
+    goals: false,
+    transactions: false,
+  });
   const today = localDateOnly();
 
   useEffect(() => {
@@ -62,52 +87,96 @@ export function DashboardPage() {
       api.listCategories(),
       api.listGoals(),
     ])
-      .then(([dashboard, monthlyReport, transactionsResult, categoriesResult, goalsResult]) => {
-        if (!active) return;
-        setAvailable({ balance: dashboard.status === 'fulfilled', monthly: monthlyReport.status === 'fulfilled', transactions: transactionsResult.status === 'fulfilled', goals: goalsResult.status === 'fulfilled' });
-        if (dashboard.status === 'fulfilled') setSaldo(dashboard.value.saldo);
-        if (monthlyReport.status === 'fulfilled') setMonthly(monthlyReport.value);
-        if (transactionsResult.status === 'fulfilled') setTransactions(transactionsResult.value);
-        if (categoriesResult.status === 'fulfilled') setCategories(categoriesResult.value);
-        if (goalsResult.status === 'fulfilled') setGoals(goalsResult.value);
-        const failures = [dashboard, monthlyReport, transactionsResult, categoriesResult, goalsResult].filter((item) => item.status === 'rejected');
-        if (failures.length) setError(failures.map((item) => item.status === 'rejected' && item.reason instanceof ApiError ? item.reason.message : 'Parte dos dados está indisponível.').filter((text, index, values) => values.indexOf(text) === index).join(' '));
-      })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .then(
+        ([
+          dashboard,
+          monthlyReport,
+          transactionsResult,
+          categoriesResult,
+          goalsResult,
+        ]) => {
+          if (!active) return;
+          setAvailable({
+            balance: dashboard.status === 'fulfilled',
+            monthly: monthlyReport.status === 'fulfilled',
+            transactions: transactionsResult.status === 'fulfilled',
+            goals: goalsResult.status === 'fulfilled',
+          });
+          if (dashboard.status === 'fulfilled') setSaldo(dashboard.value.saldo);
+          if (monthlyReport.status === 'fulfilled')
+            setMonthly(monthlyReport.value);
+          if (transactionsResult.status === 'fulfilled')
+            setTransactions(transactionsResult.value);
+          if (categoriesResult.status === 'fulfilled')
+            setCategories(categoriesResult.value);
+          if (goalsResult.status === 'fulfilled') setGoals(goalsResult.value);
+          const failures = [
+            dashboard,
+            monthlyReport,
+            transactionsResult,
+            categoriesResult,
+            goalsResult,
+          ].filter((item) => item.status === 'rejected');
+          if (failures.length)
+            setError(
+              failures
+                .map((item) =>
+                  item.status === 'rejected' && item.reason instanceof ApiError
+                    ? item.reason.message
+                    : 'Parte dos dados está indisponível.',
+                )
+                .filter((text, index, values) => values.indexOf(text) === index)
+                .join(' '),
+            );
+        },
+      )
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [currentYear, currentMonthIndex, retry, today]);
 
   const categoriesById = useMemo(
     () =>
-      new Map(
-        categories.map((category) => [
-          category.id_categoria,
-          category,
-        ])
-      ),
-    [categories]
+      new Map(categories.map((category) => [category.id_categoria, category])),
+    [categories],
   );
-  
+
   const currentMonthKey = `${currentYear}-${String(currentMonthIndex + 1).padStart(2, '0')}`;
-  const currentMonthItemIndex = monthly.findIndex((item) => item.mes === currentMonthKey);
+  const currentMonthItemIndex = monthly.findIndex(
+    (item) => item.mes === currentMonthKey,
+  );
   const currentMonthItem =
-    currentMonthItemIndex >= 0 ? monthly[currentMonthItemIndex] : monthly[monthly.length - 1];
+    currentMonthItemIndex >= 0
+      ? monthly[currentMonthItemIndex]
+      : monthly[monthly.length - 1];
   const previousMonthItem =
     currentMonthItemIndex > 0 ? monthly[currentMonthItemIndex - 1] : undefined;
 
   const receitasMes = currentMonthItem?.total_receitas ?? 0;
   const despesasMes = currentMonthItem?.total_despesas ?? 0;
   const economiaMes = receitasMes - despesasMes;
-  const economiaPercentual = receitasMes > 0 ? Math.round((economiaMes / receitasMes) * 100) : 0;
+  const economiaPercentual =
+    receitasMes > 0 ? Math.round((economiaMes / receitasMes) * 100) : 0;
 
   const despesasVariacao =
     previousMonthItem && previousMonthItem.total_despesas > 0
-      ? Math.round(((despesasMes - previousMonthItem.total_despesas) / previousMonthItem.total_despesas) * 100)
+      ? Math.round(
+          ((despesasMes - previousMonthItem.total_despesas) /
+            previousMonthItem.total_despesas) *
+            100,
+        )
       : null;
 
   // Last 6 months up to current month
-  const targetEndIndex = currentMonthItemIndex >= 0 ? currentMonthItemIndex + 1 : monthly.length;
-  const chartSlice = monthly.slice(Math.max(0, targetEndIndex - 6), targetEndIndex);
+  const targetEndIndex =
+    currentMonthItemIndex >= 0 ? currentMonthItemIndex + 1 : monthly.length;
+  const chartSlice = monthly.slice(
+    Math.max(0, targetEndIndex - 6),
+    targetEndIndex,
+  );
   const chartData: ChartPoint[] = chartSlice.map((item) => {
     const monthNumber = Number(item.mes.slice(5, 7));
     return {
@@ -116,7 +185,8 @@ export function DashboardPage() {
       despesas: item.total_despesas,
     };
   });
-  const chartSubtitle = chartSlice.length <= 1 ? 'Este mês' : `Últimos ${chartSlice.length} meses`;
+  const chartSubtitle =
+    chartSlice.length <= 1 ? 'Este mês' : `Últimos ${chartSlice.length} meses`;
 
   const recentTransactions: TransactionItem[] = useMemo(
     () =>
@@ -126,7 +196,7 @@ export function DashboardPage() {
         .slice(0, 6)
         .map((transaction) => {
           const category = categoriesById.get(transaction.id_categoria);
-  
+
           return {
             id: transaction.id_transacao,
             descricao: transaction.descricao,
@@ -137,7 +207,7 @@ export function DashboardPage() {
             data: formatRelativeDate(transaction.data_transacao),
           };
         }),
-    [transactions, categoriesById]
+    [transactions, categoriesById],
   );
 
   const activeGoals = goals.filter((goal) => goal.status === 'em_andamento');
@@ -152,85 +222,161 @@ export function DashboardPage() {
     <DashboardLayout userName={fullName}>
       <DashboardHeader firstName={firstName} />
 
-      {loading && <p className="text-sm text-muted">Carregando dados financeiros...</p>}
+      <section
+        aria-labelledby="quick-actions-title"
+        className="mb-6 rounded-2xl border border-accent/20 bg-accent/5 p-4 sm:p-5"
+      >
+        <div className="mb-4">
+          <h2
+            id="quick-actions-title"
+            className="text-base font-bold text-foreground"
+          >
+            O que vamos organizar hoje?
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Registre uma movimentação ou dê o primeiro passo para uma meta.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <QuickActionButton
+            label="Adicionar Receita"
+            icon={Plus}
+            iconClassName="bg-positive/10 text-positive"
+            to="/transactions?new=1&tipo=receita"
+          />
+          <QuickActionButton
+            label="Adicionar Despesa"
+            icon={Minus}
+            iconClassName="bg-danger/15 text-danger"
+            to="/transactions?new=1&tipo=despesa"
+          />
+          <QuickActionButton
+            label="Criar Meta"
+            icon={Target}
+            iconClassName="bg-info/15 text-info"
+            to="/goals?new=1"
+          />
+        </div>
+      </section>
+      {!valuesVisible && (
+        <p role="status" className="mb-4 text-xs text-muted">
+          Privacidade ativada: valores, percentuais e gráfico ocultos neste
+          dashboard.
+        </p>
+      )}
+
+      {loading && (
+        <p className="text-sm text-muted">Carregando dados financeiros...</p>
+      )}
       {error && (
-        <div role="alert" className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
-          <p>{error}</p><button onClick={() => setRetry((old) => old + 1)} className="min-h-11 font-semibold underline">Tentar novamente</button>
+        <div
+          role="alert"
+          className="mb-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger"
+        >
+          <p>{error}</p>
+          <button
+            onClick={() => setRetry((old) => old + 1)}
+            className="min-h-11 font-semibold underline"
+          >
+            Tentar novamente
+          </button>
         </div>
       )}
 
       {!loading && (
         <>
-          {available.balance ? <BalanceCard total={saldo} /> : <p className="text-sm text-muted">Saldo indisponível no momento.</p>}
+          {available.balance ? (
+            <BalanceCard total={saldo} valuesVisible={valuesVisible} />
+          ) : (
+            <p className="text-sm text-muted">Saldo indisponível no momento.</p>
+          )}
 
-          {available.monthly && <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <SummaryCard
-              label="Receitas"
-              value={formatCurrency(receitasMes)}
-              icon={TrendingUp}
-              iconClassName="bg-positive/10 text-positive"
-              footnote="Este mês, até hoje"
-              footnoteClassName="text-positive"
-            />
-            <SummaryCard
-              label="Despesas"
-              value={formatCurrency(despesasMes)}
-              icon={TrendingDown}
-              iconClassName="bg-danger/15 text-danger"
-              footnote={
-                despesasVariacao === null
-                  ? 'Este mês, até hoje'
-                  : `${despesasVariacao > 0 ? '↑' : '↓'} ${despesasVariacao}% vs mês anterior`
-              }
-              footnoteClassName="text-danger"
-            />
-            <SummaryCard
-              label="Resultado do mês"
-              value={formatCurrency(economiaMes)}
-              icon={Clock}
-              iconClassName="bg-info/15 text-info"
-              footnote={receitasMes > 0 ? `${economiaPercentual}% da receita · até hoje` : 'Este mês, até hoje'}
-              footnoteClassName="text-info"
-            />
-          </div>}
-
-          <div className="mt-6">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-subtle">
-              Ações Rápidas
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <QuickActionButton
-                label="Adicionar Receita"
-                icon={Plus}
+          {available.monthly && (
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <SummaryCard
+                label="Receitas"
+                value={
+                  valuesVisible ? formatCurrency(receitasMes) : 'R$ ••••••'
+                }
+                icon={TrendingUp}
                 iconClassName="bg-positive/10 text-positive"
-                to="/transactions?new=1&tipo=receita"
+                footnote="Este mês, até hoje"
+                footnoteClassName="text-positive"
               />
-              <QuickActionButton
-                label="Adicionar Despesa"
-                icon={Minus}
+              <SummaryCard
+                label="Despesas"
+                value={
+                  valuesVisible ? formatCurrency(despesasMes) : 'R$ ••••••'
+                }
+                icon={TrendingDown}
                 iconClassName="bg-danger/15 text-danger"
-                to="/transactions?new=1&tipo=despesa"
+                footnote={
+                  !valuesVisible || despesasVariacao === null
+                    ? 'Este mês, até hoje'
+                    : `${despesasVariacao > 0 ? '↑' : '↓'} ${despesasVariacao}% vs mês anterior`
+                }
+                footnoteClassName="text-danger"
               />
-              <QuickActionButton
-                label="Criar Meta"
-                icon={Settings}
+              <SummaryCard
+                label="Resultado do mês"
+                value={
+                  valuesVisible ? formatCurrency(economiaMes) : 'R$ ••••••'
+                }
+                icon={Clock}
                 iconClassName="bg-info/15 text-info"
-                to="/goals?new=1"
+                footnote={
+                  valuesVisible && receitasMes > 0
+                    ? `${economiaPercentual}% da receita · até hoje`
+                    : 'Este mês, até hoje'
+                }
+                footnoteClassName="text-info"
               />
             </div>
-          </div>
+          )}
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-            {available.monthly ? <FinanceChart data={chartData} year={currentYear} subtitle={chartSubtitle + ' · até hoje'} /> : <p className="text-sm text-muted">Resumo mensal indisponível.</p>}
-            {available.transactions ? <TransactionList transactions={recentTransactions} /> : <p className="text-sm text-muted">Últimos lançamentos indisponíveis.</p>}
+            {!valuesVisible ? (
+              <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-line bg-surface p-6 text-center">
+                <EyeOff size={24} aria-hidden="true" className="text-subtle" />
+                <h2 className="text-base font-semibold text-foreground">
+                  Gráfico oculto
+                </h2>
+                <p className="text-sm text-muted">
+                  Ative “Mostrar valores” para consultar a evolução financeira.
+                </p>
+              </div>
+            ) : available.monthly ? (
+              <FinanceChart
+                data={chartData}
+                year={currentYear}
+                subtitle={chartSubtitle + ' · até hoje'}
+              />
+            ) : (
+              <p className="text-sm text-muted">Resumo mensal indisponível.</p>
+            )}
+            {available.transactions ? (
+              <TransactionList
+                transactions={recentTransactions}
+                valuesVisible={valuesVisible}
+              />
+            ) : (
+              <p className="text-sm text-muted">
+                Últimos lançamentos indisponíveis.
+              </p>
+            )}
           </div>
 
           <div className="mt-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-foreground">Metas Financeiras</h2>
+                <h2 className="text-base font-semibold text-foreground">
+                  Metas Financeiras
+                </h2>
                 <p className="mt-0.5 text-xs text-muted">
-                  {goalItems.length} {goalItems.length === 1 ? 'meta em andamento' : 'metas em andamento'}
+                  {goalItems.length}{' '}
+                  {goalItems.length === 1
+                    ? 'meta em andamento'
+                    : 'metas em andamento'}
                 </p>
               </div>
               <Link
@@ -241,14 +387,22 @@ export function DashboardPage() {
               </Link>
             </div>
 
-            {!available.goals ? <p className="mt-4 text-sm text-muted">Metas indisponíveis no momento. Use “Tentar novamente” acima.</p> : goalItems.length === 0 ? (
+            {!available.goals ? (
+              <p className="mt-4 text-sm text-muted">
+                Metas indisponíveis no momento. Use “Tentar novamente” acima.
+              </p>
+            ) : goalItems.length === 0 ? (
               <div className="mt-4 rounded-2xl border border-line bg-surface p-8 text-center">
                 <p className="text-sm text-muted">Nenhuma meta criada ainda.</p>
               </div>
             ) : (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {goalItems.map((goal) => (
-                  <GoalCard key={goal.id} goal={goal} />
+                  <GoalCard
+                    key={goal.id}
+                    goal={goal}
+                    valuesVisible={valuesVisible}
+                  />
                 ))}
               </div>
             )}

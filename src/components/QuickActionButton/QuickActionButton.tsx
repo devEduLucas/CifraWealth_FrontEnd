@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import { ArrowUpRight, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface QuickActionButtonProps {
@@ -11,14 +11,15 @@ interface QuickActionButtonProps {
 
 export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick }: QuickActionButtonProps) {
   const className =
-    'flex flex-1 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 text-left text-sm font-medium text-secondary transition-colors hover:border-line-strong hover:bg-surface';
+    'group flex min-h-20 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-accent/25 bg-surface px-4 py-4 text-left text-sm font-semibold text-foreground shadow-sm transition-colors hover:border-accent hover:bg-accent/5';
 
   const content = (
     <>
-      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${iconClassName}`}>
-        <Icon size={16} />
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>
+        <Icon size={21} aria-hidden="true" />
       </span>
-      {label}
+      <span className="flex-1">{label}</span>
+      <ArrowUpRight size={18} aria-hidden="true" className="shrink-0 text-subtle group-hover:text-accent-ink" />
     </>
   );
 

@@ -63,6 +63,10 @@ Para apresentar a interface sem backend, configure VITE_DEMO_MODE=true e reinici
 
 Transações podem ser criadas, editadas, pesquisadas, filtradas por tipo/situação/categoria/data e paginadas. A exclusão exige confirmação. Pendências podem ser confirmadas quando sua data não for futura. Os valores aceitam o padrão brasileiro (`1.000`, `1.234,56`, `0,01`) e decimais com ponto de até duas casas; o formulário normaliza a apresentação ao sair do campo.
 
+A lista agrupa movimentações por dia, aproxima descrição e valor e diferencia receitas/despesas com fundos suaves, sinais, ícones e textos. A busca por descrição ou categoria ignora acentos. O botão Filtros abre um modal com prévia de quantidade, períodos rápidos, tipo, situação, categoria e ordenação por data. Aplicar confirma a seleção; Cancelar ou Escape descartam o rascunho. Etiquetas removem critérios individualmente e Limpar filtros restaura o histórico completo.
+
+O resumo acompanha todos os resultados filtrados, inclusive os que estão em outras páginas. Valores são somados em centavos; pendências e datas futuras aparecem separadamente e não compõem os totais confirmados. A privacidade de valores é compartilhada com dashboard/perfil e também oculta quantias nesta lista e no resumo. `transactions.spec.ts` verifica filtros, teclado, paginação, falha e nova tentativa, privacidade e telas pequenas; os testes unitários cobrem seleção, datas, ordenação e totais.
+
 Metas diferenciam novos aportes, correção do total e retirada. O valor posterior é apresentado antes de salvar. É possível cancelar/reativar a meta, consultar detalhes sem edição e ver o dia exato do prazo. O acompanhamento continua manual e não movimenta dinheiro. O histórico individual de movimentos, saldo inicial, edição da conta e tour permanecem no planejamento futuro.
 
 O dashboard mostra lançamentos confirmados até hoje e conserva os blocos disponíveis em caso de falha parcial. Documentos do cadastro abrem em outra aba para preservar o formulário; o perfil continua acessível pelo avatar, com cinco destinos no menu móvel.
@@ -76,3 +80,23 @@ Em Relatórios, escolha 3, 6 ou 12 meses, ou selecione Personalizado e aplique a
 A geração ocorre no navegador, com jsPDF, AutoTable e Noto Sans incorporada sob licença OFL. Bibliotecas e fontes são carregadas apenas ao pedir o PDF; nenhum dado financeiro é enviado a um serviço de conversão. A aparência de impressão é clara e permanece igual independentemente do tema da interface. Períodos longos usam trimestres ou anos no gráfico para preservar a leitura; as tabelas continuam mostrando cada mês e todos os registros.
 
 Os testes Playwright de exportação verificam os três presets, datas personalizadas, PDF válido, CSV completo e nova tentativa após falha das fontes em desktop e celular. Os testes reais da Sprint 5 também cobrem o download a partir da API e do MySQL local.
+
+## Análise de categorias
+
+Categorias mostra, por padrão, as despesas do mês atual até hoje. É possível alternar para receitas, escolher datas em Período e comparar as cinco principais categorias por valor ou quantidade de transações. Percentuais consideram todas as categorias do tipo selecionado, incluindo as que ficam fora do ranking. O resumo e a lista usam apenas confirmações no intervalo, sem incluir pendências ou datas futuras; os totais são calculados em centavos.
+
+A lista permite buscar sem acentos e ordenar por nome, valor ou frequência, incluindo categorias sem uso no período. Cadastro e edição oferecem ícones e cores com prévia. Categorias vinculadas conservam o tipo e continuam protegidas contra exclusão no servidor. Uma falha nas transações mantém o gerenciamento disponível e sinaliza que o uso está indisponível.
+
+O gráfico e os links Ver transações abrem a lista com categoria, tipo, situação confirmada e período selecionados. Esses filtros ficam na URL, persistem na recarga e são atualizados ao remover critérios. A busca textual permanece somente na tela. Os atalhos de criação do dashboard continuam selecionando o tipo do formulário sem filtrar o histórico. O controle de privacidade oculta quantias e o gráfico, preservando a preferência compartilhada com o restante da aplicação.
+
+`categories.spec.ts` verifica rankings, período, navegação, privacidade, personalização persistida na API, proteção de categorias e falhas parciais em desktop/celular. Os testes unitários incluem centavos, critérios do ranking, participação percentual e filtros da URL.
+
+## Perfil e acessibilidade
+
+O perfil permite alterar o nome, a foto do avatar e a capa. O e-mail de acesso é somente para consulta. A edição é salva na API e as alterações aparecem no cabeçalho e no menu lateral. Imagens JPG, PNG ou WebP de até 5 MB são recortadas e reduzidas no navegador antes de enviar; o servidor limita cada imagem a 200 KB. Remover uma imagem restaura as iniciais ou a capa padrão.
+
+Excluir minha conta pede a senha atual e apaga a conta, transações, categorias e metas somente depois da confirmação no servidor. Senha incorreta mantém os dados e a sessão. Contas que usam apenas Google confirmam a identidade novamente com o Google e depois acionam o botão de exclusão. Não é necessário fornecer uma senha do Google à aplicação. No modo demonstração, a confirmação é `excluir` e remove apenas os dados fictícios do navegador.
+
+Na área logada, o botão Acessibilidade fica no header; nas páginas públicas, continua disponível como atalho flutuante. As opções abrem em uma janela com foco contido, Escape, retorno ao botão de origem e rolagem interna em telas pequenas. Preferências de leitura e tema continuam salvas neste navegador. A marcação do VLibras é criada pelo script oficial, sem duplicar uma estrutura antiga.
+
+Os testes `profile-accessibility.spec.ts` cobrem persistência real de nome e imagens, falha ao salvar e nova tentativa, remoção de imagens, exclusão com senha, teclado e alto contraste em desktop e celular. `npm test` também verifica notificações da sessão, estabilidade dos snapshots e descarte dos dados ao sair. Ao instalar esta versão em outro ambiente, atualize o backend e aplique a migração de imagens antes de usar o novo perfil.

@@ -13,15 +13,16 @@ interface GoalHistoryTableProps {
   onEdit: (goal: GoalViewModel) => void;
   onDelete: (goal: GoalViewModel) => void;
   disabled?: boolean;
+  valuesVisible?: boolean;
 }
 
-export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: GoalHistoryTableProps) {
+export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled, valuesVisible = true }: GoalHistoryTableProps) {
   const tableTitleId = useId();
   return (
     <Card>
       <h2 id={tableTitleId} className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo das metas</h2>
 
-      <div className="overflow-x-auto">
+      <div role="region" tabIndex={0} aria-labelledby={tableTitleId} className="overflow-x-auto rounded-md">
         <table aria-labelledby={tableTitleId} className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-subtle">
@@ -46,8 +47,8 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: 
                 return (
                   <tr key={goal.id}>
                     <td className="py-3.5 font-semibold text-foreground">{goal.titulo}</td>
-                    <td className="py-3.5 text-secondary">{formatCurrency(goal.valorObjetivo)}</td>
-                    <td className="py-3.5 font-semibold text-progress">{formatCurrency(goal.valorAtual)}</td>
+                    <td className="py-3.5 text-secondary">{valuesVisible ? formatCurrency(goal.valorObjetivo) : 'R$ ••••••'}</td>
+                    <td className="py-3.5 font-semibold text-progress">{valuesVisible ? formatCurrency(goal.valorAtual) : 'R$ ••••••'}</td>
                     <td className="py-3.5">
                       <Badge label={badge.label} variant={badge.variant} />
                     </td>

@@ -5,6 +5,9 @@ import { api, ApiError } from '../../lib/api';
 import { useTheme } from '../../hooks/useTheme';
 import { buildNotifications, type AppNotification } from '../../utils/notifications';
 import { localDateOnly } from '../../utils/reports';
+import { AccessibilityButton } from '../AccessibilityTools/AccessibilityTools';
+import { UserAvatar } from '../UserAvatar/UserAvatar';
+import { useSessionUser } from '../../hooks/useSessionUser';
 
 const SECTION_NAMES: Record<string, string> = {
   '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias',
@@ -17,6 +20,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ userName }: AppHeaderProps) {
+  const user = useSessionUser();
   const { pathname } = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -27,7 +31,6 @@ export function AppHeader({ userName }: AppHeaderProps) {
   const headerRef = useRef<HTMLElement>(null);
   const bellRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const initials = userName.split(/\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase();
   const themeLabel = theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro';
 
   useEffect(() => {
@@ -62,6 +65,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
           <p className="mt-1 truncate text-sm font-semibold text-foreground sm:text-base">{userName}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <AccessibilityButton />
           <button type="button" aria-label={themeLabel} title={themeLabel} onClick={() => { setOpen(false); toggleTheme(); }} className="flex h-10 items-center justify-center gap-2 rounded-xl border border-line px-2.5 text-muted transition-colors hover:bg-elevated hover:text-foreground sm:px-3">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             <span className="hidden text-xs font-semibold sm:inline">{theme === 'dark' ? 'Claro' : 'Escuro'}</span>
@@ -71,7 +75,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
             {!error && notifications.length > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-on-accent">{notifications.length > 9 ? '9+' : notifications.length}</span>}
           </button>
           <span aria-hidden="true" className="mx-1 h-7 w-px bg-line" />
-          <Link to="/profile" onClick={() => setOpen(false)} aria-label="Abrir meu perfil" title="Meu perfil" className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-xs font-bold text-on-accent ring-4 ring-accent/10 transition-shadow hover:ring-accent/25">{initials}</Link>
+          <Link to="/profile" onClick={() => setOpen(false)} aria-label="Abrir meu perfil" title="Meu perfil" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-4 ring-accent/10 transition-shadow hover:ring-accent/25"><UserAvatar name={userName} photo={user?.foto_perfil} className="h-full w-full text-xs" /></Link>
         </div>
       </div>
       {open && (

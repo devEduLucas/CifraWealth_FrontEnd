@@ -56,6 +56,7 @@ test('header é compartilhado, saudação fica só no dashboard e conteúdo rola
   }
   await nav.getByRole('link', { name: 'Relatórios', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Relatórios', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Atualizar relatório', exact: true })).toBeEnabled();
   await page.evaluate(() => window.scrollTo(0, 700));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   const bounds = await header.boundingBox();
@@ -188,20 +189,22 @@ test('tema segue dispositivo até escolha manual e permite voltar ao automático
   await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/profile');
   const root = page.locator('html');
-  const preference = page.getByLabel('Preferência de tema');
+  const preferences = page.getByRole('group', { name: 'Aparência', exact: true });
+  const automatic = preferences.getByRole('button', { name: /^Automático/ });
+  const light = preferences.getByRole('button', { name: /^Claro/ });
   await expect(root).toHaveAttribute('data-theme', 'light');
   await expect(root).toHaveAttribute('data-theme-preference', 'system');
-  await expect(preference).toHaveValue('system');
+  await expect(automatic).toHaveAttribute('aria-pressed', 'true');
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(root).toHaveAttribute('data-theme', 'dark');
-  await preference.selectOption('light');
+  await light.click();
   await page.emulateMedia({ colorScheme: 'light' });
   await page.emulateMedia({ colorScheme: 'dark' });
   await expect(root).toHaveAttribute('data-theme', 'light');
   await page.reload();
-  await expect(preference).toHaveValue('light');
+  await expect(light).toHaveAttribute('aria-pressed', 'true');
   await expect(root).toHaveAttribute('data-theme', 'light');
-  await preference.selectOption('system');
+  await automatic.click();
   await expect(root).toHaveAttribute('data-theme', 'dark');
   expect(await page.evaluate(() => localStorage.getItem('cifrawealth:theme'))).toBeNull();
 });

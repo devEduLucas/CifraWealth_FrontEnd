@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from 'react';
+import { useId, useRef, useState, type MouseEvent } from 'react';
 import type { ChartPoint } from '../../types/dashboard.types';
 import { formatCurrency } from '../../utils/validation';
 import { useChartWidth } from '../../hooks/useChartWidth';
@@ -38,6 +38,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const { ref, width: WIDTH } = useChartWidth();
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const dataDescriptionId = useId();
 
   const allValues = data.flatMap((point) => [point.receitas, point.despesas]);
   const hasData = data.length >= 2 && allValues.some((value) => value > 0);
@@ -61,7 +62,9 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
 
   const receitasLine = buildSmoothPath(receitasPoints);
   const despesasLine = buildSmoothPath(despesasPoints);
-  const receitasArea = `${receitasLine} L ${receitasPoints[receitasPoints.length - 1].x},${HEIGHT - PADDING_BOTTOM} L ${receitasPoints[0].x},${HEIGHT - PADDING_BOTTOM} Z`;
+  const receitasArea = receitasLine
+    ? `${receitasLine} L ${receitasPoints[receitasPoints.length - 1].x},${HEIGHT - PADDING_BOTTOM} L ${receitasPoints[0].x},${HEIGHT - PADDING_BOTTOM} Z`
+    : '';
 
   function handleMouseMove(event: MouseEvent<HTMLDivElement>) {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -100,6 +103,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
         <svg
           role="img"
           aria-label="Evolução de receitas e despesas"
+          aria-describedby={dataDescriptionId}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           preserveAspectRatio="none"
           className="h-full w-full"
@@ -175,6 +179,45 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
           Receitas
         </span>
       </div>
+
+      <p id={dataDescriptionId} className="sr-only">
+        Os mesmos valores mensais estão disponíveis na opção Ver dados do gráfico, logo abaixo.
+      </p>
+      <details className="mt-5 rounded-xl border border-line">
+        <summary className="min-h-11 cursor-pointer rounded-xl px-3 py-3 text-sm font-semibold text-secondary transition-colors hover:bg-elevated">
+          Ver dados do gráfico
+        </summary>
+        {data.length ? (
+          <div
+            role="region"
+            aria-label="Valores mensais do gráfico"
+            tabIndex={0}
+            className="overflow-x-auto rounded-b-xl border-t border-line px-3 pb-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <table className="w-full text-left text-xs sm:text-sm">
+              <caption className="sr-only">Receitas e despesas por mês — {subtitle}</caption>
+              <thead className="text-muted">
+                <tr>
+                  <th scope="col" className="py-3 pr-2 font-medium">Mês</th>
+                  <th scope="col" className="px-2 py-3 text-right font-medium">Receitas</th>
+                  <th scope="col" className="py-3 pl-2 text-right font-medium">Despesas</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line text-foreground">
+                {data.map((point) => (
+                  <tr key={point.month}>
+                    <th scope="row" className="py-3 pr-2 font-medium">{point.month}</th>
+                    <td className="whitespace-nowrap px-2 py-3 text-right tabular-nums">{formatCurrency(point.receitas)}</td>
+                    <td className="whitespace-nowrap py-3 pl-2 text-right tabular-nums">{formatCurrency(point.despesas)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="border-t border-line px-3 py-3 text-sm text-muted">Nenhum mês disponível neste período.</p>
+        )}
+      </details>
     </div>
   );
 }

@@ -82,3 +82,39 @@ test('falha ao carregar a fonte do PDF informa o erro e permite repetir sem perd
   await expect(page.getByRole('alert')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
 });
+
+test('privacidade oculta valores, gráficos e análises, persiste e preserva exportação completa', async ({ page }) => {
+  await page.goto('/reports');
+  await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Ocultar valores', exact: true }).click();
+  const main = page.locator('main');
+  await expect(main).not.toContainText(/R\$\s*\d/);
+  await expect(main).not.toContainText(/\d[\d,.]*%/);
+  await expect(main).not.toContainText('As receitas cobrem as despesas');
+  await expect(page.getByRole('img', { name: 'Evolução mensal de receitas, despesas e saldo' })).toHaveCount(0);
+  await expect(main).toContainText('Os arquivos PDF e CSV incluem os valores completos.');
+  await expect(page.getByRole('table', { name: 'Transações detalhadas' })).toContainText('Registro com café 000');
+
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Mostrar valores', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
+  await expect(main).not.toContainText(/R\$\s*\d/);
+  await page.getByLabel('Buscar descrição ou categoria').fill('Registro com café 044');
+  await expect(main).toContainText('1 transações · Página 1 de 1');
+  const csvEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Baixar planilha CSV' }).click();
+  const csv = await csvEvent;
+  const contents = await readFile((await csv.path())!, 'utf8');
+  expect(contents).toContain('Registro com café 000');
+  expect(contents).toContain('Registro com café 044');
+  expect(contents).toContain('100,00');
+  const pdfEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Baixar PDF', exact: true }).click();
+  const pdf = await pdfEvent;
+  expect((await readFile((await pdf.path())!)).subarray(0, 5).toString()).toBe('%PDF-');
+  await expect(main).not.toContainText(/R\$\s*\d/);
+  await page.getByRole('button', { name: 'Mostrar valores', exact: true }).click();
+  await expect(main).toContainText('R$ 2.300,00');
+  await expect(main).toContainText('76.09%');
+  await expect(page.getByRole('img', { name: 'Evolução mensal de receitas, despesas e saldo' })).toBeVisible();
+});

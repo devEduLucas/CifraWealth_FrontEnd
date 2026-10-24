@@ -7,9 +7,10 @@ const FALLBACK_COLOR = '#64748B';
 
 interface TransactionListProps {
   transactions: TransactionItem[];
+  valuesVisible?: boolean;
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({ transactions, valuesVisible = true }: TransactionListProps) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-center justify-between">
@@ -47,9 +48,8 @@ export function TransactionList({ transactions }: TransactionListProps) {
                 </div>
 
                 <div className="text-right">
-                  <p className={`text-sm font-semibold ${isReceita ? 'text-positive' : 'text-danger'}`}>
-                    {isReceita ? '+' : '-'}
-                    {formatCurrency(transaction.valor)}
+                  <p className={`text-sm font-semibold ${!valuesVisible ? 'text-muted' : isReceita ? 'text-positive' : 'text-danger'}`} aria-label={valuesVisible ? undefined : 'Valor oculto'}>
+                    {valuesVisible ? `${isReceita ? '+' : '-'}${formatCurrency(transaction.valor)}` : 'R$ ••••••'}
                   </p>
                   <p className="text-xs text-subtle">{transaction.data}</p>
                 </div>

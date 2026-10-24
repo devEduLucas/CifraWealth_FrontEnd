@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import { session } from '../lib/session';
+import { useSessionUser } from '../hooks/useSessionUser';
+import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
+import { FinancialPrivacyButton } from '../components/FinancialPrivacyButton/FinancialPrivacyButton';
+import { EyeOff } from 'lucide-react';
 import { isDemoMode } from '../lib/config';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { ReportPeriodFilter } from '../components/ReportPeriodFilter/ReportPeriodFilter';
@@ -17,11 +20,31 @@ import { ReportTransactionsTable } from '../components/ReportTransactionsTable/R
 import type { DetailedReportResponse, ReportPeriod } from '../types/reports.types';
 import { downloadReport, formatReportDate, presetReportRange, validateReportRange } from '../utils/reports';
 
+function HiddenReportPanel({ title }: { title: string }) {
+  return (
+    <div className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <p className="flex min-h-32 items-center justify-center gap-2 text-center text-sm text-muted">
+        <EyeOff size={18} aria-hidden="true" />
+        Mostre os valores para consultar esta análise.
+      </p>
+    </div>
+  );
+}
+
 export function ReportsPage() {
-  const user = session.getUser();
+  const { valuesVisible } = useFinancialPrivacy();
+  const { search } = useLocation();
+  const [linkedRange] = useState(() => {
+    const params = new URLSearchParams(search);
+    const start = params.get('inicio') ?? '';
+    const end = params.get('fim') ?? '';
+    return !validateReportRange(start, end) ? { start, end } : null;
+  });
+  const user = useSessionUser();
   const fullName = user ? (user.nome + ' ' + (user.sobrenome ?? '')).trim() : 'Usuário';
-  const [period, setPeriod] = useState<ReportPeriod>('6m');
-  const [range, setRange] = useState(() => presetReportRange('6m'));
+  const [period, setPeriod] = useState<ReportPeriod>(linkedRange ? 'custom' : '6m');
+  const [range, setRange] = useState(() => linkedRange ?? presetReportRange('6m'));
   const [draft, setDraft] = useState(range);
   const [filterError, setFilterError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,8 +99,9 @@ export function ReportsPage() {
     <DashboardLayout userName={fullName}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h1 className="text-2xl font-bold text-foreground">Relatórios</h1><p className="mt-1 text-sm text-muted">Acompanhe receitas, despesas e saldo a partir das suas transações confirmadas.</p></div>
-        <div className="flex flex-wrap items-center gap-3"><ReportPeriodFilter value={period} onChange={changePeriod} disabled={exporting} /><ReportExportButton onExport={report && !loading && !error ? exportPdf : undefined} onExportCsv={report && !loading && !error ? () => downloadReport(report) : undefined} exporting={exporting} /></div>
+        <div className="flex flex-wrap items-center gap-3"><FinancialPrivacyButton /><ReportPeriodFilter value={period} onChange={changePeriod} disabled={exporting} /><ReportExportButton onExport={report && !loading && !error ? exportPdf : undefined} onExportCsv={report && !loading && !error ? () => downloadReport(report) : undefined} exporting={exporting} /></div>
       </div>
+      {!valuesVisible && <p className="mt-3 text-xs leading-5 text-muted">Valores ocultos nesta tela. Os arquivos PDF e CSV incluem os valores completos.</p>}
       {period === 'custom' && (
         <form onSubmit={applyDates} className="mt-5 flex flex-wrap items-end gap-3 rounded-xl border border-line bg-surface p-4">
           <div><label htmlFor="report-start" className="mb-1 block text-xs text-muted">Data inicial</label><input id="report-start" type="date" required disabled={exporting} value={draft.start} onChange={(event) => setDraft((old) => ({ ...old, start: event.target.value }))} className="h-11 rounded-xl border border-field-border bg-elevated px-3 text-sm text-foreground" /></div>
@@ -94,12 +118,12 @@ export function ReportsPage() {
       {report && !loading && !error && <>
         <a href="#transacoes-detalhadas" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink underline">Ver transações detalhadas deste período</a>
         {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-line p-4 text-sm text-muted">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-accent-ink">Registrar transação</Link> ou selecione outras datas.</div>}
-        <div className="mt-6"><ReportSummaryCards summary={report.summary} /></div>
-        <div className="mt-6"><FinancialEvolutionChart data={report.evolution} periodLabel={label} /></div>
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2"><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /><MonthlyComparisonChart data={report.monthlyComparison} /></div>
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2"><ReportInsightsPanel insights={report.insights} /><ReportGoalsPanel goals={report.goals} /></div>
-        <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} /></div>
-        <div id="transacoes-detalhadas" className="mt-6 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} /></div>
+        <div className="mt-6"><ReportSummaryCards summary={report.summary} valuesVisible={valuesVisible} /></div>
+        <div className="mt-6">{valuesVisible ? <FinancialEvolutionChart data={report.evolution} periodLabel={label} /> : <HiddenReportPanel title="Receitas, despesas e saldo" />}</div>
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">{valuesVisible ? <><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /><MonthlyComparisonChart data={report.monthlyComparison} /></> : <><HiddenReportPanel title="Despesas por Categoria" /><HiddenReportPanel title="Comparativo Mensal" /></>}</div>
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">{valuesVisible ? <ReportInsightsPanel insights={report.insights} /> : <HiddenReportPanel title="Insights Financeiros" />}<ReportGoalsPanel goals={report.goals} valuesVisible={valuesVisible} /></div>
+        <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} valuesVisible={valuesVisible} /></div>
+        <div id="transacoes-detalhadas" className="mt-6 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} valuesVisible={valuesVisible} /></div>
       </>}
     </DashboardLayout>
   );
