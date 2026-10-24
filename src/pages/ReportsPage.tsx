@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { useSessionUser } from '../hooks/useSessionUser';
 import { isDemoMode } from '../lib/config';
@@ -18,10 +18,17 @@ import type { DetailedReportResponse, ReportPeriod } from '../types/reports.type
 import { downloadReport, formatReportDate, presetReportRange, validateReportRange } from '../utils/reports';
 
 export function ReportsPage() {
+  const { search } = useLocation();
+  const [linkedRange] = useState(() => {
+    const params = new URLSearchParams(search);
+    const start = params.get('inicio') ?? '';
+    const end = params.get('fim') ?? '';
+    return !validateReportRange(start, end) ? { start, end } : null;
+  });
   const user = useSessionUser();
   const fullName = user ? (user.nome + ' ' + (user.sobrenome ?? '')).trim() : 'Usuário';
-  const [period, setPeriod] = useState<ReportPeriod>('6m');
-  const [range, setRange] = useState(() => presetReportRange('6m'));
+  const [period, setPeriod] = useState<ReportPeriod>(linkedRange ? 'custom' : '6m');
+  const [range, setRange] = useState(() => linkedRange ?? presetReportRange('6m'));
   const [draft, setDraft] = useState(range);
   const [filterError, setFilterError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

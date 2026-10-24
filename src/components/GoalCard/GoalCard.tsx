@@ -5,9 +5,10 @@ import { formatCurrency } from '../../utils/validation';
 
 interface GoalCardProps {
   goal: GoalItem;
+  valuesVisible?: boolean;
 }
 
-export function GoalCard({ goal }: GoalCardProps) {
+export function GoalCard({ goal, valuesVisible = true }: GoalCardProps) {
   const progress = goal.valorAlvo > 0 ? Math.min(Math.floor((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
 
   return (
@@ -17,18 +18,18 @@ export function GoalCard({ goal }: GoalCardProps) {
           <PiggyBank size={19} />
         </span>
         <span className="rounded-full bg-progress/10 px-2.5 py-1 text-xs font-semibold text-progress">
-          {progress}%
+          {valuesVisible ? `${progress}%` : '•••'}
         </span>
       </div>
 
       <p className="mt-3 text-sm font-semibold text-foreground">{goal.nome}</p>
       <p className="mt-0.5 text-xs text-muted">
-        {formatCurrency(goal.valorAtual)} / {formatCurrency(goal.valorAlvo)}
+        {valuesVisible ? `${formatCurrency(goal.valorAtual)} / ${formatCurrency(goal.valorAlvo)}` : 'Valores ocultos'}
       </p>
 
-      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-hover">
+      {valuesVisible && <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-hover">
         <div className="h-full rounded-full bg-progress" style={{ width: `${progress}%` }} />
-      </div>
+      </div>}
       <Link to={`/goals?contribute=${goal.id}`} className="mt-4 inline-block text-sm font-semibold text-accent-ink hover:underline">Registrar valor guardado</Link>
     </div>
   );

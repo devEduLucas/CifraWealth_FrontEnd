@@ -24,6 +24,7 @@ import { PasswordInput } from '../components/PasswordInput/PasswordInput';
 import { UserAvatar } from '../components/UserAvatar/UserAvatar';
 import { GoogleAccountConfirmation } from '../components/GoogleAccountConfirmation/GoogleAccountConfirmation';
 import { ProfileCoverPresets } from '../components/ProfileCoverPresets/ProfileCoverPresets';
+import { ProfileFinancialOverview } from '../components/ProfileFinancialOverview/ProfileFinancialOverview';
 import { api, type DeleteAccountInput } from '../lib/api';
 import { session } from '../lib/session';
 import { isDemoMode } from '../lib/config';
@@ -463,6 +464,7 @@ export function ProfilePage() {
           </div>
         </section>
 
+        <ProfileFinancialOverview />
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <section

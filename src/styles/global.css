@@ -140,6 +140,10 @@ body { background: rgb(var(--color-canvas)); color: rgb(var(--color-foreground))
 .app-sidebar { width: var(--app-sidebar-width); transition: width 180ms ease; }
 .app-main { transition: margin-left 180ms ease; }
 .app-topbar { transition: left 180ms ease; }
+.app-help-button { bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+@media (min-width: 1024px) {
+  .app-help-button { bottom: 1.25rem; }
+}
 @media (min-width: 1024px) {
   .app-shell .app-topbar { left: var(--app-sidebar-width); }
   .app-main { margin-left: var(--app-sidebar-width); }
