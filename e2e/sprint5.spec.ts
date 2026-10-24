@@ -86,7 +86,7 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await dialog.getByRole('button',{name:'Salvar',exact:true}).click();await expect(dialog).not.toBeVisible();
   await page.getByRole('button',{name:'Registrar valor guardado',exact:true}).click();await expect(dialog).toBeVisible();
   await expect(dialog.getByText(/não transfere dinheiro/)).toBeVisible();await dialog.getByLabel('Valor deste aporte').fill('250');
-  await dialog.getByRole('button',{name:'Registrar valor',exact:true}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('status')).toContainText('progresso');
+  await dialog.getByRole('button',{name:'Registrar valor',exact:true}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('status').filter({ hasText: 'progresso' })).toContainText('progresso');
   await page.reload();await expect(page.getByText('25%',{exact:true}).first()).toBeVisible();
   await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('metas.png'),fullPage:true});
   await page.goto('/dashboard');await page.getByRole('link',{name:'Registrar valor guardado'}).click();await expect(page.getByRole('dialog')).toBeVisible();

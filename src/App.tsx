@@ -15,7 +15,7 @@ import { GoalsPage } from './pages/GoalsPage';
 import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { InformationPage } from './pages/InformationPage';
-import { AccessibilityTools } from './components/AccessibilityTools/AccessibilityTools';
+import { AccessibilityButton, AccessibilityProvider } from './components/AccessibilityTools/AccessibilityTools';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace />;
@@ -31,21 +31,24 @@ function RouteChangeAnnouncer() {
   const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
+    const titles: Record<string, string> = { '/': 'Início', '/home': 'Início', '/login': 'Entrar', '/register': 'Criar conta', '/forgot-password': 'Recuperar senha', '/reset-password': 'Redefinir senha', '/verify-email': 'Confirmar e-mail', '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias', '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil', '/termos-de-uso': 'Termos de uso', '/politica-de-privacidade': 'Privacidade' };
+    const title = titles[pathname.replace(/\/+$/, '') || '/'] ?? 'CifraWealth';
+    document.title = `${title} | CifraWealth`;
     if (previousPath.current === pathname) return;
     previousPath.current = pathname;
-    const heading = document.querySelector<HTMLElement>('#conteudo-principal h1');
-    const title = heading?.textContent?.trim();
-    setAnnouncement(title ? `Página carregada: ${title}` : 'Página carregada.');
+    setAnnouncement(`Página carregada: ${title}`);
   }, [pathname]);
 
   return <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</span>;
 }
 
-export function App() {
+function AppRoutes() {
+  const { pathname } = useLocation();
+  const hasAppHeader = ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile'].includes(pathname.replace(/\/+$/, ''));
   return (
     <>
       <a href="#conteudo-principal" className="skip-link">Pular para o conteúdo principal</a>
-      <AccessibilityTools />
+      {!hasAppHeader && <AccessibilityButton floating />}
       <RouteChangeAnnouncer />
       <DemoBanner />
       <Routes>
@@ -154,6 +157,10 @@ export function App() {
       </Routes>
     </>
   );
+}
+
+export function App() {
+  return <AccessibilityProvider><AppRoutes /></AccessibilityProvider>;
 }
 
 export default App;

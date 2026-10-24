@@ -1,13 +1,17 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+import { Modal } from '../Modal/Modal';
 import {
   Accessibility,
   Check,
   Contrast,
-  Minus,
-  Plus,
   RotateCcw,
   Underline,
-  X,
 } from 'lucide-react';
 
 type TextSize = 'normal' | 'large' | 'larger';
@@ -20,9 +24,49 @@ interface AccessibilityPreferences {
 }
 
 const STORAGE_KEY = 'cifrawealth:accessibility';
+const AccessibilityContext = createContext<{
+  open: boolean;
+  setOpen: (value: boolean) => void;
+} | null>(null);
+
+export function AccessibilityButton({
+  floating = false,
+}: {
+  floating?: boolean;
+}) {
+  const context = useContext(AccessibilityContext);
+  if (!context)
+    throw new Error('AccessibilityButton precisa do AccessibilityProvider.');
+  const button = (
+    <button
+      type="button"
+      aria-label="Acessibilidade"
+      title="Acessibilidade"
+      aria-haspopup="dialog"
+      aria-expanded={context.open}
+      onClick={() => context.setOpen(true)}
+      className={
+        floating
+          ? 'accessibility-tools-trigger'
+          : 'flex h-10 w-10 items-center justify-center rounded-xl border border-line text-muted transition-colors hover:bg-elevated hover:text-foreground'
+      }
+    >
+      <Accessibility size={20} aria-hidden="true" />
+      {floating && <span className="hidden sm:inline">Acessibilidade</span>}
+    </button>
+  );
+  return floating ? (
+    <div className="accessibility-tools">{button}</div>
+  ) : (
+    button
+  );
+}
 
 function getSystemReducedMotion(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 function defaultPreferences(): AccessibilityPreferences {
@@ -43,10 +87,22 @@ function readPreferences(): AccessibilityPreferences {
     if (!parsed || typeof parsed !== 'object') return defaults;
     const saved = parsed as Partial<AccessibilityPreferences>;
     return {
-      textSize: saved.textSize === 'large' || saved.textSize === 'larger' ? saved.textSize : 'normal',
-      highContrast: typeof saved.highContrast === 'boolean' ? saved.highContrast : defaults.highContrast,
-      underlineLinks: typeof saved.underlineLinks === 'boolean' ? saved.underlineLinks : defaults.underlineLinks,
-      reduceMotion: typeof saved.reduceMotion === 'boolean' ? saved.reduceMotion : defaults.reduceMotion,
+      textSize:
+        saved.textSize === 'large' || saved.textSize === 'larger'
+          ? saved.textSize
+          : 'normal',
+      highContrast:
+        typeof saved.highContrast === 'boolean'
+          ? saved.highContrast
+          : defaults.highContrast,
+      underlineLinks:
+        typeof saved.underlineLinks === 'boolean'
+          ? saved.underlineLinks
+          : defaults.underlineLinks,
+      reduceMotion:
+        typeof saved.reduceMotion === 'boolean'
+          ? saved.reduceMotion
+          : defaults.reduceMotion,
     };
   } catch {
     return defaults;
@@ -81,23 +137,28 @@ function ToggleSetting({
       onClick={onClick}
       className="accessibility-setting-toggle"
     >
-      <span className="accessibility-setting-icon" aria-hidden="true">{icon}</span>
+      <span className="accessibility-setting-icon" aria-hidden="true">
+        {icon}
+      </span>
       <span className="accessibility-setting-copy">
         <span className="accessibility-setting-label">{label}</span>
         <span className="accessibility-setting-description">{description}</span>
       </span>
-      <span className={`accessibility-toggle-indicator${pressed ? ' is-active' : ''}`} aria-hidden="true">
+      <span
+        className={`accessibility-toggle-indicator${pressed ? ' is-active' : ''}`}
+        aria-hidden="true"
+      >
         {pressed ? <Check size={14} /> : null}
       </span>
     </button>
   );
 }
 
-export function AccessibilityTools() {
+export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(readPreferences);
+  const [preferences, setPreferences] =
+    useState<AccessibilityPreferences>(readPreferences);
   const [announcement, setAnnouncement] = useState('');
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     applyPreferences(preferences);
@@ -108,115 +169,121 @@ export function AccessibilityTools() {
     }
   }, [preferences]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        setIsOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-    document.addEventListener('keydown', closeOnEscape);
-    return () => document.removeEventListener('keydown', closeOnEscape);
-  }, [isOpen]);
-
-  function updatePreference<K extends keyof AccessibilityPreferences>(key: K, value: AccessibilityPreferences[K]) {
+  function updatePreference<K extends keyof AccessibilityPreferences>(
+    key: K,
+    value: AccessibilityPreferences[K],
+  ) {
     setPreferences((current) => ({ ...current, [key]: value }));
     setAnnouncement('Preferência de acessibilidade atualizada.');
   }
 
   function resetPreferences() {
     setPreferences(defaultPreferences());
-    setAnnouncement('Preferências de acessibilidade restauradas para os valores padrão.');
+    setAnnouncement(
+      'Preferências de acessibilidade restauradas para os valores padrão.',
+    );
   }
 
   return (
-    <>
-      <div className="accessibility-tools">
-        <button
-          ref={triggerRef}
-          type="button"
-          className="accessibility-tools-trigger"
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? 'accessibility-tools-panel' : undefined}
-          onClick={() => setIsOpen((open) => !open)}
-        >
-          {isOpen ? <X size={18} aria-hidden="true" /> : <Accessibility size={20} aria-hidden="true" />}
-          <span>Acessibilidade</span>
-        </button>
+    <AccessibilityContext.Provider value={{ open: isOpen, setOpen: setIsOpen }}>
+      {children}
+      <Modal
+        open={isOpen}
+        title="Acessibilidade"
+        onClose={() => setIsOpen(false)}
+      >
+        <p className="text-sm text-muted">
+          Personalize a leitura e a navegação.
+        </p>
 
-        {isOpen && (
-          <section id="accessibility-tools-panel" className="accessibility-tools-panel" aria-labelledby="accessibility-tools-title">
-            <header className="accessibility-tools-panel-header">
-              <div>
-                <h2 id="accessibility-tools-title">Acessibilidade</h2>
-                <p>Personalize a leitura e a navegação.</p>
-              </div>
-              <button
-                type="button"
-                className="accessibility-tools-close"
-                aria-label="Fechar painel de acessibilidade"
-                onClick={() => {
-                  setIsOpen(false);
-                  triggerRef.current?.focus();
-                }}
-              >
-                <X size={18} aria-hidden="true" />
-              </button>
-            </header>
+        <div className="accessibility-tools-section">
+          <h3>Tamanho do texto</h3>
+          <div
+            className="accessibility-text-size-options"
+            role="group"
+            aria-label="Tamanho do texto"
+          >
+            <button
+              type="button"
+              aria-pressed={preferences.textSize === 'normal'}
+              onClick={() => updatePreference('textSize', 'normal')}
+            >
+              <span aria-hidden="true">A</span>
+              <span>Padrão</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={preferences.textSize === 'large'}
+              onClick={() => updatePreference('textSize', 'large')}
+            >
+              <span className="text-base" aria-hidden="true">
+                A+
+              </span>
+              <span>Grande</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={preferences.textSize === 'larger'}
+              onClick={() => updatePreference('textSize', 'larger')}
+            >
+              <span className="accessibility-text-size-xl" aria-hidden="true">
+                A+
+              </span>
+              <span>Maior</span>
+            </button>
+          </div>
+        </div>
 
-            <div className="accessibility-tools-section">
-              <h3>Tamanho do texto</h3>
-              <div className="accessibility-text-size-options" role="group" aria-label="Tamanho do texto">
-                <button type="button" aria-pressed={preferences.textSize === 'normal'} onClick={() => updatePreference('textSize', 'normal')}>
-                  <Minus size={14} aria-hidden="true" /> Padrão
-                </button>
-                <button type="button" aria-pressed={preferences.textSize === 'large'} onClick={() => updatePreference('textSize', 'large')}>
-                  <span aria-hidden="true">A</span><Plus size={12} aria-hidden="true" /> Grande
-                </button>
-                <button type="button" aria-pressed={preferences.textSize === 'larger'} onClick={() => updatePreference('textSize', 'larger')}>
-                  <span className="accessibility-text-size-xl" aria-hidden="true">A</span><Plus size={12} aria-hidden="true" /> Maior
-                </button>
-              </div>
-            </div>
+        <div className="accessibility-tools-section">
+          <ToggleSetting
+            label="Alto contraste"
+            description="Reforça o contraste de textos e controles."
+            pressed={preferences.highContrast}
+            onClick={() =>
+              updatePreference('highContrast', !preferences.highContrast)
+            }
+            icon={<Contrast size={18} />}
+          />
+          <ToggleSetting
+            label="Sublinhar links"
+            description="Destaca links sem depender apenas da cor."
+            pressed={preferences.underlineLinks}
+            onClick={() =>
+              updatePreference('underlineLinks', !preferences.underlineLinks)
+            }
+            icon={<Underline size={18} />}
+          />
+          <ToggleSetting
+            label="Reduzir movimentos"
+            description="Minimiza animações e rolagem suave."
+            pressed={preferences.reduceMotion}
+            onClick={() =>
+              updatePreference('reduceMotion', !preferences.reduceMotion)
+            }
+            icon={<Accessibility size={18} />}
+          />
+        </div>
 
-            <div className="accessibility-tools-section">
-              <ToggleSetting
-                label="Alto contraste"
-                description="Reforça o contraste de textos e controles."
-                pressed={preferences.highContrast}
-                onClick={() => updatePreference('highContrast', !preferences.highContrast)}
-                icon={<Contrast size={18} />}
-              />
-              <ToggleSetting
-                label="Sublinhar links"
-                description="Destaca links sem depender apenas da cor."
-                pressed={preferences.underlineLinks}
-                onClick={() => updatePreference('underlineLinks', !preferences.underlineLinks)}
-                icon={<Underline size={18} />}
-              />
-              <ToggleSetting
-                label="Reduzir movimentos"
-                description="Minimiza animações e rolagem suave."
-                pressed={preferences.reduceMotion}
-                onClick={() => updatePreference('reduceMotion', !preferences.reduceMotion)}
-                icon={<Accessibility size={18} />}
-              />
-            </div>
-
-            <div className="accessibility-tools-footer">
-              <button type="button" onClick={resetPreferences} className="accessibility-reset-button">
-                <RotateCcw size={15} aria-hidden="true" /> Restaurar padrão
-              </button>
-              <a href="https://vlibras.gov.br/app/" target="_blank" rel="noreferrer noopener">
-                Ajuda do VLibras ↗
-              </a>
-            </div>
-          </section>
-        )}
-      </div>
-      <span className="sr-only" role="status" aria-live="polite">{announcement}</span>
-    </>
+        <div className="accessibility-tools-footer">
+          <button
+            type="button"
+            onClick={resetPreferences}
+            className="accessibility-reset-button"
+          >
+            <RotateCcw size={15} aria-hidden="true" /> Restaurar padrão
+          </button>
+          <a
+            href="https://vlibras.gov.br/app/"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Ajuda do VLibras ↗
+          </a>
+        </div>
+        <span className="sr-only" role="status" aria-live="polite">
+          {announcement}
+        </span>
+      </Modal>
+    </AccessibilityContext.Provider>
   );
 }

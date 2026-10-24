@@ -226,7 +226,7 @@ body {
   position: fixed;
   z-index: 70;
   left: 1rem;
-  bottom: 6rem;
+  bottom: 1.25rem;
   font-family: inherit;
 }
 .accessibility-tools-trigger {
@@ -246,48 +246,14 @@ body {
   transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 .accessibility-tools-trigger:hover { background: rgb(var(--color-elevated)); }
-.accessibility-tools-panel {
-  position: absolute;
-  bottom: calc(100% + 0.75rem);
-  left: 0;
-  display: flex;
-  width: min(21rem, calc(100vw - 2rem));
-  max-height: min(72vh, 39rem);
-  flex-direction: column;
-  overflow-y: auto;
-  border: 1px solid rgb(var(--color-line-strong));
-  border-radius: 1rem;
-  background: rgb(var(--color-surface));
-  color: rgb(var(--color-foreground));
-  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
-}
-.accessibility-tools-panel-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid rgb(var(--color-line));
-  padding: 1rem 1rem 0.875rem;
-}
-.accessibility-tools-panel-header h2 { margin: 0; font-size: 1rem; font-weight: 800; }
-.accessibility-tools-panel-header p { margin-top: 0.25rem; color: rgb(var(--color-muted)); font-size: 0.75rem; }
-.accessibility-tools-close {
-  display: inline-flex;
-  min-width: 2.5rem;
-  min-height: 2.5rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  color: rgb(var(--color-foreground));
-}
-.accessibility-tools-close:hover { background: rgb(var(--color-hover)); }
-.accessibility-tools-section { border-bottom: 1px solid rgb(var(--color-line)); padding: 0.9rem 1rem; }
+.accessibility-tools-section { border-bottom: 1px solid rgb(var(--color-line)); padding: 0.9rem 0; }
 .accessibility-tools-section h3 { margin-bottom: 0.65rem; color: rgb(var(--color-secondary)); font-size: 0.75rem; font-weight: 800; }
 .accessibility-text-size-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.375rem; }
 .accessibility-text-size-options button {
   display: flex;
+  flex-direction: column;
   min-width: 0;
-  min-height: 2.75rem;
+  min-height: 3.5rem;
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
@@ -296,7 +262,7 @@ body {
   background: rgb(var(--color-canvas));
   padding: 0.375rem 0.25rem;
   color: rgb(var(--color-foreground));
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   font-weight: 700;
 }
 .accessibility-text-size-options button[aria-pressed='true'] {
@@ -323,18 +289,14 @@ body {
 .accessibility-setting-description { color: rgb(var(--color-muted)); font-size: 0.6875rem; line-height: 1.45; }
 .accessibility-toggle-indicator { display: inline-flex; width: 1.375rem; height: 1.375rem; flex: 0 0 auto; align-items: center; justify-content: center; border: 1px solid rgb(var(--color-line-strong)); border-radius: 999px; color: rgb(var(--color-on-accent)); }
 .accessibility-toggle-indicator.is-active { border-color: rgb(var(--color-accent)); background: rgb(var(--color-accent)); }
-.accessibility-tools-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem 1rem; }
+.accessibility-tools-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; padding-top: 0.8rem; }
 .accessibility-reset-button, .accessibility-tools-footer a { display: inline-flex; min-height: 2.5rem; align-items: center; gap: 0.35rem; border-radius: 0.5rem; color: rgb(var(--color-accent-ink)); font-size: 0.7rem; font-weight: 750; }
 .accessibility-reset-button { padding: 0.35rem 0.25rem; }
 .accessibility-tools-footer a { padding: 0.35rem; }
 .accessibility-reset-button:hover, .accessibility-tools-footer a:hover { text-decoration: underline; }
-@media (min-width: 1024px) {
-  .accessibility-tools { bottom: 1.25rem; }
-}
 @media (max-width: 360px) {
   .accessibility-tools { left: 0.5rem; }
   .accessibility-tools-trigger { padding-inline: 0.75rem; }
-  .accessibility-tools-panel { width: calc(100vw - 1rem); }
 }
 
 /* Aumenta a tipografia baseada em rem sem alterar os dados ou a lógica das páginas. */
@@ -414,12 +376,22 @@ html[data-a11y-reduced-motion='true'] [data-reveal] {
   transform: none !important;
   filter: none !important;
 }
+html[data-a11y-reduced-motion='true'] [data-parallax] {
+  animation: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
 
 /* Foco forte e consistente para navegação por teclado. */
 :focus-visible {
   outline: 3px solid rgb(var(--color-accent-ink)) !important;
   outline-offset: 3px;
 }
+.field-shell:has(input:focus-visible) {
+  outline: 3px solid rgb(var(--color-accent-ink));
+  outline-offset: 3px;
+}
+.field-shell:has(input:focus-visible) input:focus-visible { outline: none !important; }
 
 /* Variáveis do foco do botão flutuante do widget oficial do VLibras. */
 :root {

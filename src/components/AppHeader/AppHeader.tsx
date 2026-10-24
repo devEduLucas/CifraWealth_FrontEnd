@@ -5,6 +5,7 @@ import { api, ApiError } from '../../lib/api';
 import { useTheme } from '../../hooks/useTheme';
 import { buildNotifications, type AppNotification } from '../../utils/notifications';
 import { localDateOnly } from '../../utils/reports';
+import { AccessibilityButton } from '../AccessibilityTools/AccessibilityTools';
 
 const SECTION_NAMES: Record<string, string> = {
   '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias',
@@ -62,6 +63,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
           <p className="mt-1 truncate text-sm font-semibold text-foreground sm:text-base">{userName}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <AccessibilityButton />
           <button type="button" aria-label={themeLabel} title={themeLabel} onClick={() => { setOpen(false); toggleTheme(); }} className="flex h-10 items-center justify-center gap-2 rounded-xl border border-line px-2.5 text-muted transition-colors hover:bg-elevated hover:text-foreground sm:px-3">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             <span className="hidden text-xs font-semibold sm:inline">{theme === 'dark' ? 'Claro' : 'Escuro'}</span>

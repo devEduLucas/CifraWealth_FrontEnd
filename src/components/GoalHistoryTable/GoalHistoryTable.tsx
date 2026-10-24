@@ -21,7 +21,7 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: 
     <Card>
       <h2 id={tableTitleId} className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo das metas</h2>
 
-      <div className="overflow-x-auto">
+      <div role="region" tabIndex={0} aria-labelledby={tableTitleId} className="overflow-x-auto rounded-md">
         <table aria-labelledby={tableTitleId} className="w-full min-w-[720px] border-collapse text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-subtle">

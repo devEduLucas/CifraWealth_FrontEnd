@@ -56,6 +56,7 @@ test('header é compartilhado, saudação fica só no dashboard e conteúdo rola
   }
   await nav.getByRole('link', { name: 'Relatórios', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Relatórios', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Atualizar relatório', exact: true })).toBeEnabled();
   await page.evaluate(() => window.scrollTo(0, 700));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   const bounds = await header.boundingBox();
