@@ -11,8 +11,8 @@ export default defineConfig({
   testDir: './e2e', fullyParallel: false, workers: 1, timeout: 60000,
   use: { baseURL: frontendOrigin, channel: 'chrome', headless: true, colorScheme: 'dark', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
-    { name: 'desktop', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts', '**/public-pages.spec.ts', '**/audit-fixes.spec.ts', '**/report-export.spec.ts', '**/profile-accessibility.spec.ts', '**/transactions.spec.ts', '**/categories.spec.ts', '**/goals-review.spec.ts'], use: { viewport: { width: 1440, height: 1000 } } },
-    { name: 'mobile', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts', '**/public-pages.spec.ts', '**/audit-fixes.spec.ts', '**/report-export.spec.ts', '**/profile-accessibility.spec.ts', '**/transactions.spec.ts', '**/categories.spec.ts', '**/goals-review.spec.ts'], use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'desktop', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts', '**/public-pages.spec.ts', '**/audit-fixes.spec.ts', '**/report-export.spec.ts', '**/profile-accessibility.spec.ts', '**/transactions.spec.ts', '**/categories.spec.ts', '**/chart-review.spec.ts', '**/goals-review.spec.ts'], use: { viewport: { width: 1440, height: 1000 } } },
+    { name: 'mobile', testMatch: ['**/sprint5.spec.ts', '**/app-shell.spec.ts', '**/public-pages.spec.ts', '**/audit-fixes.spec.ts', '**/report-export.spec.ts', '**/profile-accessibility.spec.ts', '**/transactions.spec.ts', '**/categories.spec.ts', '**/chart-review.spec.ts', '**/goals-review.spec.ts'], use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'demo', testMatch: '**/demo.spec.ts', use: { baseURL: 'http://127.0.0.1:5175' } },
   ],
   webServer: [
