@@ -5,6 +5,7 @@ import type { ReportSummary } from '../../types/reports.types';
 
 interface ReportSummaryCardsProps {
   summary: ReportSummary;
+  valuesVisible?: boolean;
 }
 
 function formatVariation(value: number | null, lowerIsBetter = false): { text: string; className: string } {
@@ -16,7 +17,7 @@ function formatVariation(value: number | null, lowerIsBetter = false): { text: s
   return { text: `${arrow} ${Math.abs(value)}% vs período anterior`, className };
 }
 
-export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
+export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSummaryCardsProps) {
   const receitas = formatVariation(summary.variacaoReceitas);
   const despesas = formatVariation(summary.variacaoDespesas, true);
   const saldo = formatVariation(summary.variacaoSaldo);
@@ -26,35 +27,35 @@ export function ReportSummaryCards({ summary }: ReportSummaryCardsProps) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <SummaryCard
         label="Receitas"
-        value={formatCurrency(summary.receitas)}
+        value={valuesVisible ? formatCurrency(summary.receitas) : 'R$ ••••••'}
         icon={TrendingUp}
         iconClassName="bg-positive/10 text-positive"
-        footnote={receitas.text}
-        footnoteClassName={receitas.className}
+        footnote={valuesVisible ? receitas.text : 'Variação oculta'}
+        footnoteClassName={valuesVisible ? receitas.className : 'text-subtle'}
       />
       <SummaryCard
         label="Despesas"
-        value={formatCurrency(summary.despesas)}
+        value={valuesVisible ? formatCurrency(summary.despesas) : 'R$ ••••••'}
         icon={TrendingDown}
         iconClassName="bg-danger/15 text-danger"
-        footnote={despesas.text}
-        footnoteClassName={despesas.className}
+        footnote={valuesVisible ? despesas.text : 'Variação oculta'}
+        footnoteClassName={valuesVisible ? despesas.className : 'text-subtle'}
       />
       <SummaryCard
         label="Saldo do Período"
-        value={formatCurrency(summary.saldo)}
+        value={valuesVisible ? formatCurrency(summary.saldo) : 'R$ ••••••'}
         icon={Wallet}
         iconClassName="bg-info/15 text-info"
-        footnote={saldo.text}
-        footnoteClassName={saldo.className}
+        footnote={valuesVisible ? saldo.text : 'Variação oculta'}
+        footnoteClassName={valuesVisible ? saldo.className : 'text-subtle'}
       />
       <SummaryCard
         label="Taxa de Economia"
-        value={`${summary.taxaEconomiaPercentual}%`}
+        value={valuesVisible ? `${summary.taxaEconomiaPercentual}%` : '•••%'}
         icon={PieChart}
         iconClassName="bg-positive/10 text-positive"
-        footnote={taxa.text}
-        footnoteClassName={taxa.className}
+        footnote={valuesVisible ? taxa.text : 'Variação oculta'}
+        footnoteClassName={valuesVisible ? taxa.className : 'text-subtle'}
       />
     </div>
   );

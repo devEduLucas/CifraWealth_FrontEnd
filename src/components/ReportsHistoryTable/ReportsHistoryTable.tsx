@@ -5,9 +5,10 @@ import { formatCurrency } from '../../utils/validation';
 interface ReportsHistoryTableProps {
   items: ReportHistoryItem[];
   onView?: (id: string) => void;
+  valuesVisible?: boolean;
 }
 
-export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps) {
+export function ReportsHistoryTable({ items, onView, valuesVisible = true }: ReportsHistoryTableProps) {
   const tableTitleId = useId();
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
@@ -36,11 +37,11 @@ export function ReportsHistoryTable({ items, onView }: ReportsHistoryTableProps)
               items.map((item) => (
                 <tr key={item.id}>
                   <td className="py-3.5 font-semibold text-foreground">{item.periodo}</td>
-                  <td className="py-3.5 text-positive">{formatCurrency(item.receitas)}</td>
-                  <td className="py-3.5 text-danger">{formatCurrency(item.despesas)}</td>
-                  <td className="py-3.5 text-info">{formatCurrency(item.saldo)}</td>
+                  <td className="py-3.5 text-positive">{valuesVisible ? formatCurrency(item.receitas) : 'R$ ••••••'}</td>
+                  <td className="py-3.5 text-danger">{valuesVisible ? formatCurrency(item.despesas) : 'R$ ••••••'}</td>
+                  <td className="py-3.5 text-info">{valuesVisible ? formatCurrency(item.saldo) : 'R$ ••••••'}</td>
                   <td className="py-3.5">
-                    {item.variacaoPercentual === null ? (
+                    {!valuesVisible ? <span className="text-subtle">•••%</span> : item.variacaoPercentual === null ? (
                       <span className="text-subtle">—</span>
                     ) : (
                       <span
