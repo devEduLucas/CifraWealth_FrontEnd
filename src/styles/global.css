@@ -363,6 +363,10 @@ html[data-a11y-underline-links='true'] a {
   text-underline-offset: 0.18em;
 }
 
+html[data-a11y-high-contrast='true'] .category-usage-bar {
+  background-color: rgb(var(--color-accent-ink)) !important;
+}
+
 html[data-a11y-reduced-motion='true'] {
   scroll-behavior: auto !important;
 }
