@@ -13,9 +13,10 @@ interface GoalHistoryTableProps {
   onEdit: (goal: GoalViewModel) => void;
   onDelete: (goal: GoalViewModel) => void;
   disabled?: boolean;
+  valuesVisible?: boolean;
 }
 
-export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: GoalHistoryTableProps) {
+export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled, valuesVisible = true }: GoalHistoryTableProps) {
   const tableTitleId = useId();
   return (
     <Card>
@@ -46,8 +47,8 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled }: 
                 return (
                   <tr key={goal.id}>
                     <td className="py-3.5 font-semibold text-foreground">{goal.titulo}</td>
-                    <td className="py-3.5 text-secondary">{formatCurrency(goal.valorObjetivo)}</td>
-                    <td className="py-3.5 font-semibold text-progress">{formatCurrency(goal.valorAtual)}</td>
+                    <td className="py-3.5 text-secondary">{valuesVisible ? formatCurrency(goal.valorObjetivo) : 'R$ ••••••'}</td>
+                    <td className="py-3.5 font-semibold text-progress">{valuesVisible ? formatCurrency(goal.valorAtual) : 'R$ ••••••'}</td>
                     <td className="py-3.5">
                       <Badge label={badge.label} variant={badge.variant} />
                     </td>

@@ -5,9 +5,10 @@ import type { AchievementItem } from '../../types/goals.types';
 
 interface AchievementsCardProps {
   items: AchievementItem[];
+  valuesVisible?: boolean;
 }
 
-export function AchievementsCard({ items }: AchievementsCardProps) {
+export function AchievementsCard({ items, valuesVisible = true }: AchievementsCardProps) {
   return (
     <Card>
       <h2 className="text-base font-semibold text-foreground">Próximas Conquistas</h2>
@@ -25,7 +26,7 @@ export function AchievementsCard({ items }: AchievementsCardProps) {
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{item.titulo}</p>
-                  <p className="text-xs text-progress">Faltam {formatCurrency(item.faltam)}</p>
+                  <p className="text-xs text-progress">{valuesVisible ? `Faltam ${formatCurrency(item.faltam)}` : 'Valor restante oculto'}</p>
                   {item.dataFim && (
                     <p className="mt-0.5 text-xs text-subtle">Meta: {formatMonthYear(item.dataFim)}</p>
                   )}

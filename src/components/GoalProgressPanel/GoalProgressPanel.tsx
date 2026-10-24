@@ -6,28 +6,29 @@ interface GoalProgressPanelProps {
   economizado: number;
   objetivo: number;
   percentual: number;
+  valuesVisible?: boolean;
 }
 
-export function GoalProgressPanel({ economizado, objetivo, percentual }: GoalProgressPanelProps) {
+export function GoalProgressPanel({ economizado, objetivo, percentual, valuesVisible = true }: GoalProgressPanelProps) {
   return (
     <Card>
       <h2 className="text-base font-semibold text-foreground">Progresso Geral</h2>
 
-      <div className="mt-4 flex items-center justify-between text-sm">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-x-3 text-sm">
         <span className="text-muted">Economizado</span>
-        <span className="font-semibold text-progress">{formatCurrency(economizado)}</span>
+        <span className="font-semibold text-progress">{valuesVisible ? formatCurrency(economizado) : 'R$ ••••••'}</span>
       </div>
-      <div className="mt-1.5 flex items-center justify-between text-sm">
+      <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 text-sm">
         <span className="text-muted">Objetivo</span>
-        <span className="font-semibold text-foreground">{formatCurrency(objetivo)}</span>
+        <span className="font-semibold text-foreground">{valuesVisible ? formatCurrency(objetivo) : 'R$ ••••••'}</span>
       </div>
 
-      <div className="mt-3">
+      {valuesVisible && <div className="mt-3">
         <ProgressBar value={percentual} heightClassName="h-2.5" />
-      </div>
+      </div>}
 
-      <p className="mt-5 text-center text-3xl font-bold text-progress">{percentual}%</p>
-      <p className="text-center text-xs text-subtle">do total alcançado</p>
+      <p className="mt-5 text-center text-3xl font-bold text-progress">{valuesVisible ? `${percentual}%` : '•••'}</p>
+      <p className="text-center text-xs text-subtle">{valuesVisible ? 'do total alcançado' : 'Valores e progresso ocultos'}</p>
     </Card>
   );
 }
