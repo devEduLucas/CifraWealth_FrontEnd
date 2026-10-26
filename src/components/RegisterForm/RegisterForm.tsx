@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Mail, RefreshCw, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterForm } from '../../hooks/useRegisterForm';
@@ -31,8 +31,40 @@ export function RegisterForm() {
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [resendError, setResendError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [correctingEmail, setCorrectingEmail] = useState(false);
+  const confirmationHeadingRef = useRef<HTMLHeadingElement>(null);
   const handleGoogleSuccess = useCallback(() => navigate('/dashboard', { replace: true }), [navigate]);
-  const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signup_with');
+  const { googleButtonRef } = useGoogleAuth(handleGoogleSuccess, setGoogleError, 'signup_with', !verificationEmail);
+
+  useEffect(() => {
+    if (verificationEmail) confirmationHeadingRef.current?.focus();
+  }, [verificationEmail]);
+
+  useEffect(() => {
+    if (resendCooldown === 0) return;
+    const timeout = window.setTimeout(() => setResendCooldown((seconds) => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timeout);
+  }, [resendCooldown]);
+
+  function handleRegistrationSent(email: string) {
+    setVerificationEmail(email);
+    setCorrectingEmail(false);
+    setResendCooldown(60);
+    setResendMessage(null);
+    setResendError(null);
+  }
+
+  function handleCorrectEmail() {
+    setVerificationEmail(null);
+    setCorrectingEmail(true);
+    setField('password', '');
+    setField('confirmPassword', '');
+    setResendMessage(null);
+    setResendError(null);
+    setGoogleError(null);
+    window.requestAnimationFrame(() => document.getElementById('register-email')?.focus());
+  }
 
   function handleBlockedGoogleClick(): void {
     setFieldTouched('acceptTerms');
@@ -40,13 +72,14 @@ export function RegisterForm() {
   }
 
   async function handleResendVerification(): Promise<void> {
-    if (!verificationEmail) return;
+    if (!verificationEmail || resending || resendCooldown > 0) return;
     setResending(true);
     setResendMessage(null);
     setResendError(null);
     try {
       const result = await api.resendVerification(verificationEmail);
       setResendMessage(result.message);
+      setResendCooldown(60);
     } catch (error: unknown) {
       setResendError(error instanceof ApiError ? error.message : 'Não foi possível solicitar outro e-mail agora.');
     } finally {
@@ -61,20 +94,30 @@ export function RegisterForm() {
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent-ink">
             <CheckCircle2 size={26} />
           </div>
-          <h1 className="text-[28px] font-bold text-foreground">Confirme seu e-mail</h1>
+          <h1 ref={confirmationHeadingRef} tabIndex={-1} className="text-[28px] font-bold text-foreground">Confira sua caixa de entrada</h1>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Enviamos um link de confirmação para <span className="font-medium text-secondary">{verificationEmail}</span>.
-            Abra a mensagem e clique no link para ativar sua conta. Por segurança, o link expira em 24 horas.
+            Enviamos a confirmação para <strong className="break-words font-medium text-secondary">{verificationEmail}</strong>.
           </p>
+
+          <ol className="mt-5 space-y-3 rounded-xl border border-line bg-elevated/60 p-4 text-sm leading-6 text-secondary">
+            <li><span className="mr-2 font-bold text-accent-ink">1.</span>Abra a mensagem da CifraWealth, incluindo a pasta de spam.</li>
+            <li><span className="mr-2 font-bold text-accent-ink">2.</span>Clique em <strong>Confirmar e-mail</strong> e informe a senha que acabou de criar.</li>
+            <li><span className="mr-2 font-bold text-accent-ink">3.</span>Depois da confirmação, entre na sua conta.</li>
+          </ol>
+          <p className="mt-3 text-xs text-muted">O link de confirmação é válido por 24 horas.</p>
+
+          <Link to="/login" className="mt-6 flex min-h-12 w-full items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent transition-colors hover:bg-accent-hover">
+            Já confirmei — entrar
+          </Link>
 
           <button
             type="button"
             onClick={handleResendVerification}
-            disabled={resending}
-            className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-line-strong bg-elevated px-4 text-sm font-semibold text-foreground transition hover:bg-hover disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={resending || resendCooldown > 0}
+            className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium text-secondary transition hover:bg-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw size={16} className={resending ? 'animate-spin' : undefined} />
-            {resending ? 'Solicitando...' : 'Reenviar confirmação'}
+            {resending ? 'Solicitando...' : resendCooldown > 0 ? `Reenviar em ${resendCooldown}s` : 'Não recebeu? Reenviar confirmação'}
           </button>
 
           {resendMessage && (
@@ -88,12 +131,9 @@ export function RegisterForm() {
             </p>
           )}
 
-          <p className="mt-6 text-center text-sm text-subtle">
-            Já confirmou?{' '}
-            <Link to="/login" className="font-medium text-accent-ink hover:underline">
-              Entrar
-            </Link>
-          </p>
+          <button type="button" onClick={handleCorrectEmail} className="mt-2 min-h-11 w-full rounded-xl px-3 text-sm text-muted hover:bg-hover hover:text-foreground">
+            Corrigir endereço de e-mail
+          </button>
         </>
       ) : (
         <>
@@ -101,6 +141,7 @@ export function RegisterForm() {
           <p className="mt-1.5 text-sm text-muted">
             <span className="text-secondary">Comece gratuitamente.</span> Sem cartão de crédito.
           </p>
+          {correctingEmail && <p role="status" className="mt-3 text-sm leading-6 text-secondary">Confira o endereço e informe sua senha novamente para enviar outra confirmação.</p>}
 
           {submitError && (
             <p role="alert" className="mt-4 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -110,7 +151,7 @@ export function RegisterForm() {
 
           <form
             className="auth-form mt-4 flex flex-col gap-3"
-            onSubmit={handleSubmit((email) => setVerificationEmail(email))}
+            onSubmit={handleSubmit(handleRegistrationSent)}
             noValidate
           >
             <Input
@@ -125,6 +166,7 @@ export function RegisterForm() {
             />
 
             <Input
+              id="register-email"
               label="E-mail"
               type="email"
               icon={<Mail size={18} />}
@@ -134,7 +176,7 @@ export function RegisterForm() {
               onChange={(event) => setField('email', event.target.value)}
               onBlur={() => setFieldTouched('email')}
               error={touched.email ? errors.email : undefined}
-              helperText="Você receberá um link para confirmar seu cadastro."
+              helperText="Você receberá um link e usará a senha criada aqui para confirmar a conta."
             />
 
             <div>

@@ -119,15 +119,16 @@ test('perfil apresenta finanças reais, abre relatório do mês e salva capa pro
   await page.goto('/profile');
   const overview = page.getByRole('region', { name: 'Seu momento financeiro' });
   await expect(
-    overview.getByText('Receitas cobrem as despesas', { exact: true }),
+    overview.getByText('Receitas do mês', { exact: true }),
   ).toBeVisible();
   await expect(overview).toContainText('1.234,56');
   await expect(overview).toContainText('234,56');
   await expect(overview).toContainText('1.000,00');
-  await expect(overview.getByRole('progressbar')).toHaveAttribute(
-    'aria-valuenow',
-    '20',
-  );
+  const goalsLink = overview.getByRole('link', { name: /1 meta em andamento/ });
+  await expect(goalsLink).toContainText('200,00 guardados');
+  await expect(goalsLink).toHaveAttribute('href', '/goals');
+  await page.getByRole('navigation', { name: 'Seções do perfil' }).getByRole('link', { name: 'Aparência', exact: true }).click();
+  await expect(page.locator('#profile-appearance')).toBeInViewport();
   const email = page.getByRole('region', { name: 'Seu perfil' });
   await email
     .getByRole('button', { name: 'Ocultar e-mail', exact: true })
@@ -232,7 +233,7 @@ test('perfil apresenta finanças reais, abre relatório do mês e salva capa pro
   await expect(page.getByRole('main')).toContainText('1.234,56');
 });
 
-test('privacidade oculta todos os valores do dashboard e persiste no perfil e na recarga; atalhos ficam antes do saldo', async ({
+test('privacidade persiste entre telas e saldo antecede os atalhos compactos', async ({
   page,
 }, testInfo) => {
   await seedFinances();
@@ -240,11 +241,11 @@ test('privacidade oculta todos os valores do dashboard e persiste no perfil e na
   const main = page.getByRole('main');
   await expect(main).toContainText('1.234,56');
   const actions = page.getByRole('region', {
-    name: 'O que vamos organizar hoje?',
+    name: 'Registrar movimentação',
   });
-  const balance = page.getByText('Saldo dos lançamentos', { exact: true });
-  expect((await actions.boundingBox())!.y).toBeLessThan(
-    (await balance.boundingBox())!.y,
+  const balance = page.getByRole('region', { name: 'Saldo acumulado dos registros', exact: true });
+  expect((await balance.boundingBox())!.y).toBeLessThan(
+    (await actions.boundingBox())!.y,
   );
   await page
     .getByRole('button', { name: 'Ocultar valores', exact: true })
@@ -263,8 +264,8 @@ test('privacidade oculta todos os valores do dashboard e persiste no perfil e na
   await expect(main).not.toContainText(
     /1\.234,56|234,56|1\.000,00|200,00|\d+%/,
   );
-  const help = page.getByRole('link', {
-    name: 'Sobre a CifraWealth e Ajuda (abre em nova aba)',
+  const help = page.getByRole('button', {
+    name: 'Ajuda desta página',
   });
   const helpBounds = await help.boundingBox();
   if (testInfo.project.name === 'desktop')
@@ -277,7 +278,7 @@ test('privacidade oculta todos os valores do dashboard e persiste no perfil e na
     expect(nav!.y - helpBounds!.y - helpBounds!.height).toBeLessThan(20);
   }
   await page
-    .getByRole('link', { name: 'Adicionar Receita', exact: true })
+    .getByRole('link', { name: 'Registrar receita', exact: true })
     .click();
   await expect(
     page
@@ -287,7 +288,7 @@ test('privacidade oculta todos os valores do dashboard e persiste no perfil e na
   await page.keyboard.press('Escape');
   await page.goto('/profile');
   const overview = page.getByRole('region', { name: 'Seu momento financeiro' });
-  await expect(overview).toContainText('Seu resumo está protegido');
+  await expect(overview).toContainText('Valores e indicadores ocultos.');
   await expect(overview).not.toContainText(
     /1\.234,56|234,56|1\.000,00|200,00|\d+%/,
   );
@@ -326,7 +327,7 @@ test('perfil mostra primeiro uso e permite tentar novamente quando só o resumo 
     .getByRole('button', { name: 'Tentar novamente', exact: true })
     .click();
   await expect(
-    overview.getByText('Seu próximo passo começa aqui', { exact: true }),
+    overview.getByText('Seu próximo passo começa aqui:', { exact: false }),
   ).toBeVisible();
   await expect(overview.getByRole('alert')).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 568 });

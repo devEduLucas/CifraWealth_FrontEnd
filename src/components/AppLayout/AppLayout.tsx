@@ -6,7 +6,7 @@ import { session } from '../../lib/session';
 import { Footer } from '../Footer/Footer';
 
 const NAV_LINKS = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dashboard', label: 'Visão geral', icon: LayoutDashboard },
   { to: '/transactions', label: 'Transações', icon: List },
   { to: '/categories', label: 'Categorias', icon: Tag },
   { to: '/goals', label: 'Metas', icon: Target },

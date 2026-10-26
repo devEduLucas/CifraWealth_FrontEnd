@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { CalendarDays, SlidersHorizontal } from 'lucide-react';
 import type { CategoryResponse, TransactionResponse } from '../../lib/api';
 import {
@@ -29,6 +29,7 @@ export function TransactionFiltersModal({
   onClose: () => void;
   onApply: (filters: TransactionFilters) => void;
 }) {
+  const formId = useId();
   const [draft, setDraft] = useState({ ...filters });
   const [error, setError] = useState<string | null>(null);
   const availableCategories = categories.filter(
@@ -50,6 +51,7 @@ export function TransactionFiltersModal({
     event.preventDefault();
     if (invalidRange) {
       setError(invalidRange);
+      event.currentTarget.querySelector<HTMLInputElement>('input[type="date"]')?.focus();
       return;
     }
     onApply(draft);
@@ -62,8 +64,20 @@ export function TransactionFiltersModal({
       onClose={onClose}
       stickyHeader
       size="lg"
+      footer={
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Button variant="ghost" className="px-2" onClick={() => {
+            setDraft({ ...EMPTY_TRANSACTION_FILTERS, search: filters.search });
+            setError(null);
+          }}>Limpar seleção</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="px-3" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" form={formId} className="px-3">Aplicar filtros</Button>
+          </div>
+        </div>
+      }
     >
-      <form onSubmit={submit} className="flex flex-col gap-5">
+      <form id={formId} onSubmit={submit} className="flex flex-col gap-5">
         <p className="-mt-2 text-sm leading-6 text-muted">
           Combine os filtros para encontrar o que precisa. A lista muda quando
           você aplicar.
@@ -228,26 +242,6 @@ export function TransactionFiltersModal({
           {count === null
             ? 'Revise as datas para consultar os resultados.'
             : `${count} ${count === 1 ? 'transação corresponde' : 'transações correspondem'} à seleção${draft.search ? ' e à busca atual' : ''}.`}
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setDraft({
-                ...EMPTY_TRANSACTION_FILTERS,
-                search: filters.search,
-              });
-              setError(null);
-            }}
-          >
-            Limpar seleção
-          </Button>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit">Aplicar filtros</Button>
-          </div>
         </div>
       </form>
     </Modal>

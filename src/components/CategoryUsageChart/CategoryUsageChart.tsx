@@ -95,8 +95,8 @@ export function CategoryUsageChart({
               : 'Nenhuma receita confirmada neste período.'}
           </p>
           <p className="max-w-md text-xs leading-5 text-muted">
-            Suas categorias continuam disponíveis abaixo. Registre uma transação
-            ou selecione outro período para ver o gráfico.
+            Suas categorias estão prontas para usar em “Minhas categorias”.
+            Registre uma transação ou selecione outro período para ver o gráfico.
           </p>
         </div>
       ) : (

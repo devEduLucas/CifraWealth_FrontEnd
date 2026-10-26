@@ -21,7 +21,7 @@ export function waitForGoogleScript(callback: () => void | (() => void)): () => 
   return () => { window.clearInterval(intervalId); cleanup?.(); };
 }
 
-export function useGoogleAuth(onSuccess: () => void, onError: (message: string) => void, buttonText: GoogleButtonText) {
+export function useGoogleAuth(onSuccess: () => void, onError: (message: string) => void, buttonText: GoogleButtonText, enabled = true) {
   const googleButtonRef = useRef<HTMLDivElement>(null);
   const successRef = useRef(onSuccess);
   const errorRef = useRef(onError);
@@ -30,6 +30,7 @@ export function useGoogleAuth(onSuccess: () => void, onError: (message: string) 
   errorRef.current = onError;
 
   useEffect(() => {
+    if (!enabled) return;
     if (isDemoMode || !GOOGLE_CLIENT_ID) {
       const container = googleButtonRef.current;
       if (!container) return;
@@ -103,7 +104,7 @@ export function useGoogleAuth(onSuccess: () => void, onError: (message: string) 
       observer.observe(container);
       return () => observer.disconnect();
     });
-  }, [buttonText]);
+  }, [buttonText, enabled]);
 
   return { googleButtonRef };
 }

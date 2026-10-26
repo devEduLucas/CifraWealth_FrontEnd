@@ -11,15 +11,15 @@ interface QuickActionButtonProps {
 
 export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick }: QuickActionButtonProps) {
   const className =
-    'group flex min-h-20 min-w-0 flex-1 items-center gap-3 rounded-2xl border border-accent/25 bg-surface px-4 py-4 text-left text-sm font-semibold text-foreground shadow-sm transition-colors hover:border-accent hover:bg-accent/5';
+    'group flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-accent/25 bg-surface px-3 py-3 text-left text-sm font-semibold text-foreground transition-colors hover:border-accent hover:bg-accent/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
 
   const content = (
     <>
-      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}>
-        <Icon size={21} aria-hidden="true" />
+      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}>
+        <Icon size={18} aria-hidden="true" />
       </span>
       <span className="flex-1">{label}</span>
-      <ArrowUpRight size={18} aria-hidden="true" className="shrink-0 text-subtle group-hover:text-accent-ink" />
+      <ArrowUpRight size={16} aria-hidden="true" className="hidden shrink-0 text-subtle group-hover:text-accent-ink sm:block" />
     </>
   );
 

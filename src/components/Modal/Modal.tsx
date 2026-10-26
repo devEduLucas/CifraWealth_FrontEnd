@@ -8,6 +8,7 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  footer?: ReactNode;
   saving?: boolean;
   stickyHeader?: boolean;
   size?: 'md' | 'lg';
@@ -18,6 +19,7 @@ export function Modal({
   title,
   onClose,
   children,
+  footer,
   saving = false,
   stickyHeader = false,
   size = 'md',
@@ -42,12 +44,14 @@ export function Modal({
         aria-labelledby={titleId}
         aria-busy={saving}
         tabIndex={-1}
-        className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-2xl border border-line bg-surface p-5 sm:p-6 ${size === 'lg' ? 'max-w-2xl' : 'max-w-md'} ${stickyHeader ? 'scroll-pt-24' : ''}`}
+        className={`max-h-[calc(100dvh-2rem)] w-full rounded-2xl border border-line bg-surface ${footer ? 'flex flex-col overflow-hidden' : 'overflow-y-auto p-5 sm:p-6'} ${size === 'lg' ? 'max-w-2xl' : 'max-w-md'} ${stickyHeader && !footer ? 'scroll-pt-24' : ''}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div
           className={
-            stickyHeader
+            footer
+              ? 'flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-3 sm:px-6'
+              : stickyHeader
               ? 'sticky -top-5 z-10 -mx-5 -mt-5 mb-5 flex items-center justify-between gap-3 border-b border-line bg-surface px-5 py-4 sm:-top-6 sm:-mx-6 sm:-mt-6 sm:px-6'
               : 'mb-5 flex items-center justify-between'
           }
@@ -69,7 +73,12 @@ export function Modal({
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-        {children}
+        {footer ? (
+          <>
+            <div className="min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-6">{children}</div>
+            <div className="shrink-0 border-t border-line bg-surface px-4 py-3 sm:px-6">{footer}</div>
+          </>
+        ) : children}
       </div>
     </div>,
     document.body,

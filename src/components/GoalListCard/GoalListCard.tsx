@@ -1,86 +1,34 @@
-import { Calendar, Pencil, Trash2, PiggyBank } from 'lucide-react';
-import { Card } from '../Card/Card';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, PiggyBank } from 'lucide-react';
 import { Badge } from '../Badge/Badge';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
-import { Button } from '../Button/Button';
 import { formatCurrency } from '../../utils/validation';
-import {
-  formatMonthYear,
-  getGoalIcon,
-  getGoalProgress,
-  getGoalProgressColorClassName,
-  getGoalStatusBadge,
-} from '../../utils/goals';
+import { getGoalIcon, getGoalProgress, getGoalProgressColorClassName, getGoalStatusBadge } from '../../utils/goals';
 import type { GoalViewModel } from '../../types/goals.types';
 
-interface GoalListCardProps {
-  goal: GoalViewModel;
-  onEdit: (goal: GoalViewModel) => void;
-  onContribute: (goal: GoalViewModel) => void;
-  disabled?: boolean;
-  valuesVisible?: boolean;
-  onDelete: (goal: GoalViewModel) => void;
-  onAdjust: (goal: GoalViewModel) => void;
-  onToggleStatus: (goal: GoalViewModel) => void;
-}
-
-export function GoalListCard({ goal, onEdit, onDelete, onContribute, onAdjust, onToggleStatus, disabled, valuesVisible = true }: GoalListCardProps) {
+const COVERS = ['from-blue-500/20 via-sky-400/10 to-indigo-500/15', 'from-teal-500/20 via-cyan-400/10 to-blue-500/15', 'from-purple/20 via-indigo-400/10 to-blue-500/15'];
+export function GoalListCard({ goal, valuesVisible = true }: { goal: GoalViewModel; valuesVisible?: boolean }) {
   const Icon = getGoalIcon(goal.titulo);
   const progress = getGoalProgress(goal);
   const badge = getGoalStatusBadge(goal.status);
-  const progressColor = getGoalProgressColorClassName(goal.status);
-
-  return (
-    <Card>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-progress/10 text-progress">
-            <Icon size={19} />
-          </span>
-          <div className="min-w-0">
-            <p className="break-words text-sm font-semibold text-foreground">{goal.titulo}</p>
-            {goal.descricao && <p className="mt-0.5 break-words text-xs text-muted">{goal.descricao}</p>}
-          </div>
-        </div>
-        <Badge label={badge.label} variant={badge.variant} />
+  const active = goal.status !== 'cancelada' && goal.status !== 'concluida';
+  return <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-accent/50">
+    <Link to={'/goals/' + goal.id} aria-label={'Ver meta ' + goal.titulo} className={'relative flex h-32 items-center justify-center overflow-hidden bg-gradient-to-br ' + COVERS[goal.id % COVERS.length]}>
+      <span aria-hidden="true" className="absolute -right-5 -top-8 h-36 w-36 rounded-full border-[18px] border-white/15" />
+      <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-surface/70 bg-surface/85 text-accent-ink shadow-sm"><Icon size={32} aria-hidden="true" /></span>
+      <ArrowUpRight size={19} aria-hidden="true" className="absolute right-4 top-4 text-accent-ink" />
+    </Link>
+    <div className="flex flex-1 flex-col p-5">
+      <div><Badge label={badge.label} variant={badge.variant} /></div>
+      <h3 className="mt-3 break-words text-lg font-bold text-foreground"><Link to={'/goals/' + goal.id} className="hover:text-accent-ink">{goal.titulo}</Link></h3>
+      <p className="mt-4 text-xs text-muted">Valor guardado</p>
+      <p className="mt-1 break-words text-2xl font-bold tabular-nums text-foreground">{valuesVisible ? formatCurrency(goal.valorAtual) : 'R$ ••••••'}</p>
+      <p className="mt-1 text-xs text-muted">{valuesVisible ? 'de ' + formatCurrency(goal.valorObjetivo) : 'Objetivo oculto'}</p>
+      {valuesVisible ? <div className="mt-4"><ProgressBar value={progress} colorClassName={getGoalProgressColorClassName(goal.status)} /><p className="mt-2 text-xs font-medium text-muted">{progress}% do objetivo</p></div> : <p className="mt-4 text-xs text-muted">Progresso oculto</p>}
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+        <Link to={'/goals/' + goal.id} className={'flex min-h-11 items-center justify-center rounded-xl border border-line-strong px-2 text-sm font-semibold text-secondary hover:bg-elevated ' + (active ? '' : 'col-span-2')}>Ver meta</Link>
+        {active && <Link to={'/goals/' + goal.id + '?guardar=1'} className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-accent px-2 text-sm font-semibold text-on-accent hover:bg-accent-hover"><PiggyBank size={16} aria-hidden="true" />Guardar valor</Link>}
       </div>
-
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-        <p className="min-w-0 break-words text-lg font-bold text-foreground">
-          {valuesVisible ? formatCurrency(goal.valorAtual) : 'R$ ••••••'}
-          {valuesVisible && <span className="ml-1.5 text-sm font-normal text-muted">de {formatCurrency(goal.valorObjetivo)}</span>}
-        </p>
-        <p className="text-lg font-bold text-progress">{valuesVisible ? `${progress}%` : '•••'}</p>
-      </div>
-
-      {valuesVisible && <div className="mt-2.5">
-        <ProgressBar value={progress} colorClassName={progressColor} />
-      </div>}
-
-      {goal.status !== 'cancelada' && goal.status !== 'concluida' && (
-        <Button className="mt-4 w-full" icon={PiggyBank} disabled={disabled} onClick={() => onContribute(goal)}>Registrar valor guardado</Button>
-      )}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        {goal.dataFim ? (
-          <span className="flex items-center gap-1.5 text-xs text-subtle">
-            <Calendar size={13} />
-            {formatMonthYear(goal.dataFim)}
-          </span>
-        ) : (
-          <span className="text-xs text-subtle">Sem prazo definido</span>
-        )}
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" size="sm" icon={Pencil} disabled={disabled} onClick={() => onEdit(goal)}>
-            Editar
-          </Button>
-          {goal.status !== 'cancelada' && <Button variant="secondary" size="sm" disabled={disabled} onClick={() => onAdjust(goal)}>Ajustar valor guardado</Button>}
-          <Button variant="secondary" size="sm" disabled={disabled} onClick={() => onToggleStatus(goal)}>{goal.status === 'cancelada' ? 'Reativar meta' : 'Cancelar meta'}</Button>
-          <Button variant="danger" size="sm" icon={Trash2} disabled={disabled} onClick={() => onDelete(goal)}>
-            Excluir
-          </Button>
-        </div>
-      </div>
-    </Card>
-  );
+    </div>
+  </article>;
 }

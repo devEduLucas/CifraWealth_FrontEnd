@@ -79,6 +79,9 @@ body { background: rgb(var(--color-canvas)); color: rgb(var(--color-foreground))
 .app-main :where(.grid) > * { min-width: 0; }
 .app-main :where(input, select, textarea) { min-width: 0; max-width: 100%; }
 .app-main :where(button, a) { overflow-wrap: normal; }
+.goal-carousel { scrollbar-width: thin; scrollbar-color: rgb(var(--color-line-strong)) transparent; scroll-padding-inline: 2px; }
+.goal-carousel::-webkit-scrollbar { height: 6px; }
+.goal-carousel::-webkit-scrollbar-thumb { background: rgb(var(--color-line-strong)); border-radius: 999px; }
 ::selection { background: rgb(var(--color-accent) / 22%); }
 
 .app-topbar { top: var(--app-banner-height); }

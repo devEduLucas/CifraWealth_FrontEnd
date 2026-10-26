@@ -11,6 +11,7 @@ export interface GoalViewModel {
   valorAtual: number;
   valorObjetivo: number;
   status: GoalDisplayStatus;
+  dataInicio?: string | null;
   dataFim: string | null;
 }
 

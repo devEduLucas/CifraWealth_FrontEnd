@@ -3,7 +3,7 @@ export function localDateOnly(value = new Date()): string {
   return [value.getFullYear(), String(value.getMonth() + 1).padStart(2, '0'), String(value.getDate()).padStart(2, '0')].join('-');
 }
 export function presetReportRange(period: Exclude<ReportPeriod, 'custom'>, now = new Date()) {
-  const months = Number(period.replace('m', ''));
+  const months = period === 'month' ? 1 : Number(period.replace('m', ''));
   return { start: localDateOnly(new Date(now.getFullYear(), now.getMonth() - months + 1, 1)), end: localDateOnly(now) };
 }
 export function validateReportRange(start: string, end: string): string | null {

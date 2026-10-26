@@ -7,7 +7,7 @@ import { UserAvatar } from '../UserAvatar/UserAvatar';
 import { useSessionUser } from '../../hooks/useSessionUser';
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+  { key: 'dashboard', label: 'Visão geral', path: '/dashboard', icon: 'dashboard' },
   { key: 'transactions', label: 'Transações', path: '/transactions', icon: 'transactions' },
   { key: 'categories', label: 'Categorias', path: '/categories', icon: 'categories' },
   { key: 'goals', label: 'Metas', path: '/goals', icon: 'goals' },
@@ -42,8 +42,8 @@ export function Sidebar({ userName, collapsed, onToggle }: SidebarProps) {
   return (
     <aside aria-label="Menu lateral" className="app-sidebar fixed bottom-0 left-0 z-40 hidden flex-col justify-between overflow-x-hidden border-r border-line bg-surface lg:flex">
       <div className="min-h-0 overflow-y-auto">
-        <div className={'flex h-20 shrink-0 items-center border-b border-line ' + (collapsed ? 'justify-center' : 'justify-between gap-2 px-4')}>
-          {!collapsed && <Link to="/dashboard" aria-label="CifraWealth — Dashboard"><Logo /></Link>}
+        <div className={'flex h-16 shrink-0 items-center border-b border-line ' + (collapsed ? 'justify-center' : 'justify-between gap-2 px-4')}>
+          {!collapsed && <Link to="/dashboard" aria-label="CifraWealth — Visão geral"><Logo /></Link>}
           <button
             type="button"
             onClick={onToggle}

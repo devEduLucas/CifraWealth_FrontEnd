@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Target } from 'lucide-react';
 import type { GoalPerformanceItem } from '../../types/reports.types';
 import { formatCurrency } from '../../utils/validation';
+import { getGoalProgress } from '../../utils/goalProgress';
 
 interface ReportGoalsPanelProps {
   goals: GoalPerformanceItem[];
@@ -27,8 +28,7 @@ export function ReportGoalsPanel({ goals, valuesVisible = true }: ReportGoalsPan
       {goals.length > 0 ? (
         <ul className="mt-5 flex flex-col gap-5">
           {goals.map((goal) => {
-            const progress =
-              goal.valorAlvo > 0 ? Math.min(Math.floor((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
+            const progress = getGoalProgress({ valorAtual: goal.valorAtual, valorObjetivo: goal.valorAlvo });
             return (
               <li key={goal.id}>
                 <div className="flex items-center gap-3">

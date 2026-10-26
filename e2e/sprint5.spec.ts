@@ -84,7 +84,7 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await page.goto('/goals?new=1');const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();
   await dialog.getByLabel('Nome da meta').fill('Reserva Sprint 5');await dialog.getByLabel('Valor objetivo').fill('1000');await dialog.getByLabel('Prazo (opcional)').fill('2026-10-25');
   await dialog.getByRole('button',{name:'Salvar',exact:true}).click();await expect(dialog).not.toBeVisible();
-  await page.getByRole('button',{name:'Registrar valor guardado',exact:true}).click();await expect(dialog).toBeVisible();
+  await page.getByRole('button',{name:'Guardar valor',exact:true}).click();await expect(dialog).toBeVisible();
   await expect(dialog.getByText(/não transfere dinheiro/)).toBeVisible();await dialog.getByLabel('Valor deste aporte').fill('250');
   await dialog.getByRole('button',{name:'Registrar valor',exact:true}).click();await expect(dialog).not.toBeVisible();await expect(page.getByRole('status').filter({ hasText: 'progresso' })).toContainText('progresso');
   await page.reload();await expect(page.getByText('25%',{exact:true}).first()).toBeVisible();
@@ -92,8 +92,8 @@ test('criar meta, guardar dinheiro, persistir progresso e concluir', async ({ pa
   await page.goto('/dashboard');await page.getByRole('link',{name:'Registrar valor guardado'}).click();await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByRole('button',{name:/Completar meta/}).click();await page.getByRole('dialog').getByRole('button',{name:'Registrar valor',exact:true}).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();await expect(page.getByText('100%',{exact:true}).first()).toBeVisible();
-  await page.getByRole('button',{name:'Concluídas',exact:true}).click();await expect(page.getByText('Reserva Sprint 5',{exact:true}).first()).toBeVisible();
-  await expect(page.getByRole('button',{name:'Registrar valor guardado',exact:true})).toHaveCount(0);
+  await page.getByRole('link',{name:'Todas as metas',exact:true}).click();await page.getByRole('button',{name:'Concluídas',exact:true}).click();await expect(page.getByText('Reserva Sprint 5',{exact:true}).first()).toBeVisible();
+  await expect(page.getByRole('link',{name:'Guardar valor',exact:true})).toHaveCount(0);
 });
 
 test('modal de categoria permanece aberto enquanto salva', async ({ page }) => {
@@ -127,9 +127,9 @@ test('relatórios reais, período personalizado, PDF, CSV e estados de erro', as
   await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
   await page.goto('/reports');await page.getByLabel('Selecionar período do relatório').selectOption('custom');
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-05');await page.getByLabel('Data final',{exact:true}).fill('2026-10-25');
-  await page.getByRole('button',{name:'Aplicar datas'}).click();await expect(page.getByText('Compra do período',{exact:true})).toBeVisible();await expect(page.getByText('Salário do período',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Aplicar datas'}).click();await page.getByRole('button',{name:'Detalhamento',exact:true}).click();await expect(page.getByText('Compra do período',{exact:true})).toBeVisible();await expect(page.getByText('Salário do período',{exact:true})).toBeVisible();
   await expect(page.getByText('Despesa fora do período',{exact:true})).toHaveCount(0);await expect(page.getByText('Despesa pendente',{exact:true})).toHaveCount(0);
-  await expect(page.getByText(/1[.]650,00/).first()).toBeVisible();await expect(page.getByRole('img',{name:'Evolução mensal de receitas, despesas e saldo'})).toBeVisible();
+  await expect(page.getByText(/1[.]650,00/).first()).toBeVisible();await page.getByRole('button',{name:'Visão geral',exact:true}).click();await expect(page.getByRole('img',{name:'Evolução mensal de receitas, despesas e saldo'})).toBeVisible();await page.getByRole('button',{name:'Detalhamento',exact:true}).click();
   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar PDF',exact:true}).click();const pdf=await download;expect(pdf.suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.pdf');expect((await readFile((await pdf.path())!)).subarray(0,5).toString()).toBe('%PDF-');
   const csvDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar planilha CSV'}).click();expect((await csvDownload).suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.csv');
   await page.screenshot({ animations: 'disabled',path:testInfo.outputPath('relatorios.png'),fullPage:true});

@@ -18,6 +18,11 @@ test('presets atravessem o ano e terminem na data local', () => {
   assert.deepEqual(presetReportRange('3m', new Date(2026, 0, 6)), { start: '2025-11-01', end: '2026-01-06' });
 });
 
+test('este mês respeite a data local, inclusive virada do ano e fevereiro bissexto', () => {
+  assert.deepEqual(presetReportRange('month', new Date(2026, 0, 1, 0, 15)), { start: '2026-01-01', end: '2026-01-01' });
+  assert.deepEqual(presetReportRange('month', new Date(2024, 1, 29, 23, 45)), { start: '2024-02-01', end: '2024-02-29' });
+});
+
 test('CSV contenha detalhes, BOM, centavos e proteção contra fórmulas', () => {
   const report = {
     dataInicio: '2026-10-01', dataFim: '2026-10-31',

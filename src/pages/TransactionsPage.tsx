@@ -100,6 +100,15 @@ export function TransactionsPage() {
       setSearchParams(params, { replace: true });
   }
   const [page, setPage] = useState(0);
+  const [compact, setCompact] = useState(() => {
+    try { return localStorage.getItem('cifrawealth:transaction-density') !== 'detailed'; }
+    catch { return true; }
+  });
+  function changeDensity(next: boolean) {
+    setCompact(next);
+    try { localStorage.setItem('cifrawealth:transaction-density', next ? 'compact' : 'detailed'); }
+    catch { /* The list remains usable when storage is unavailable. */ }
+  }
   const listRef = useRef<HTMLElement>(null);
   const loadVersion = useRef(0);
   const today = localDateOnly();
@@ -328,7 +337,7 @@ export function TransactionsPage() {
     <DashboardLayout userName={fullName}>
       <PageHeader
         title="Transações"
-        subtitle="Seu dinheiro em movimento. Encontre, acompanhe e organize cada lançamento."
+        subtitle="Registre, encontre e acompanhe suas movimentações."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <FinancialPrivacyButton />
@@ -372,8 +381,8 @@ export function TransactionsPage() {
       )}
 
       {!loading && hasLoaded && (
-        <section aria-label="Resumo das transações" className="mb-6">
-          <div className="grid gap-2 sm:grid-cols-3 sm:gap-3">
+        <section aria-label="Resumo das transações" className="mb-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               {
                 label: 'Receitas confirmadas',
@@ -399,38 +408,41 @@ export function TransactionsPage() {
             ].map(({ label, amount, icon: Icon, tone, background }) => (
               <div
                 key={label}
-                className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl border border-line bg-surface p-3 sm:block sm:p-5"
+                className="min-w-0 rounded-2xl border border-line bg-surface p-2.5 sm:p-4"
               >
                 <div className="flex items-center gap-2">
                   <span
                     aria-hidden="true"
-                    className={`rounded-lg p-2 ${background} ${tone}`}
+                    className={`hidden rounded-lg p-2 sm:inline-flex ${background} ${tone}`}
                   >
                     <Icon size={17} />
                   </span>
-                  <p className="text-xs font-medium text-muted">{label}</p>
+                  <p className="text-[11px] font-medium leading-4 text-muted sm:text-xs">{label}</p>
                 </div>
                 <p
-                  className={`max-w-full break-words text-xl font-bold tabular-nums tracking-tight sm:mt-3 sm:text-2xl ${valuesVisible ? tone : 'text-muted'}`}
+                  className={`mt-2 max-w-full break-words text-sm font-bold tabular-nums tracking-tight sm:mt-3 sm:text-2xl ${valuesVisible ? tone : 'text-muted'}`}
                 >
                   {valuesVisible ? formatCurrency(amount) : 'R$ ••••••'}
                 </p>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-muted">
+          <details className="mt-2 text-xs leading-5 text-muted">
+            <summary className="min-h-8 cursor-pointer py-1 font-medium">Como os totais são calculados</summary>
+            <p className="mt-1">
             Resumo de todos os resultados da busca, em todas as páginas. Somente
             confirmadas até hoje entram nos valores.
             {summary.pending > 0 || summary.scheduled > 0
               ? ` Fora do saldo: ${summary.pending} pendentes e ${summary.scheduled} previstas.`
               : ''}
-          </p>
+            </p>
+          </details>
         </section>
       )}
 
       <section
         aria-label="Busca e filtros"
-        className="mb-6 rounded-2xl border border-line bg-surface p-4 sm:p-5"
+        className="mb-5 rounded-2xl border border-line bg-surface p-3 sm:p-4"
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
           <Input
@@ -507,8 +519,8 @@ export function TransactionsPage() {
         aria-labelledby="transaction-list-title"
         className="min-w-0 scroll-mt-28"
       >
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <h2
               id="transaction-list-title"
               className="text-lg font-bold text-foreground"
@@ -527,13 +539,15 @@ export function TransactionsPage() {
                   : 'Não foi possível carregar o histórico.'}
             </p>
           </div>
-          <p className="inline-flex items-center gap-1.5 text-xs text-muted">
-            <CalendarDays size={14} aria-hidden="true" />
-            {filters.order === 'oldest'
-              ? 'Mais antigas primeiro'
-              : 'Mais recentes primeiro'}
-          </p>
+          {hasLoaded && filtered.length > 0 && <div role="group" aria-label="Densidade da lista" className="inline-flex rounded-xl border border-line bg-surface p-1">
+            <button type="button" aria-pressed={compact} onClick={() => changeDensity(true)} className={'min-h-11 rounded-lg px-3 text-xs font-semibold ' + (compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}>Compacta</button>
+            <button type="button" aria-pressed={!compact} onClick={() => changeDensity(false)} className={'min-h-11 rounded-lg px-3 text-xs font-semibold ' + (!compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}>Detalhada</button>
+          </div>}
         </div>
+        <p className="sr-only mb-3 items-center gap-1.5 text-xs text-muted sm:not-sr-only sm:inline-flex">
+          <CalendarDays size={14} aria-hidden="true" />
+          {filters.order === 'oldest' ? 'Mais antigas primeiro' : 'Mais recentes primeiro'}
+        </p>
         {loading ? (
           <div aria-hidden="true" className="space-y-3">
             {[1, 2, 3].map((id) => (
@@ -581,6 +595,7 @@ export function TransactionsPage() {
                 categories={categories}
                 today={today}
                 valuesVisible={valuesVisible}
+                compact={compact}
                 busyId={busyId}
                 onEdit={openModal}
                 onDelete={(item) => {

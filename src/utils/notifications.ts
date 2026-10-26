@@ -18,16 +18,16 @@ export function buildNotifications(goals: GoalResponse[], transactions: Transact
     .map((goal) => ({
       id: 'goal-' + goal.id_meta,
       title: goal.titulo,
-      description: goal.data_fim! < today ? 'Prazo vencido em ' + goal.data_fim!.split('-').reverse().join('/') : goal.data_fim === today ? 'O prazo desta meta termina hoje.' : 'O prazo termina em ' + goal.data_fim!.split('-').reverse().join('/'),
-      to: '/goals?contribute=' + goal.id_meta,
-      tone: goal.data_fim! < today ? 'danger' : 'warning',
+      description: goal.data_fim! < today ? 'A data planejada foi ' + goal.data_fim!.split('-').reverse().join('/') + '. Consulte a meta e revise seu plano.' : goal.data_fim === today ? 'A data planejada para esta meta é hoje.' : 'A data planejada é ' + goal.data_fim!.split('-').reverse().join('/'),
+      to: '/goals/' + goal.id_meta,
+      tone: 'warning',
     }));
-  const pending = transactions.filter((transaction) => transaction.status === 'pendente').length;
+  const pending = transactions.filter((transaction) => transaction.status === 'pendente' && transaction.data_transacao <= today).length;
   if (pending > 0) notifications.push({
     id: 'pending-transactions',
     title: pending === 1 ? '1 transação pendente' : pending + ' transações pendentes',
     description: 'Confira os lançamentos que ainda aguardam confirmação.',
-    to: '/transactions',
+    to: '/transactions?situacao=pendente&fim=' + today,
     tone: 'info',
   });
   return notifications;

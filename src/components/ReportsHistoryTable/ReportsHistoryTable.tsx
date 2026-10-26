@@ -13,6 +13,7 @@ export function ReportsHistoryTable({ items, onView, valuesVisible = true }: Rep
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <h2 id={tableTitleId} className="mb-4 text-xs font-semibold uppercase tracking-wide text-subtle">Resumo mensal do período</h2>
+      <p className="mb-3 text-xs leading-5 text-muted md:hidden">Deslize a tabela para o lado para consultar todos os valores e abrir um mês.</p>
 
       <div role="region" tabIndex={0} aria-labelledby={tableTitleId} className="overflow-x-auto rounded-md">
         <table aria-labelledby={tableTitleId} className="w-full min-w-[640px] border-collapse text-left text-sm">

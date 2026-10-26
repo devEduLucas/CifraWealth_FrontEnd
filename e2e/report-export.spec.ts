@@ -42,6 +42,10 @@ async function downloadPdf(page: Page, start: string, end: string) {
 test('PDF respeita presets e datas aplicadas, preservando CSV e todos os registros', async ({ page }, testInfo) => {
   await page.goto('/reports');
   await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
+  await expect(page.getByLabel('Selecionar período do relatório')).toHaveValue('month');
+  const current = new Date();
+  const localEnd = [current.getFullYear(), String(current.getMonth() + 1).padStart(2, '0'), String(current.getDate()).padStart(2, '0')].join('-');
+  await downloadPdf(page, localEnd.slice(0, 7) + '-01', localEnd);
   for (const period of ['3m', '6m', '12m']) {
     const response = page.waitForResponse(value => value.url().includes('/api/reports/detailed?') && value.status() === 200);
     await page.getByLabel('Selecionar período do relatório').selectOption(period);
@@ -53,6 +57,7 @@ test('PDF respeita presets e datas aplicadas, preservando CSV e todos os registr
   await page.getByLabel('Data final', { exact: true }).fill('2026-10-25');
   await page.getByRole('button', { name: 'Aplicar datas' }).click();
   await expect(page.getByText('Período aplicado:', { exact: false })).toContainText('05/10/2026 a 25/10/2026');
+  await page.getByRole('button', { name: 'Detalhamento', exact: true }).click();
   await page.getByLabel('Buscar descrição ou categoria').fill('Registro com café 044');
   await expect(page.getByText('1 transações · Página 1 de 1', { exact: true })).toBeVisible();
   const download = await downloadPdf(page, '2026-10-05', '2026-10-25');
@@ -73,6 +78,7 @@ test('falha ao carregar a fonte do PDF informa o erro e permite repetir sem perd
   });
   await page.goto('/reports');
   await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Detalhamento', exact: true }).click();
   await page.getByRole('button', { name: 'Baixar PDF', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Não foi possível gerar o PDF');
   await expect(page.getByRole('heading', { name: 'Transações detalhadas' })).toBeVisible();
@@ -93,12 +99,14 @@ test('privacidade oculta valores, gráficos e análises, persiste e preserva exp
   await expect(main).not.toContainText('As receitas cobrem as despesas');
   await expect(page.getByRole('img', { name: 'Evolução mensal de receitas, despesas e saldo' })).toHaveCount(0);
   await expect(main).toContainText('Os arquivos PDF e CSV incluem os valores completos.');
+  await page.getByRole('button', { name: 'Detalhamento', exact: true }).click();
   await expect(page.getByRole('table', { name: 'Transações detalhadas' })).toContainText('Registro com café 000');
 
   await page.reload();
   await expect(page.getByRole('button', { name: 'Mostrar valores', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Baixar PDF', exact: true })).toBeEnabled();
   await expect(main).not.toContainText(/R\$\s*\d/);
+  await page.getByRole('button', { name: 'Detalhamento', exact: true }).click();
   await page.getByLabel('Buscar descrição ou categoria').fill('Registro com café 044');
   await expect(main).toContainText('1 transações · Página 1 de 1');
   const csvEvent = page.waitForEvent('download');
@@ -116,5 +124,6 @@ test('privacidade oculta valores, gráficos e análises, persiste e preserva exp
   await page.getByRole('button', { name: 'Mostrar valores', exact: true }).click();
   await expect(main).toContainText('R$ 2.300,00');
   await expect(main).toContainText('76.09%');
+  await page.getByRole('button', { name: 'Visão geral', exact: true }).click();
   await expect(page.getByRole('img', { name: 'Evolução mensal de receitas, despesas e saldo' })).toBeVisible();
 });

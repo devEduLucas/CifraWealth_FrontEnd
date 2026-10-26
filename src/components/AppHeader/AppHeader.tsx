@@ -10,8 +10,8 @@ import { UserAvatar } from '../UserAvatar/UserAvatar';
 import { useSessionUser } from '../../hooks/useSessionUser';
 
 const SECTION_NAMES: Record<string, string> = {
-  '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias',
-  '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil',
+  '/dashboard': 'Visão geral', '/transactions': 'Transações', '/categories': 'Categorias',
+  '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil', '/help': 'Ajuda',
 };
 const TONES = { danger: 'bg-danger/10 text-danger', warning: 'bg-warning/10 text-warning', info: 'bg-info/10 text-info' };
 
@@ -58,11 +58,11 @@ export function AppHeader({ userName }: AppHeaderProps) {
   }, [open]);
 
   return (
-    <header ref={headerRef} aria-label="Cabeçalho principal" className="app-topbar fixed inset-x-0 z-40 h-20 border-b border-line bg-surface/95 backdrop-blur-md">
+    <header ref={headerRef} aria-label="Cabeçalho principal" className="app-topbar fixed inset-x-0 z-40 h-16 border-b border-line bg-surface/95 backdrop-blur-md">
       <div className="flex h-full w-full items-center justify-between gap-3 px-4 sm:px-6">
         <div className="min-w-0">
-          <p className="truncate text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:text-[11px]">Meu espaço <span aria-hidden="true" className="mx-1">/</span> {SECTION_NAMES[pathname] ?? 'CifraWealth'}</p>
-          <p className="mt-1 truncate text-sm font-semibold text-foreground sm:text-base">{userName}</p>
+          <p className="hidden text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:block">Meu espaço</p>
+          <p className="truncate text-sm font-semibold text-foreground sm:mt-0.5">{pathname.startsWith('/goals/') ? 'Minha meta' : SECTION_NAMES[pathname.replace(/\/+$/, '')] ?? 'CifraWealth'}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           <AccessibilityButton />
@@ -74,7 +74,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
             <Bell size={18} />
             {!error && notifications.length > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-on-accent">{notifications.length > 9 ? '9+' : notifications.length}</span>}
           </button>
-          <span aria-hidden="true" className="mx-1 h-7 w-px bg-line" />
+          <span aria-hidden="true" className="mx-1 hidden h-7 w-px bg-line sm:block" />
           <Link to="/profile" onClick={() => setOpen(false)} aria-label="Abrir meu perfil" title="Meu perfil" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-4 ring-accent/10 transition-shadow hover:ring-accent/25"><UserAvatar name={userName} photo={user?.foto_perfil} className="h-full w-full text-xs" /></Link>
         </div>
       </div>

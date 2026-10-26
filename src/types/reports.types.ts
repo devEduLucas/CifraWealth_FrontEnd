@@ -54,7 +54,7 @@ export interface ReportHistoryItem {
   variacaoPercentual: number | null;
 }
 
-export type ReportPeriod = '3m' | '6m' | '12m' | 'custom';
+export type ReportPeriod = 'month' | '3m' | '6m' | '12m' | 'custom';
 
 export interface DetailedReportResponse {
   dataInicio: string;

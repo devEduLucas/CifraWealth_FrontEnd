@@ -43,8 +43,9 @@ export function ReportsPage() {
   });
   const user = useSessionUser();
   const fullName = user ? (user.nome + ' ' + (user.sobrenome ?? '')).trim() : 'Usuário';
-  const [period, setPeriod] = useState<ReportPeriod>(linkedRange ? 'custom' : '6m');
-  const [range, setRange] = useState(() => linkedRange ?? presetReportRange('6m'));
+  const [period, setPeriod] = useState<ReportPeriod>(linkedRange ? 'custom' : 'month');
+  const [range, setRange] = useState(() => linkedRange ?? presetReportRange('month'));
+  const [view, setView] = useState<'overview' | 'details'>('overview');
   const [draft, setDraft] = useState(range);
   const [filterError, setFilterError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export function ReportsPage() {
     api.getDetailedReport(range.start, range.end, controller.signal).then((result) => {
       if (!controller.signal.aborted) setReport(result);
     }).catch((err: unknown) => {
-      if (!controller.signal.aborted) setError(err instanceof ApiError ? err.message : 'Não foi possível carregar o relatório. Confira a conexão com a API e tente novamente.');
+      if (!controller.signal.aborted) setError(err instanceof ApiError ? err.message : 'Não foi possível carregar o relatório. Confira sua conexão e tente novamente.');
     }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [range.start, range.end, retry]);
@@ -116,14 +117,26 @@ export function ReportsPage() {
       {loading && <p role="status" className="mt-8 text-sm text-muted">Carregando relatório...</p>}
       {error && <div role="alert" className="mt-6 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"><p>{error}</p><button type="button" onClick={() => setRetry((value) => value + 1)} className="mt-3 font-semibold underline">Tentar novamente</button></div>}
       {report && !loading && !error && <>
-        <a href="#transacoes-detalhadas" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink underline">Ver transações detalhadas deste período</a>
+        <div role="group" aria-label="Visualização do relatório" className="mt-5 inline-flex max-w-full flex-wrap gap-1 rounded-xl border border-line bg-surface p-1">
+          {([{ value: 'overview', label: 'Visão geral' }, { value: 'details', label: 'Detalhamento' }] as const).map((item) => (
+            <button key={item.value} type="button" aria-pressed={view === item.value} onClick={() => setView(item.value)} className={`min-h-11 rounded-lg px-4 text-sm font-semibold ${view === item.value ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated'}`}>{item.label}</button>
+          ))}
+        </div>
         {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-line p-4 text-sm text-muted">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-accent-ink">Registrar transação</Link> ou selecione outras datas.</div>}
         <div className="mt-6"><ReportSummaryCards summary={report.summary} valuesVisible={valuesVisible} /></div>
-        <div className="mt-6">{valuesVisible ? <FinancialEvolutionChart data={report.evolution} periodLabel={label} /> : <HiddenReportPanel title="Receitas, despesas e saldo" />}</div>
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">{valuesVisible ? <><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /><MonthlyComparisonChart data={report.monthlyComparison} /></> : <><HiddenReportPanel title="Despesas por Categoria" /><HiddenReportPanel title="Comparativo Mensal" /></>}</div>
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">{valuesVisible ? <ReportInsightsPanel insights={report.insights} /> : <HiddenReportPanel title="Insights Financeiros" />}<ReportGoalsPanel goals={report.goals} valuesVisible={valuesVisible} /></div>
-        <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} valuesVisible={valuesVisible} /></div>
-        <div id="transacoes-detalhadas" className="mt-6 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} valuesVisible={valuesVisible} /></div>
+        {view === 'overview' ? <>
+          <div className="mt-6 grid grid-cols-1 items-start gap-4 xl:grid-cols-[1.4fr_1fr]">{valuesVisible ? <><FinancialEvolutionChart data={report.evolution} periodLabel={label} /><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /></> : <><HiddenReportPanel title="Receitas, despesas e saldo" /><HiddenReportPanel title="Despesas por Categoria" /></>}</div>
+          <button type="button" onClick={() => setView('details')} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink underline">Ver histórico e transações detalhadas</button>
+        </> : <>
+          <p className="mt-4 text-sm text-muted">Consulte os lançamentos e compare os meses do período. O PDF inclui todas as análises, independentemente da visualização aberta.</p>
+          <div id="transacoes-detalhadas" className="mt-5 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} valuesVisible={valuesVisible} /></div>
+          <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} valuesVisible={valuesVisible} /></div>
+          <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">{valuesVisible ? <><MonthlyComparisonChart data={report.monthlyComparison} /><ReportInsightsPanel insights={report.insights} /></> : <><HiddenReportPanel title="Comparativo Mensal" /><HiddenReportPanel title="Insights Financeiros" /></>}</div>
+          <details className="mt-6 rounded-2xl border border-line bg-surface p-4">
+            <summary className="min-h-11 cursor-pointer content-center text-sm font-semibold text-foreground">Metas — situação atual, independente do período</summary>
+            <div className="mt-3"><ReportGoalsPanel goals={report.goals} valuesVisible={valuesVisible} /></div>
+          </details>
+        </>}
       </>}
     </DashboardLayout>
   );

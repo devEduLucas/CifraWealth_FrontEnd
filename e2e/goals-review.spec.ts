@@ -30,12 +30,13 @@ test('privacidade compartilhada oculta valores, progresso e detalhes, preservand
   await expect(page.getByRole('button', { name: 'Mostrar valores', exact: true })).toBeVisible();
   await expect(main).not.toContainText(/1\.234,00|4\.936,00|3\.702,00|25%/);
   await expect(main.locator('[style*="width"]')).toHaveCount(0);
-  await main.getByRole('button', { name: 'Visualizar', exact: true }).click();
-  const details = page.getByRole('dialog', { name: 'Detalhes da meta', exact: true });
-  await expect(details).toContainText('Progresso: Oculto');
+  await main.getByRole('link', { name: 'Ver meta Reserva de segurança', exact: true }).click();
+  const details = page.getByRole('main');
+  await expect(page).toHaveURL(/\/goals\/987$/);
+  await expect(details.getByText('Seu progresso', { exact: true })).toBeVisible();
+  await expect(details.getByText('Oculto', { exact: true })).toBeVisible();
   await expect(details).not.toContainText(/1\.234,00|4\.936,00|25%/);
-  await page.keyboard.press('Escape');
-  await main.getByRole('button', { name: 'Registrar valor guardado', exact: true }).click();
+  await main.getByRole('button', { name: 'Guardar valor', exact: true }).click();
   const contribution = page.getByRole('dialog', { name: 'Adicionar valor guardado', exact: true });
   await expect(contribution.getByLabel('Valor deste aporte')).toBeEditable();
   await page.keyboard.press('Escape');
@@ -59,7 +60,7 @@ test('filtros e resumo compacto cabem em 320px com texto ampliado nos dois temas
   await page.keyboard.press('Escape');
   for (let theme = 0; theme < 2; theme++) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    const summary = await page.getByRole('region', { name: 'Indicadores das metas', exact: true }).boundingBox();
+    const summary = await page.getByLabel('Resumo das metas não canceladas', { exact: true }).boundingBox();
     expect(summary!.height).toBeLessThan(260);
     const filters = page.getByRole('group', { name: 'Filtrar metas por situação', exact: true });
     await filters.getByRole('button', { name: 'Concluídas', exact: true }).click();

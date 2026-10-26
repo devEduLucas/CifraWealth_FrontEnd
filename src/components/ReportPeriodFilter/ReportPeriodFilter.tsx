@@ -8,6 +8,7 @@ interface ReportPeriodFilterProps {
 }
 
 const OPTIONS: { value: ReportPeriod; label: string }[] = [
+  { value: 'month', label: 'Este mês' },
   { value: '3m', label: 'Últimos 3 meses' },
   { value: '6m', label: 'Últimos 6 meses' },
   { value: '12m', label: 'Últimos 12 meses' },

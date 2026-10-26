@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, PiggyBank } from 'lucide-react';
 import { Badge } from '../Badge/Badge';
 import { Button } from '../Button/Button';
 import { Card } from '../Card/Card';
@@ -10,13 +10,12 @@ import type { GoalViewModel } from '../../types/goals.types';
 interface GoalHistoryTableProps {
   goals: GoalViewModel[];
   onView: (goal: GoalViewModel) => void;
-  onEdit: (goal: GoalViewModel) => void;
-  onDelete: (goal: GoalViewModel) => void;
+  onContribute: (goal: GoalViewModel) => void;
   disabled?: boolean;
   valuesVisible?: boolean;
 }
 
-export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled, valuesVisible = true }: GoalHistoryTableProps) {
+export function GoalHistoryTable({ goals, onView, onContribute, disabled, valuesVisible = true }: GoalHistoryTableProps) {
   const tableTitleId = useId();
   return (
     <Card>
@@ -58,14 +57,9 @@ export function GoalHistoryTable({ goals, onView, onEdit, onDelete, disabled, va
                     <td className="py-3.5">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="secondary" size="sm" icon={Eye} disabled={disabled} onClick={() => onView(goal)}>
-                          Visualizar
+                          Detalhes
                         </Button>
-                        <Button variant="secondary" size="sm" icon={Pencil} disabled={disabled} onClick={() => onEdit(goal)}>
-                          Editar
-                        </Button>
-                        <Button variant="danger" size="sm" icon={Trash2} disabled={disabled} onClick={() => onDelete(goal)}>
-                          Excluir
-                        </Button>
+                        {goal.status !== 'cancelada' && goal.status !== 'concluida' && <Button size="sm" icon={PiggyBank} disabled={disabled} onClick={() => onContribute(goal)}>Registrar valor</Button>}
                       </div>
                     </td>
                   </tr>

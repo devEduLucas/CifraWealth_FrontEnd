@@ -12,9 +12,9 @@ function formatVariation(value: number | null, lowerIsBetter = false): { text: s
   if (value === null) {
     return { text: 'Sem base no período anterior.', className: 'text-subtle' };
   }
-  const arrow = value >= 0 ? '↑' : '↓';
+  if (value === 0) return { text: 'Mesmo valor do período anterior.', className: 'text-muted' };
   const className = (lowerIsBetter ? value <= 0 : value >= 0) ? 'text-positive' : 'text-danger';
-  return { text: `${arrow} ${Math.abs(value)}% vs período anterior`, className };
+  return { text: `${Math.abs(value).toLocaleString('pt-BR')}% ${value > 0 ? 'mais' : 'menos'} que no período anterior`, className };
 }
 
 export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSummaryCardsProps) {
@@ -24,8 +24,9 @@ export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSumm
   const taxa = formatVariation(summary.variacaoTaxaEconomia);
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <SummaryCard
+        compact
         label="Receitas"
         value={valuesVisible ? formatCurrency(summary.receitas) : 'R$ ••••••'}
         icon={TrendingUp}
@@ -34,6 +35,7 @@ export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSumm
         footnoteClassName={valuesVisible ? receitas.className : 'text-subtle'}
       />
       <SummaryCard
+        compact
         label="Despesas"
         value={valuesVisible ? formatCurrency(summary.despesas) : 'R$ ••••••'}
         icon={TrendingDown}
@@ -42,6 +44,7 @@ export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSumm
         footnoteClassName={valuesVisible ? despesas.className : 'text-subtle'}
       />
       <SummaryCard
+        compact
         label="Saldo do Período"
         value={valuesVisible ? formatCurrency(summary.saldo) : 'R$ ••••••'}
         icon={Wallet}
@@ -50,6 +53,7 @@ export function ReportSummaryCards({ summary, valuesVisible = true }: ReportSumm
         footnoteClassName={valuesVisible ? saldo.className : 'text-subtle'}
       />
       <SummaryCard
+        compact
         label="Taxa de Economia"
         value={valuesVisible ? `${summary.taxaEconomiaPercentual}%` : '•••%'}
         icon={PieChart}

@@ -1,190 +1,121 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
+import { LayoutGrid, List } from 'lucide-react';
 import { useSessionUser } from '../hooks/useSessionUser';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { GoalsHeader } from '../components/GoalsHeader/GoalsHeader';
-import { GoalSummaryCards } from '../components/GoalSummaryCards/GoalSummaryCards';
-import { GoalListCard } from '../components/GoalListCard/GoalListCard';
+import { GoalCarousel } from '../components/GoalCarousel/GoalCarousel';
+import { GoalDetail } from '../components/GoalDetail/GoalDetail';
 import { EmptyGoals } from '../components/EmptyGoals/EmptyGoals';
-import { GoalProgressPanel } from '../components/GoalProgressPanel/GoalProgressPanel';
-import { AchievementsCard } from '../components/AchievementsCard/AchievementsCard';
-import { TipsCard } from '../components/TipsCard/TipsCard';
 import { GoalHistoryTable } from '../components/GoalHistoryTable/GoalHistoryTable';
 import { ContributeGoalModal } from '../components/ContributeGoalModal/ContributeGoalModal';
 import { NewGoalModal } from '../components/NewGoalModal/NewGoalModal';
 import { GoalAmountModal } from '../components/GoalAmountModal/GoalAmountModal';
-import { Modal } from '../components/Modal/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog/ConfirmDialog';
 import { formatCurrency } from '../utils/format';
-import { formatMonthYear } from '../utils/goals';
 import { useGoals } from '../hooks/useGoals';
 import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
-import { getGoalIcon, getGoalProgress } from '../utils/goals';
 import type { GoalFilter, GoalFormValues, GoalViewModel } from '../types/goals.types';
 
 export function GoalsPage() {
   const user = useSessionUser();
   const { valuesVisible } = useFinancialPrivacy();
   const fullName = user ? `${user.nome} ${user.sobrenome ?? ''}`.trim() : 'Usuário';
-
   const { goals, loading, error, saving, formError, clearFormError, createGoal, updateGoal, contributeGoal, adjustGoal, changeGoalStatus, deleteGoal, reload } = useGoals();
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [contributingGoal, setContributingGoal] = useState<GoalViewModel | null>(null);
+  const navigate = useNavigate();
+  const { goalId } = useParams();
+  const [params, setParams] = useSearchParams();
+  const detailMode = goalId !== undefined;
+  const selectedGoal = /^\d+$/.test(goalId ?? '') ? goals.find((goal) => goal.id === Number(goalId)) : undefined;
+  const [contributingId, setContributingId] = useState<number | null>(null);
+  const [adjustingId, setAdjustingId] = useState<number | null>(null);
+  const contributingGoal = goals.find((goal) => goal.id === contributingId) ?? null;
+  const adjustingGoal = goals.find((goal) => goal.id === adjustingId) ?? null;
   const [success, setSuccess] = useState<string | null>(null);
   const [filter, setFilter] = useState<GoalFilter>('todas');
+  const [view, setView] = useState<'cards' | 'table'>('cards');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<GoalViewModel | null>(null);
-  const [adjustingGoal, setAdjustingGoal] = useState<GoalViewModel | null>(null);
-  const [viewingGoal, setViewingGoal] = useState<GoalViewModel | null>(null);
   const [deletingGoal, setDeletingGoal] = useState<GoalViewModel | null>(null);
 
   useEffect(() => {
-    if (loading) return;
-    if (searchParams.get('new') === '1') { clearFormError(); setEditingGoal(null); setModalOpen(true); setSearchParams({}, { replace: true }); }
-    const id = Number(searchParams.get('contribute'));
-    if (id) { const goal = goals.find((item) => item.id === id && item.status !== 'cancelada' && item.status !== 'concluida'); if (goal) { clearFormError(); setContributingGoal(goal); } setSearchParams({}, { replace: true }); }
-  }, [loading, searchParams, setSearchParams, goals, clearFormError]);
-  const filteredGoals = useMemo(() => {
-    if (filter === 'em_andamento') {
-      return goals.filter((goal) => goal.status === 'em_andamento' || goal.status === 'atrasada');
+    window.scrollTo(0, 0);
+    setContributingId(null); setAdjustingId(null); setModalOpen(false); setDeletingGoal(null); setSuccess(null); clearFormError();
+  }, [goalId, clearFormError]);
+  useEffect(() => {
+    if (loading || error) return;
+    const legacyId = params.get('detail') ?? params.get('contribute');
+    if (!detailMode && legacyId && /^\d+$/.test(legacyId)) {
+      navigate('/goals/' + legacyId + (params.has('contribute') ? '?guardar=1' : ''), { replace: true });
+      return;
     }
-    if (filter === 'concluidas') {
-      return goals.filter((goal) => goal.status === 'concluida');
+    if (!detailMode && params.get('new') === '1') { clearFormError(); setEditingGoal(null); setModalOpen(true); setParams({}, { replace: true }); }
+    if (detailMode && params.get('guardar') === '1' && selectedGoal) {
+      clearFormError();
+      if (selectedGoal.status !== 'cancelada' && selectedGoal.status !== 'concluida') setContributingId(selectedGoal.id);
+      else setSuccess('Esta meta está concluída ou cancelada. Consulte os detalhes antes de alterar o acompanhamento.');
+      const next = new URLSearchParams(params); next.delete('guardar'); setParams(next, { replace: true });
     }
-    return goals;
-  }, [goals, filter]);
+  }, [loading, error, params, detailMode, selectedGoal, navigate, setParams, clearFormError]);
+  useEffect(() => {
+    if (selectedGoal) document.title = selectedGoal.titulo + ' | Metas | CifraWealth';
+  }, [selectedGoal?.titulo, selectedGoal]);
 
-  const metasAtivas = goals.filter((goal) => goal.status === 'em_andamento' || goal.status === 'atrasada').length;
+  const filteredGoals = useMemo(() => filter === 'em_andamento' ? goals.filter((goal) => goal.status === 'em_andamento' || goal.status === 'atrasada') : filter === 'concluidas' ? goals.filter((goal) => goal.status === 'concluida') : goals, [goals, filter]);
+  const activeCount = goals.filter((goal) => goal.status === 'em_andamento' || goal.status === 'atrasada').length;
   const relevantGoals = goals.filter((goal) => goal.status !== 'cancelada');
-  const valorObjetivo = relevantGoals.reduce((sum, goal) => sum + goal.valorObjetivo, 0);
-  const valorEconomizado = relevantGoals.reduce((sum, goal) => sum + goal.valorAtual, 0);
-  const progressoGeralPercentual = valorObjetivo > 0 ? Math.min(Math.floor((valorEconomizado / valorObjetivo) * 100), 100) : 0;
-
-  const achievements = useMemo(() => {
-    return goals
-      .filter((goal) => goal.status === 'em_andamento' || goal.status === 'atrasada')
-      .sort((a, b) => getGoalProgress(b) - getGoalProgress(a))
-      .slice(0, 3)
-      .map((goal) => ({
-        id: goal.id,
-        titulo: goal.titulo,
-        icon: getGoalIcon(goal.titulo),
-        faltam: Math.max(goal.valorObjetivo - goal.valorAtual, 0),
-        dataFim: goal.dataFim,
-      }));
-  }, [goals]);
-
-  function openCreateModal() {
-    clearFormError();
-    setEditingGoal(null);
-    setModalOpen(true);
-  }
-
-  function openEditModal(goal: GoalViewModel) {
-    clearFormError();
-    setEditingGoal(goal);
-    setModalOpen(true);
-  }
-
-  function handleModalSubmit(values: GoalFormValues) {
-    const action = editingGoal ? updateGoal(editingGoal.id, values) : createGoal(values);
-    action.then(() => setModalOpen(false)).catch(() => undefined);
-  }
-
-  function openContribution(goal: GoalViewModel) {
-    clearFormError(); setSuccess(null); setContributingGoal(goal);
+  const totalTarget = relevantGoals.reduce((sum, goal) => sum + goal.valorObjetivo, 0);
+  const totalSaved = relevantGoals.reduce((sum, goal) => sum + goal.valorAtual, 0);
+  function openCreate() { clearFormError(); setEditingGoal(null); setModalOpen(true); }
+  function openEdit(goal: GoalViewModel) { clearFormError(); setEditingGoal(goal); setModalOpen(true); }
+  function openContribution(goal: GoalViewModel) { clearFormError(); setSuccess(null); setContributingId(goal.id); }
+  function openAdjustment(goal: GoalViewModel) { clearFormError(); setAdjustingId(goal.id); }
+  async function handleSave(values: GoalFormValues) {
+    try {
+      if (editingGoal) { await updateGoal(editingGoal.id, values); setModalOpen(false); setSuccess('Meta atualizada. Seu planejamento foi salvo.'); }
+      else { const created = await createGoal(values); setModalOpen(false); navigate('/goals/' + created.id); }
+    } catch { /* The form retains input and exposes the API error. */ }
   }
   function handleContribution(value: number) {
     if (!contributingGoal || saving) return;
-    contributeGoal(contributingGoal.id, value).then(() => {
-      setContributingGoal(null); setSuccess('Valor guardado registrado. O progresso da meta foi atualizado.');
-    }).catch(() => undefined);
+    contributeGoal(contributingGoal.id, value).then(() => { setContributingId(null); setSuccess('Valor guardado registrado. O progresso da meta foi atualizado.'); }).catch(() => undefined);
   }
-  function handleDelete(goal: GoalViewModel) {
-    setDeletingGoal(goal);
-  }
-  function openAdjustment(goal: GoalViewModel) { clearFormError(); setAdjustingGoal(goal); }
   function handleAdjustment(value: number, mode: 'total' | 'withdraw') {
     if (!adjustingGoal || saving) return;
-    adjustGoal(adjustingGoal.id, value, mode).then(() => { setAdjustingGoal(null); setSuccess('Valor guardado ajustado. O progresso foi recalculado.'); }).catch(() => undefined);
+    adjustGoal(adjustingGoal.id, value, mode).then(() => { setAdjustingId(null); setSuccess('Valor guardado ajustado. O progresso foi recalculado.'); }).catch(() => undefined);
   }
   function toggleStatus(goal: GoalViewModel) {
     if (saving) return;
     clearFormError();
     changeGoalStatus(goal.id, goal.status === 'cancelada' ? 'em_andamento' : 'cancelada').then(() => setSuccess(goal.status === 'cancelada' ? 'Meta reativada.' : 'Meta cancelada. Seus valores foram preservados.')).catch(() => undefined);
   }
+  async function confirmDelete() {
+    if (!deletingGoal || saving) return;
+    try { await deleteGoal(deletingGoal.id); setDeletingGoal(null); navigate('/goals', { replace: true }); }
+    catch { /* The confirmation remains open with the API error. */ }
+  }
 
-  return (
-    <DashboardLayout userName={fullName}>
-      <GoalsHeader filter={filter} onFilterChange={setFilter} onNewGoal={openCreateModal} />
-      <p className="mt-3 text-sm text-muted">Crie uma meta e use “Registrar valor guardado” para acompanhar o dinheiro que você já reservou.</p>
-      {success && <p role="status" className="mt-4 text-sm text-positive">{success}</p>}
-      {formError && !modalOpen && !adjustingGoal && !contributingGoal && <p role="alert" className="mt-4 text-sm text-danger">{formError}</p>}
-      {error && <div role="alert" className="mt-4 text-sm text-danger"><p>{error}</p><button onClick={reload} className="min-h-11 font-semibold underline">Tentar novamente</button></div>}
-
-      <div className="mt-6">
-        <GoalSummaryCards
-          metasAtivas={metasAtivas}
-          valorObjetivo={valorObjetivo}
-          valorEconomizado={valorEconomizado}
-          progressoGeralPercentual={progressoGeralPercentual}
-          valuesVisible={valuesVisible}
-        />
+  return <DashboardLayout userName={fullName}>
+    {error && <div role="alert" className="mb-4 rounded-xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger"><p>{error}</p><button type="button" onClick={reload} className="min-h-11 font-semibold underline">Tentar novamente</button></div>}
+    {success && <p role="status" className="mb-4 rounded-xl bg-accent/10 p-3 text-sm text-foreground">{success}</p>}
+    {formError && !modalOpen && !adjustingGoal && !contributingGoal && <p role="alert" className="mb-4 text-sm text-danger">{formError}</p>}
+    {detailMode ? loading ? <p role="status" className="py-6 text-sm text-muted">Carregando sua meta...</p> : selectedGoal ? <GoalDetail goal={selectedGoal} valuesVisible={valuesVisible} saving={saving} onContribute={() => openContribution(selectedGoal)} onEdit={() => openEdit(selectedGoal)} onAdjust={() => openAdjustment(selectedGoal)} onStatus={() => toggleStatus(selectedGoal)} onDelete={() => setDeletingGoal(selectedGoal)} /> : <section className="rounded-2xl border border-line bg-surface p-6"><h1 className="text-xl font-bold text-foreground">{error ? 'Não foi possível abrir esta meta' : 'Meta não encontrada'}</h1><p className="mt-3 text-sm leading-6 text-muted">{error ? 'Tente carregar novamente para consultar seu planejamento.' : 'Ela pode ter sido excluída ou não pertencer à sua conta.'}</p><Link to="/goals" className="mt-4 inline-flex min-h-11 items-center font-semibold text-accent-ink">Voltar para minhas metas</Link></section> : <>
+      <GoalsHeader filter={filter} onFilterChange={setFilter} onNewGoal={openCreate} />
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">Um espaço para cada objetivo. Escolha uma meta para consultar seu plano ou registrar o dinheiro que já reservou.</p>
+      {!loading && !error && goals.length > 0 && <dl aria-label="Resumo das metas não canceladas" className="mt-5 grid grid-cols-2 gap-4 rounded-2xl border border-line bg-surface p-4 sm:grid-cols-3">
+        <div><dt className="text-xs text-muted">Em andamento</dt><dd className="mt-1 text-lg font-bold text-foreground">{activeCount}</dd></div>
+        <div className="min-w-0"><dt className="text-xs text-muted">Total guardado</dt><dd className="mt-1 break-words text-lg font-bold text-foreground">{valuesVisible ? formatCurrency(totalSaved) : 'R$ ••••••'}</dd></div>
+        <div className="col-span-2 min-w-0 sm:col-span-1"><dt className="text-xs text-muted">Objetivos não cancelados</dt><dd className="mt-1 break-words text-lg font-bold text-foreground">{valuesVisible ? formatCurrency(totalTarget) : 'R$ ••••••'}</dd></div>
+      </dl>}
+      <div className="mt-6 min-w-0">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-bold text-foreground">Minhas metas</h2><p className="mt-1 text-xs text-muted">{filteredGoals.length} {filteredGoals.length === 1 ? 'meta encontrada' : 'metas encontradas'}</p></div><div role="group" aria-label="Visualização das metas" className="flex gap-1 rounded-xl border border-line bg-surface p-1">{([{ value: 'cards', label: 'Cartões', icon: LayoutGrid }, { value: 'table', label: 'Tabela', icon: List }] as const).map(({ value, label, icon: Icon }) => <button key={value} type="button" aria-pressed={view === value} onClick={() => setView(value)} className={'inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold ' + (view === value ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}><Icon size={16} aria-hidden="true" />{label}</button>)}</div></div>
+        {loading ? <p role="status" className="py-6 text-sm text-muted">Carregando metas...</p> : filteredGoals.length === 0 ? error ? <p className="text-sm text-muted">Seus objetivos estarão disponíveis após carregar novamente.</p> : goals.length ? <p className="py-8 text-sm text-muted">Nenhuma meta neste filtro.</p> : <EmptyGoals onNewGoal={openCreate} /> : view === 'cards' ? <GoalCarousel goals={filteredGoals} valuesVisible={valuesVisible} /> : <GoalHistoryTable goals={filteredGoals} valuesVisible={valuesVisible} disabled={saving} onView={(goal) => navigate('/goals/' + goal.id)} onContribute={(goal) => navigate('/goals/' + goal.id + '?guardar=1')} />}
       </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-        <div>
-          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-base font-semibold text-foreground">Minhas Metas</h2>
-            <span className="text-xs text-subtle">
-              {goals.length} {goals.length === 1 ? 'meta encontrada' : 'metas encontradas'}
-            </span>
-          </div>
-
-          {loading ? (
-            <p className="text-sm text-muted">Carregando metas...</p>
-          ) : filteredGoals.length === 0 ? (
-            error ? <p className="text-sm text-muted">Não foi possível carregar suas metas. Recarregue a página para tentar novamente.</p> : goals.length > 0 ? <p className="text-sm text-muted">Nenhuma meta neste filtro.</p> : <EmptyGoals onNewGoal={openCreateModal} />
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {filteredGoals.map((goal) => (
-                <GoalListCard key={goal.id} goal={goal} onEdit={openEditModal} onDelete={handleDelete} onContribute={openContribution} onAdjust={openAdjustment} onToggleStatus={toggleStatus} disabled={saving} valuesVisible={valuesVisible} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <GoalProgressPanel
-            economizado={valorEconomizado}
-            objetivo={valorObjetivo}
-            percentual={progressoGeralPercentual}
-            valuesVisible={valuesVisible}
-          />
-          <AchievementsCard items={achievements} valuesVisible={valuesVisible} />
-          <TipsCard />
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <GoalHistoryTable goals={goals} disabled={saving} onView={setViewingGoal} onEdit={openEditModal} onDelete={handleDelete} valuesVisible={valuesVisible} />
-      </div>
-
-      <ContributeGoalModal key={contributingGoal?.id ?? "closed"} open={Boolean(contributingGoal)} goal={contributingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setContributingGoal(null); }} onSubmit={handleContribution} />
-      <NewGoalModal
-        open={modalOpen}
-        goal={editingGoal}
-        saving={saving}
-        error={formError}
-        onClose={() => { if (!saving) setModalOpen(false); }}
-        onSubmit={handleModalSubmit}
-      />
-      {adjustingGoal && <GoalAmountModal key={adjustingGoal.id} goal={adjustingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setAdjustingGoal(null); }} onSubmit={handleAdjustment} />}
-      <Modal open={Boolean(viewingGoal)} title="Detalhes da meta" saving={false} onClose={() => setViewingGoal(null)}>
-        {viewingGoal && <div className="space-y-3 text-sm text-muted"><h3 className="break-words font-semibold text-foreground">{viewingGoal.titulo}</h3>{viewingGoal.descricao && <p className="break-words">{viewingGoal.descricao}</p>}<p>Guardado: {valuesVisible ? formatCurrency(viewingGoal.valorAtual) : 'R$ ••••••'}</p><p>Objetivo: {valuesVisible ? formatCurrency(viewingGoal.valorObjetivo) : 'R$ ••••••'}</p><p>Progresso: {valuesVisible ? `${getGoalProgress(viewingGoal)}%` : 'Oculto'}</p><p>Prazo: {viewingGoal.dataFim ? formatMonthYear(viewingGoal.dataFim) : 'Sem prazo definido'}</p></div>}
-      </Modal>
-      <ConfirmDialog open={Boolean(deletingGoal)} title="Excluir meta" description={'Excluir “' + (deletingGoal?.titulo ?? '') + '” e seu acompanhamento? Esta ação não movimenta dinheiro e não pode ser desfeita.'} saving={saving} error={error} onClose={() => { if (!saving) setDeletingGoal(null); }} onConfirm={() => { if (deletingGoal && !saving) deleteGoal(deletingGoal.id).then(() => setDeletingGoal(null)).catch(() => undefined); }} />
-    </DashboardLayout>
-  );
+      <p className="mt-4 text-xs leading-6 text-muted">As metas acompanham suas reservas manuais. Elas não movimentam dinheiro nem descontam valores do saldo automaticamente.</p>
+    </>}
+    <ContributeGoalModal key={contributingId ?? 'closed'} open={Boolean(contributingGoal)} goal={contributingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setContributingId(null); }} onSubmit={handleContribution} />
+    <NewGoalModal open={modalOpen} goal={editingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setModalOpen(false); }} onSubmit={(values) => void handleSave(values)} />
+    {adjustingGoal && <GoalAmountModal key={adjustingGoal.id} goal={adjustingGoal} saving={saving} error={formError} onClose={() => { if (!saving) setAdjustingId(null); }} onSubmit={handleAdjustment} />}
+    <ConfirmDialog open={Boolean(deletingGoal)} title="Excluir meta" description={'Excluir “' + (deletingGoal?.titulo ?? '') + '” e seu acompanhamento? Esta ação não movimenta dinheiro e não pode ser desfeita.'} saving={saving} error={error} onClose={() => { if (!saving) setDeletingGoal(null); }} onConfirm={() => void confirmDelete()} />
+  </DashboardLayout>;
 }

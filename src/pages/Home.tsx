@@ -5,7 +5,6 @@ import { HomeHeader } from '../components/home/HomeHeader';
 import { HomeHero } from '../components/home/HomeHero';
 import { HomeFeatures } from '../components/home/HomeFeatures';
 import { HomeHowItWorks } from '../components/home/HomeHowItWorks';
-import { HomePrinciples } from '../components/home/HomePrinciples';
 import { HomeFaq } from '../components/home/HomeFaq';
 import { HomeSecurity } from '../components/home/HomeSecurity';
 import { HomeCallToAction } from '../components/home/HomeCallToAction';
@@ -21,9 +20,8 @@ export function Home() {
         <HomeHero isLogged={isLogged} />
         <HomeFeatures isLogged={isLogged} />
         <HomeHowItWorks />
-        <HomePrinciples />
-        <HomeFaq />
         <HomeSecurity />
+        <HomeFaq />
         <HomeCallToAction isLogged={isLogged} />
       </main>
       <HomeFooter isLogged={isLogged} />

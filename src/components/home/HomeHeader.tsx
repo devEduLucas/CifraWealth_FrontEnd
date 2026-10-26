@@ -15,7 +15,7 @@ export function HomeHeader({ isLogged }: {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 160;
-      const sectionIds = ['recursos', 'como-funciona', 'principios', 'duvidas', 'seguranca'];
+      const sectionIds = NAV_LINKS.map((link) => link.id);
       for (let i = sectionIds.length - 1; i >= 0; i--) {
         const section = document.getElementById(sectionIds[i]);
         if (section) {

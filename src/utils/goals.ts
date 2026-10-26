@@ -13,6 +13,8 @@ import type { GoalResponse } from '../lib/api';
 import type { BadgeVariant } from '../components/Badge/Badge';
 import type { GoalDisplayStatus, GoalViewModel } from '../types/goals.types';
 
+export { getGoalProgress } from './goalProgress.ts';
+
 const KEYWORD_ICONS: { keywords: string[]; icon: LucideIcon }[] = [
   { keywords: ['reserva', 'emergencia', 'emergência'], icon: Shield },
   { keywords: ['viagem', 'viajar'], icon: Plane },
@@ -59,12 +61,9 @@ export function toGoalViewModel(goal: GoalResponse): GoalViewModel {
     valorAtual: goal.valor_atual,
     valorObjetivo: goal.valor_objetivo,
     status: deriveDisplayStatus(goal),
+    dataInicio: goal.data_inicio,
     dataFim: goal.data_fim,
   };
-}
-
-export function getGoalProgress(goal: { valorAtual: number; valorObjetivo: number }): number {
-  return goal.valorObjetivo > 0 ? Math.min(Math.max(Math.floor((goal.valorAtual / goal.valorObjetivo) * 100), 0), 100) : 0;
 }
 
 export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; variant: BadgeVariant } {
@@ -72,7 +71,7 @@ export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; 
     case 'concluida':
       return { label: 'Concluída', variant: 'positive' };
     case 'atrasada':
-      return { label: 'Atrasada', variant: 'red' };
+      return { label: 'Prazo encerrado', variant: 'slate' };
     case 'cancelada':
       return { label: 'Cancelada', variant: 'slate' };
     case 'em_andamento':
@@ -82,7 +81,7 @@ export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; 
 }
 
 export function getGoalProgressColorClassName(status: GoalDisplayStatus): string {
-  if (status === 'atrasada') return 'bg-danger';
+  if (status === 'atrasada') return 'bg-progress';
   if (status === 'cancelada') return 'bg-subtle';
   if (status === 'concluida') return 'bg-positive';
   return 'bg-progress';

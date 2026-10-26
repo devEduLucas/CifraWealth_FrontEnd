@@ -25,7 +25,7 @@ export function LoginPage() {
             <BenefitItem
               icon={<ShieldCheck size={20} className="text-accent-ink" />}
               title="Segurança"
-              description="Seus dados protegidos com criptografia de ponta a ponta."
+              description="Acesso autenticado para acompanhar seus registros com privacidade."
             />
             <BenefitItem
               icon={<TrendingUp size={20} className="text-accent-ink" />}

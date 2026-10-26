@@ -4,19 +4,19 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 export function HomeCallToAction({ isLogged }: {
   isLogged: boolean;
 }) {
-  return (<section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 w-full">
-    <div data-reveal="scale" className="rounded-3xl bg-gradient-to-br from-surface via-elevated to-surface border border-line-strong p-8 sm:p-12 md:p-16 text-center shadow-xl relative overflow-hidden">
+  return (<section className="py-10 sm:py-12 px-4 sm:px-6 lg:px-8 w-full">
+    <div data-reveal="up" className="mx-auto max-w-7xl rounded-2xl bg-surface border border-line p-6 sm:p-8 text-center relative overflow-hidden">
       <div data-parallax="-2" className="absolute -top-16 -left-16 w-72 h-72 bg-accent/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
       <div data-parallax="2" className="absolute -bottom-20 -right-16 w-80 h-80 bg-progress/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
       <div data-reveal-stagger className="relative z-10 max-w-2xl mx-auto">
         <span data-reveal="up" className="text-xs font-bold tracking-widest text-accent-ink uppercase mb-3 block">
-          COMECE HOJE MESMO
+          {isLogged ? 'SEU CONTROLE FINANCEIRO' : 'COMECE HOJE MESMO'}
         </span>
         <h2 data-reveal="up" className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-4">
-          Pronto para transformar sua organização financeira?
+          {isLogged ? 'Continue de onde parou' : 'Comece pelo primeiro registro'}
         </h2>
         <p data-reveal="up" className="text-secondary text-base leading-relaxed mb-8">
-          Crie sua conta, confirme seu e-mail e comece pelos seus primeiros lançamentos. Se já tem acesso, entre no painel.
+          {isLogged ? 'Volte à sua visão geral para consultar seu resumo ou registrar uma movimentação.' : 'Crie sua conta, confirme seu e-mail e comece pelos seus primeiros lançamentos. Se já tem acesso, entre no painel.'}
         </p>
 
         <div data-reveal="up" className="flex flex-wrap items-center justify-center gap-3.5">
