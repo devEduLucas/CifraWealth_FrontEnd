@@ -43,35 +43,38 @@ test.beforeEach(async ({ page }) => {
 test('header é compartilhado, saudação fica só no dashboard e conteúdo rola abaixo dele', async ({ page }, testInfo) => {
   await page.goto('/dashboard');
   const header = page.getByRole('banner', { name: 'Cabeçalho principal' });
-  await expect(header).toContainText('Teste Cabeçalho');
-  await expect(page.getByText('Confira seus lançamentos e acompanhe suas metas.', { exact: true })).toBeVisible();
+  await expect(header).toContainText('Visão geral');
+  await expect(page.getByText('Seu controle financeiro, em um só lugar.', { exact: true })).toBeVisible();
   const nav = page.getByRole('navigation', { name: testInfo.project.name === 'mobile' ? 'Menu móvel' : 'Menu principal' });
   for (const title of ['Transações', 'Categorias', 'Metas', 'Relatórios', 'Perfil']) {
     if (title === 'Perfil' && testInfo.project.name === 'mobile') await header.getByRole('link', { name: 'Abrir meu perfil' }).click();
     else await nav.getByRole('link', { name: title, exact: true }).click();
     await expect(page.getByRole('heading', { name: title === 'Metas' ? 'Metas Financeiras' : title, exact: true, level: 1 })).toBeVisible();
     await expect(header).toContainText(title);
-    await expect(page.getByText('Confira seus lançamentos e acompanhe suas metas.', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Seu controle financeiro, em um só lugar.', { exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await nav.getByRole('link', { name: 'Relatórios', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Relatórios', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Atualizar relatório', exact: true })).toBeEnabled();
   await page.evaluate(() => window.scrollTo(0, 700));
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(header).toHaveCSS('position', 'fixed');
   const bounds = await header.boundingBox();
   expect(bounds!.y).toBe(0);
-  expect(bounds!.height).toBe(80);
+  expect(bounds!.height).toBe(64);
   await header.getByRole('link', { name: 'Abrir meu perfil' }).click();
   await expect(page).toHaveURL(/\/profile$/);
-  await nav.getByRole('link', { name: 'Dashboard', exact: true }).click();
-  await expect(page.getByText('Confira seus lançamentos e acompanhe suas metas.', { exact: true })).toBeVisible();
+  await nav.getByRole('link', { name: 'Visão geral', exact: true }).click();
+  await expect(page.getByText('Seu controle financeiro, em um só lugar.', { exact: true })).toBeVisible();
   await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('dashboard-escuro.png'), fullPage: true });
   await nav.getByRole('link', { name: 'Relatórios', exact: true }).click();
   await page.getByLabel('Selecionar período do relatório').selectOption('custom');
   await page.getByLabel('Data inicial', { exact: true }).fill('2026-01-15');
+  await page.getByRole('button', { name: 'Ajuda desta página', exact: true }).click();
+  const help = page.getByRole('dialog', { name: 'Analise um período e baixe seu relatório', exact: true });
+  await expect(help).toBeVisible();
   const popup = page.context().waitForEvent('page');
-  await page.getByRole('link', { name: 'Sobre a CifraWealth e Ajuda (abre em nova aba)' }).click();
+  await help.getByRole('link', { name: 'Sobre o projeto (abre em nova aba)', exact: true }).click();
   const landing = await popup;
   await expect(landing).toHaveURL(/\/home$/);
   await expect(landing.getByRole('heading', { name: /Mais clareza para cuidar/, level: 1 })).toBeVisible();
@@ -82,6 +85,7 @@ test('header é compartilhado, saudação fica só no dashboard e conteúdo rola
   await landingHeader.getByRole('link', { name: 'Ir para o Painel', exact: true }).click();
   await expect(landing).toHaveURL(/\/dashboard$/);
   await landing.close();
+  await page.keyboard.press('Escape');
   await expect(page).toHaveURL(/\/reports$/);
   await expect(page.getByLabel('Selecionar período do relatório')).toHaveValue('custom');
   await expect(page.getByLabel('Data inicial', { exact: true })).toHaveValue('2026-01-15');
@@ -137,6 +141,10 @@ test('notificações mostram dados reais, abrem a meta e permitem recuperar falh
   expect(panelBounds!.x + panelBounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('notificacoes.png') });
   await panel.getByRole('link', { name: /Reserva com prazo/ }).click();
+  const goalDetails = page.getByRole('main');
+  await expect(goalDetails.getByRole('heading', { level: 1 })).toHaveText('Reserva com prazo');
+  await expect(page.getByRole('dialog', { name: 'Adicionar valor guardado', exact: true })).toHaveCount(0);
+  await goalDetails.getByRole('button', { name: 'Guardar valor', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Adicionar valor guardado', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await page.route('**/api/goals', (route) => route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ message: 'Falha temporária nos lembretes' }) }));
@@ -161,7 +169,7 @@ test('menu conserva ícones recolhidos, preferência e acesso ao perfil', async 
     await page.getByRole('link', { name: 'Abrir meu perfil', exact: true }).click();
   } else {
     await expect(header.getByRole('button', { name: 'Recolher menu lateral' })).toHaveCount(0);
-    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Dashboard' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Visão geral' })).toBeVisible();
     expect((await sidebar.boundingBox())!.width).toBe(260);
     expect((await header.boundingBox())!.x).toBe(260);
     expect((await page.getByRole('main').boundingBox())!.x).toBe(260);
@@ -175,10 +183,10 @@ test('menu conserva ícones recolhidos, preferência e acesso ao perfil', async 
     await page.reload();
     expect((await sidebar.boundingBox())!.width).toBe(80);
     await sidebar.getByRole('link', { name: 'Abrir perfil de Teste Cabeçalho' }).click();
-    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Dashboard' })).toHaveCount(0);
+    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Visão geral' })).toHaveCount(0);
     await page.screenshot({ animations: 'disabled', path: testInfo.outputPath('menu-recolhido-1920.png') });
     await sidebar.getByRole('button', { name: 'Expandir menu lateral' }).click();
-    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Dashboard' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'CifraWealth — Visão geral' })).toBeVisible();
     expect((await sidebar.boundingBox())!.width).toBe(260);
   }
   await expect(page).toHaveURL(/\/profile$/);
@@ -209,8 +217,13 @@ test('tema segue dispositivo até escolha manual e permite voltar ao automático
   expect(await page.evaluate(() => localStorage.getItem('cifrawealth:theme'))).toBeNull();
 });
 
-test('atalhos do dashboard abrem criação com o tipo correto e preservam o formulário ao criar categoria', async ({ page }) => {
-  for (const [label, tipo] of [['Adicionar Receita', 'receita'], ['Adicionar Despesa', 'despesa']]) {
+test('atalhos do dashboard abrem criação com o tipo correto e preservam o formulário ao criar categoria', async ({ page, request }) => {
+  const headers = { Authorization: 'Bearer ' + auth.token };
+  const categories = await request.get(API + '/categories', { headers });
+  const income = (await categories.json()).find((item: { tipo: string }) => item.tipo === 'receita');
+  const recorded = await request.post(API + '/transactions', { headers, data: { id_categoria: income.id_categoria, tipo: 'receita', descricao: 'Registro inicial dos atalhos', valor: 1, data_transacao: '2026-01-01', status: 'confirmada' } });
+  expect(recorded.status()).toBe(201);
+  for (const [label, tipo] of [['Registrar receita', 'receita'], ['Registrar despesa', 'despesa']]) {
     await page.goto('/dashboard');
     await page.getByRole('link', { name: label, exact: true }).click();
     const transaction = page.getByRole('dialog', { name: 'Nova Transação', exact: true });
@@ -226,6 +239,7 @@ test('atalhos do dashboard abrem criação com o tipo correto e preservam o form
     await page.keyboard.press('Escape');
   }
   await page.goto('/dashboard');
-  await page.getByRole('link', { name: '+ Nova meta', exact: true }).click();
+  await page.getByRole('link', { name: /Ver todas as metas|Criar uma meta/ }).click();
+  if (!(await page.getByRole('dialog', { name: 'Nova Meta', exact: true }).isVisible())) await page.getByRole('button', { name: 'Nova Meta', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Nova Meta', exact: true })).toBeVisible();
 });

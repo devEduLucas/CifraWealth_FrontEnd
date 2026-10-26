@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test:e2e": "playwright test",
+    "test:ux": "playwright test --config playwright.ux.config.ts",
     "test": "node --experimental-strip-types --test test/reports.test.mjs test/config.test.mjs test/notifications.test.mjs test/money.test.mjs test/reportPdf.test.mjs test/session.test.mjs test/transactions.test.mjs test/categories.test.mjs test/dashboard.test.mjs test/goals.test.mjs"
   },
   "dependencies": {
