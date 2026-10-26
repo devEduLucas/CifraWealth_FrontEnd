@@ -33,9 +33,9 @@ export function ResetPasswordForm() {
         <div className="flex h-14 w-14 mx-auto items-center justify-center rounded-2xl bg-warning/15 text-warning mb-4">
           <AlertTriangle size={30} />
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Link inválido ou expirado</h1>
+        <h1 className="text-2xl font-bold text-foreground">Link incompleto</h1>
         <p className="mt-2 text-sm text-secondary leading-relaxed">
-          O link de redefinição de senha não possui um token válido ou já expirou. Solicite um novo link para continuar.
+          O link está incompleto. Solicite um novo e-mail para escolher sua senha.
         </p>
 
         <div className="mt-6 flex flex-col gap-3">
@@ -66,7 +66,7 @@ export function ResetPasswordForm() {
 
         <h1 className="text-2xl font-bold text-foreground">Senha alterada com sucesso!</h1>
         <p className="mt-2 text-sm text-secondary leading-relaxed">
-          Sua nova senha foi atualizada com sucesso. Agora você já pode entrar na sua conta com a nova credencial.
+          Sua senha foi atualizada. Entre na sua conta usando a nova senha; seus registros continuam lá.
         </p>
 
         <div className="mt-6">
@@ -75,7 +75,7 @@ export function ResetPasswordForm() {
             onClick={() => navigate('/login', { replace: true })}
             className="w-full rounded-xl bg-accent py-3.5 text-center text-sm font-extrabold text-on-accent hover:bg-accent/90 transition-colors shadow-md shadow-accent/15"
           >
-            Fazer login agora
+            Entrar na minha conta
           </button>
         </div>
       </div>

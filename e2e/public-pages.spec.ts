@@ -50,7 +50,7 @@ test('recuperação informa falha de envio e confirma solicitação sem expor ex
 
 test('redefinição exige link, valida confirmação e permite tentar novamente após erro', async ({ page }) => {
   await page.goto('/reset-password');
-  await expect(page.getByRole('heading', { name: 'Link inválido ou expirado' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Link incompleto' })).toBeVisible();
   await page.getByRole('link', { name: 'Solicitar novo link' }).click();
   await expect(page).toHaveURL(/\/forgot-password$/);
   let attempts = 0;
@@ -68,7 +68,7 @@ test('redefinição exige link, valida confirmação e permite tentar novamente 
   await expect(page.getByText('Link inválido ou já utilizado.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Salvar nova senha' }).click();
   await expect(page.getByRole('heading', { name: 'Senha alterada com sucesso!' })).toBeVisible();
-  await page.getByRole('button', { name: 'Fazer login agora' }).click();
+  await page.getByRole('button', { name: 'Entrar na minha conta' }).click();
   await expect(page).toHaveURL(/\/login$/);
   expect(attempts).toBe(2);
 });

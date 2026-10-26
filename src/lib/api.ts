@@ -32,7 +32,7 @@ async function request<T>(path: string, options: RequestInit, authenticated = fa
   } catch (netErr) {
     if (options.signal?.aborted) throw netErr;
     console.error(`[CifraWealth API Error] Falha de conexão em ${API_URL}${path}:`, netErr);
-    throw new ApiError('Não foi possível conectar ao servidor. Verifique se o backend está ligado e acessível.', 0);
+    throw new ApiError('Não foi possível conectar. Verifique sua conexão e tente novamente em instantes.', 0);
   }
 
   if (authenticated && response.status === 401) {
