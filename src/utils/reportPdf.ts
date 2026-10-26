@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import { autoTable, type UserOptions } from 'jspdf-autotable';
 import type { DetailedReportResponse } from '../types/reports.types';
 import { formatReportDate, validateReportRange } from './reports.ts';
+import { getGoalProgress } from './goalProgress.ts';
 
 interface ReportPdfOptions {
   userName: string;
@@ -246,7 +247,7 @@ export async function createReportPdf(report: DetailedReportResponse, options: R
   section('Metas · situação atual', 'Posição na emissão deste documento, independente do período selecionado. As reservas são registros manuais e não são descontadas do saldo acima.');
   if (report.goals.length) table({
     head: [['Meta', 'Valor guardado', 'Objetivo', 'Progresso']],
-    body: report.goals.map((goal) => [safeText(goal.nome), money(goal.valorAtual), money(goal.valorAlvo), percent(goal.valorAlvo > 0 ? Math.min(100, Math.floor(goal.valorAtual / goal.valorAlvo * 100)) : 0)]),
+    body: report.goals.map((goal) => [safeText(goal.nome), money(goal.valorAtual), money(goal.valorAlvo), percent(getGoalProgress({ valorAtual: goal.valorAtual, valorObjetivo: goal.valorAlvo }))]),
     columnStyles: { 0: { cellWidth: 64 }, 1: { cellWidth: 42, halign: 'right' }, 2: { cellWidth: 42, halign: 'right' }, 3: { cellWidth: 30, halign: 'right' } },
   });
   else paragraph('Nenhuma meta ativa foi cadastrada até a emissão deste relatório.');

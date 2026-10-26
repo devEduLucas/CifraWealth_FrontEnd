@@ -13,6 +13,8 @@ import type { GoalResponse } from '../lib/api';
 import type { BadgeVariant } from '../components/Badge/Badge';
 import type { GoalDisplayStatus, GoalViewModel } from '../types/goals.types';
 
+export { getGoalProgress } from './goalProgress.ts';
+
 const KEYWORD_ICONS: { keywords: string[]; icon: LucideIcon }[] = [
   { keywords: ['reserva', 'emergencia', 'emergência'], icon: Shield },
   { keywords: ['viagem', 'viajar'], icon: Plane },
@@ -61,10 +63,6 @@ export function toGoalViewModel(goal: GoalResponse): GoalViewModel {
     status: deriveDisplayStatus(goal),
     dataFim: goal.data_fim,
   };
-}
-
-export function getGoalProgress(goal: { valorAtual: number; valorObjetivo: number }): number {
-  return goal.valorObjetivo > 0 ? Math.min(Math.max(Math.floor((goal.valorAtual / goal.valorObjetivo) * 100), 0), 100) : 0;
 }
 
 export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; variant: BadgeVariant } {

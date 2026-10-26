@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { PiggyBank } from 'lucide-react';
 import type { GoalItem } from '../../types/dashboard.types';
 import { formatCurrency } from '../../utils/validation';
+import { getGoalProgress } from '../../utils/goalProgress';
 
 interface GoalCardProps {
   goal: GoalItem;
@@ -9,7 +10,7 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal, valuesVisible = true }: GoalCardProps) {
-  const progress = goal.valorAlvo > 0 ? Math.min(Math.floor((goal.valorAtual / goal.valorAlvo) * 100), 100) : 0;
+  const progress = getGoalProgress({ valorAtual: goal.valorAtual, valorObjetivo: goal.valorAlvo });
 
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
