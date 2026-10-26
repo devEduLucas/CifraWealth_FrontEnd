@@ -21,9 +21,6 @@ export function HomeFooter({ isLogged }: {
         <a href="#como-funciona" className="hover:text-foreground transition-colors">
           Como Funciona
         </a>
-        <a href="#principios" className="hover:text-foreground transition-colors">
-          Princípios
-        </a>
         <a href="#duvidas" className="hover:text-foreground transition-colors">
           Dúvidas
         </a>

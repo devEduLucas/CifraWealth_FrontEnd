@@ -1,30 +1,33 @@
 export const NAV_LINKS = [
-  { id: 'recursos', label: 'Recursos' },
-  { id: 'como-funciona', label: 'Como Funciona' },
-  { id: 'principios', label: 'Princípios' },
+  { id: 'recursos', label: 'O que você pode fazer' },
+  { id: 'como-funciona', label: 'Como começar' },
+  { id: 'seguranca', label: 'Privacidade' },
   { id: 'duvidas', label: 'Dúvidas' },
-  { id: 'seguranca', label: 'Segurança' },
 ];
 
 export const FAQ_ITEMS = [
   {
     question: 'O CifraWealth precisa de acesso direto à minha conta bancária?',
-    answer: 'Não. O CifraWealth foi concebido como uma plataforma de planejamento e controle financeiro pessoal consciente. Você tem total autonomia para registrar e gerenciar seus lançamentos sem precisar compartilhar senhas bancárias ou expor credenciais de instituições financeiras.',
+    answer: 'Não. Você registra receitas, despesas e valores reservados para metas manualmente. Nenhuma conta bancária é consultada e nenhum dinheiro é transferido pelo CifraWealth.',
   },
   {
     question: 'Meus dados e histórico financeiro estão realmente seguros?',
-    answer: 'Sim, a segurança é nossa prioridade central. O acesso usa autenticação e as senhas são armazenadas com hash, em vez de texto puro. Em ambientes publicados com HTTPS, a conexão também protege os dados durante o transporte. Consulte as informações de privacidade para entender o tratamento dos dados.',
+    answer: 'O acesso à sua conta exige autenticação e as senhas são armazenadas com hash. Em ambientes publicados com HTTPS, a conexão protege os dados durante o transporte. Consulte a política de privacidade para entender o tratamento dos registros; eles não possuem criptografia de ponta a ponta.',
   },
   {
     question: 'O uso da plataforma é gratuito?',
-    answer: 'Sim. Você pode criar sua conta gratuitamente hoje mesmo e ter acesso imediato à organização de categorias, registro de transações, criação de metas financeiras e relatórios analíticos completos, sem taxas ocultas.',
+    answer: 'Sim. Você pode criar uma conta e usar o registro de movimentações, categorias, metas e relatórios sem cobrança pelo uso da plataforma.',
+  },
+  {
+    question: 'Preciso configurar categorias antes de começar?',
+    answer: 'Não. Sua conta já tem categorias prontas para usar. Depois, você pode personalizá-las na seção Categorias.',
   },
   {
     question: 'Posso utilizar o CifraWealth no meu celular?',
-    answer: 'Com certeza. Toda a aplicação foi desenvolvida com design totalmente responsivo, garantindo excelente experiência tanto em smartphones e tablets quanto em notebooks e desktops com telas amplas.',
+    answer: 'Sim. Você pode acessar pelo navegador do celular, tablet ou computador, com a mesma conta.',
   },
   {
-    question: 'Como funciona a recuperação de conta caso eu esqueça minha senha?',
-    answer: 'Basta clicar em "Esqueceu a senha?" na tela de login e digitar seu e-mail cadastrado. O sistema gerará um link exclusivo e temporário de redefinição para que você defina uma nova credencial com total segurança.',
+    question: 'Como recupero o acesso se esquecer minha senha?',
+    answer: 'Na tela de entrada, selecione “Esqueceu a senha?” e informe seu e-mail. Se houver uma conta com senha para esse endereço, você receberá um link temporário para escolher uma nova senha.',
   },
 ];
