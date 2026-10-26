@@ -20,13 +20,13 @@ Em Esqueceu a senha?, solicite o link e defina uma nova senha pela mensagem rece
 
 ## Navegação e aparência
 
-O cabeçalho permanece visível ao rolar todas as abas autenticadas e reúne nome, perfil, notificações e a alternância entre claro e escuro. O ícone ao lado da logo, no topo do menu lateral, recolhe o menu mantendo seus ícones; a preferência persiste neste navegador. Quando recolhido, o topo exibe apenas o controle de expandir. O avatar no rodapé do menu abre o perfil. A saudação de boas-vindas aparece somente no dashboard; títulos, filtros e ações continuam em suas respectivas páginas. Os atalhos do dashboard abrem diretamente a criação de receita, despesa ou meta. No celular, a navegação fica na barra inferior.
+O cabeçalho permanece visível ao rolar as abas autenticadas e reúne a seção atual, perfil, notificações, tema e acessibilidade. O ícone ao lado da logo recolhe o menu mantendo seus ícones; a preferência persiste no navegador. O avatar do rodapé abre o perfil. “Visão geral” é o nome apresentado para a rota `/dashboard`, com saldo acumulado, atalhos compactos para receita/despesa e resumo mensal. A conta sem registros recebe orientação para sua primeira movimentação. No celular, a navegação fica na barra inferior.
 
 Na primeira visita, o tema acompanha o dispositivo e responde às mudanças do sistema. Escolher claro ou escuro salva uma preferência neste navegador, que persiste após recarregar e sincroniza entre abas abertas. Em Perfil → Aparência, escolha Usar tema do dispositivo para voltar ao automático. As cores também se aplicam aos formulários, modais e gráficos. O sino consulta os dados atuais ao abrir: mostra metas em andamento vencidas ou com prazo nos próximos sete dias, além de transações pendentes. São lembretes na aplicação, sem envio de notificações externas.
 
 As cores são definidas em src/styles/global.css: azul identifica ações e seleção; turquesa acompanha o progresso das metas; verde indica receitas e sucesso; vermelho/coral identifica despesas e erros; âmbar indica avisos. Os botões usam texto e hover próprios para cada tema, mantendo a logo original. Os campos têm uma cor de contorno separada das bordas decorativas. As legendas dos gráficos acompanham suas séries, com traços diferentes nas curvas e rótulos legíveis também nos períodos sem dados.
 
-O atalho flutuante de ajuda abre a landing page em outra aba, preservando a página e os filtros da aba original. A landing mantém o acesso direto ao painel para usuários autenticados e não depende do histórico do navegador para voltar.
+O atalho flutuante de ajuda abre orientações sobre a página atual e permite consultar o guia em `/help`. O link Sobre o projeto abre a landing em outra aba, preservando a tarefa original. A landing mantém acesso ao resumo para usuários autenticados.
 
 ## Demonstração explícita
 
@@ -37,7 +37,7 @@ Para apresentar a interface sem backend, configure VITE_DEMO_MODE=true e reinici
 - Metas: criar, editar, excluir e registrar valores já guardados. O progresso persiste no banco e a meta é concluída quando o valor guardado alcança o objetivo. Aumentar o objetivo reabre a meta quando necessário. Datas e descrição opcionais podem ser removidas na edição.
 - Registrar valor guardado acompanha uma reserva que o usuário já fez em sua conta ou investimento. Não realiza transferências bancárias, não debita o saldo e não cria receita ou despesa automaticamente.
 - Relatórios: receitas, despesas, saldo, taxa de economia, evolução mensal, distribuição de despesas, comparativos e transações detalhadas. Somente transações confirmadas são incluídas. Datas inicial e final são inclusivas; intervalos inválidos e maiores que cinco anos são rejeitados.
-- Presets de 3, 6 e 12 meses incluem o mês atual até hoje. Personalizado permite selecionar e aplicar datas exatas. As variações comparam o intervalo anterior de mesma duração; base zero aparece sem variação.
+- O relatório começa em Este mês. Presets de 3, 6 e 12 meses incluem o mês atual até hoje. Personalizado permite selecionar e aplicar datas exatas. As variações comparam o intervalo anterior de mesma duração; base zero não gera percentual. Histórico e transações ficam em Detalhamento, com PDF e CSV completos em qualquer visualização.
 - Baixar PDF gera um relatório A4 com identificação, período aplicado, resumo, gráfico de evolução, detalhamento mensal, categorias, observações, metas atuais e todas as transações confirmadas. O arquivo tem texto selecionável, acentos preservados, cabeçalhos repetidos e páginas numeradas. O botão CSV continua disponível para planilhas.
 - A busca, o tipo e a paginação na tabela filtram somente a tela; PDF e CSV incluem todas as transações do período aplicado. Datas personalizadas precisam ser aplicadas antes de baixar. Metas representam a posição atual, independente dessas datas.
 - Todas as categorias pertencem ao usuário. Cada nova conta recebe suas próprias categorias iniciais; categorias com transações não podem ser excluídas nem mudar de tipo.
@@ -56,6 +56,7 @@ Para apresentar a interface sem backend, configure VITE_DEMO_MODE=true e reinici
 
 - npm run build: TypeScript e build de produção.
 - npm run lint: ESLint.
+- npm run test:ux: testes de experiência no Chrome em desktop e celular, com respostas fixas da API e dados fictícios. Roda somente com o frontend, sem baixar/iniciar o backend, sem banco nem envio real de e-mails. As regras de cálculo são testadas no backend. Veja [o roteiro e o escopo da revisão](docs/experiencia-primeiro-acesso.md).
 - npm test: configuração de API/demonstração, regras dos lembretes, validações de datas, períodos, CSV e agrupamento do gráfico do PDF sem perder centavos. Não depende do backend. Requer Node.js 22.18 ou superior.
 - npm run test:e2e: Playwright no Chrome instalado, em desktop e celular. A configuração inicia instâncias exclusivas de API (3101) e Vite (5174), com modo demonstração desligado, além de uma instância de demonstração (5175) para validar seu isolamento. Os testes usam somente MySQL local com migrations aplicadas, criam contas temporárias verificadas e removem seus dados ao terminar. Cobrem menu, temas, atalhos, landing, informações e recuperação. O fluxo de envio é coberto por um servidor HTTP local na integração do backend; os testes de interface da recuperação interceptam a API. Não há envio externo de e-mails.
 - Testes de cálculos, validações e integração da API ficam no backend.
