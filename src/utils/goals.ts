@@ -61,6 +61,7 @@ export function toGoalViewModel(goal: GoalResponse): GoalViewModel {
     valorAtual: goal.valor_atual,
     valorObjetivo: goal.valor_objetivo,
     status: deriveDisplayStatus(goal),
+    dataInicio: goal.data_inicio,
     dataFim: goal.data_fim,
   };
 }
@@ -70,7 +71,7 @@ export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; 
     case 'concluida':
       return { label: 'Concluída', variant: 'positive' };
     case 'atrasada':
-      return { label: 'Atrasada', variant: 'red' };
+      return { label: 'Prazo encerrado', variant: 'slate' };
     case 'cancelada':
       return { label: 'Cancelada', variant: 'slate' };
     case 'em_andamento':
@@ -80,7 +81,7 @@ export function getGoalStatusBadge(status: GoalDisplayStatus): { label: string; 
 }
 
 export function getGoalProgressColorClassName(status: GoalDisplayStatus): string {
-  if (status === 'atrasada') return 'bg-danger';
+  if (status === 'atrasada') return 'bg-progress';
   if (status === 'cancelada') return 'bg-subtle';
   if (status === 'concluida') return 'bg-positive';
   return 'bg-progress';

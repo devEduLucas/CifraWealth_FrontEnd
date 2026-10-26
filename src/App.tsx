@@ -33,7 +33,7 @@ function RouteChangeAnnouncer() {
 
   useEffect(() => {
     const titles: Record<string, string> = { '/': 'Início', '/home': 'Início', '/login': 'Entrar', '/register': 'Criar conta', '/forgot-password': 'Recuperar senha', '/reset-password': 'Redefinir senha', '/verify-email': 'Confirmar e-mail', '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias', '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil', '/termos-de-uso': 'Termos de uso', '/politica-de-privacidade': 'Privacidade' };
-    const title = titles[pathname.replace(/\/+$/, '') || '/'] ?? 'CifraWealth';
+    const title = pathname.startsWith('/goals/') ? 'Detalhes da meta' : titles[pathname.replace(/\/+$/, '') || '/'] ?? 'CifraWealth';
     document.title = `${title} | CifraWealth`;
     if (previousPath.current === pathname) return;
     previousPath.current = pathname;
@@ -46,7 +46,7 @@ function RouteChangeAnnouncer() {
 function AppRoutes() {
   const { pathname } = useLocation();
   useSessionUser();
-  const hasAppHeader = ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile'].includes(pathname.replace(/\/+$/, ''));
+  const hasAppHeader = pathname.startsWith('/goals/') || ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile'].includes(pathname.replace(/\/+$/, ''));
   return (
     <>
       <a href="#conteudo-principal" className="skip-link">Pular para o conteúdo principal</a>
@@ -102,6 +102,7 @@ function AppRoutes() {
         />
 
         {/* Rotas Protegidas da Plataforma */}
+        <Route path="/goals/:goalId" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
         <Route
           path="/dashboard"
           element={

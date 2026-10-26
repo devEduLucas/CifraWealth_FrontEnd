@@ -61,7 +61,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
     <header ref={headerRef} aria-label="Cabeçalho principal" className="app-topbar fixed inset-x-0 z-40 h-20 border-b border-line bg-surface/95 backdrop-blur-md">
       <div className="flex h-full w-full items-center justify-between gap-3 px-4 sm:px-6">
         <div className="min-w-0">
-          <p className="truncate text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:text-[11px]">Meu espaço <span aria-hidden="true" className="mx-1">/</span> {SECTION_NAMES[pathname] ?? 'CifraWealth'}</p>
+          <p className="truncate text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:text-[11px]">Meu espaço <span aria-hidden="true" className="mx-1">/</span> {pathname.startsWith('/goals/') ? 'Minha meta' : SECTION_NAMES[pathname] ?? 'CifraWealth'}</p>
           <p className="mt-1 truncate text-sm font-semibold text-foreground sm:text-base">{userName}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">

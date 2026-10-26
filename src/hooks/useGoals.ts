@@ -34,7 +34,7 @@ export function useGoals() {
       throw err;
     } finally { setSaving(false); }
   }
-  async function createGoal(values: GoalFormValues) { await save(() => api.createGoal(toGoalInput(values))); }
+  async function createGoal(values: GoalFormValues) { return save(() => api.createGoal(toGoalInput(values))); }
   async function updateGoal(id: number, values: GoalFormValues) { await save(() => api.updateGoal(id, toGoalInput(values))); }
   async function contributeGoal(id: number, value: number) { await save(() => api.contributeGoal(id, value)); }
   async function adjustGoal(id: number, value: number, mode: 'total' | 'withdraw') { await save(() => mode === 'withdraw' ? api.withdrawGoal(id, value) : api.updateGoal(id, { valor_atual: value })); }
