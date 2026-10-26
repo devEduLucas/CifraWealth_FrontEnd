@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDownLeft,
   ArrowUpRight,
-  CalendarDays,
   Pencil,
   Plus,
   Search,
@@ -10,7 +8,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   api,
   ApiError,
@@ -34,6 +32,7 @@ import {
 import { CategoryIcon } from '../components/CategoryIcon/CategoryIcon';
 import { CategoryUsageChart } from '../components/CategoryUsageChart/CategoryUsageChart';
 import { CategoryPeriodModal } from '../components/CategoryPeriodModal/CategoryPeriodModal';
+import { CategoryToolbar } from '../components/CategoryToolbar/CategoryToolbar';
 import {
   buildCategoryUsage,
   categoryUsageSummary,
@@ -49,6 +48,15 @@ import { localDateOnly } from '../utils/reports';
 import { transactionDateRange } from '../utils/transactions';
 
 export function CategoriesPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view = searchParams.get('view') === 'manage' ? 'manage' : 'usage';
+  function changeView(next: 'usage' | 'manage') {
+    setSearchParams((previous) => {
+      const updated = new URLSearchParams(previous);
+      updated.set('view', next);
+      return updated;
+    }, { replace: true });
+  }
   const user = useSessionUser();
   const fullName = user
     ? `${user.nome} ${user.sobrenome ?? ''}`.trim()
@@ -165,6 +173,7 @@ export function CategoriesPage() {
       );
       setType(result.tipo);
       setSearch('');
+      changeView('manage');
       setModalOpen(false);
       setNotice(
         editing
@@ -223,6 +232,17 @@ export function CategoriesPage() {
           </div>
         }
       />
+      <CategoryToolbar
+        view={view}
+        type={type}
+        periodLabel={periodLabel}
+        currentMonth={period.start === today.slice(0, 7) + '-01' && period.end === today}
+        periodOpen={periodOpen}
+        disabled={loading || !categoriesAvailable}
+        onViewChange={changeView}
+        onTypeChange={(next) => { setType(next); setSearch(''); }}
+        onPeriodOpen={() => setPeriodOpen(true)}
+      />
       {notice && (
         <div
           role="status"
@@ -261,54 +281,11 @@ export function CategoriesPage() {
       ) : (
         categoriesAvailable && (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="group"
-                aria-label="Tipo das categorias"
-                className="inline-flex max-w-full gap-1 rounded-xl border border-line bg-surface p-1"
-              >
-                {(
-                  [
-                    { value: 'despesa', label: 'Despesas', icon: ArrowUpRight },
-                    {
-                      value: 'receita',
-                      label: 'Receitas',
-                      icon: ArrowDownLeft,
-                    },
-                  ] as const
-                ).map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={type === value}
-                    onClick={() => {
-                      setType(value);
-                      setSearch('');
-                    }}
-                    className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold ${type === value ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated'}`}
-                  >
-                    <Icon size={16} aria-hidden="true" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                aria-label="Alterar período das categorias"
-                aria-haspopup="dialog"
-                aria-expanded={periodOpen}
-                onClick={() => setPeriodOpen(true)}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 text-sm font-semibold text-foreground hover:bg-elevated"
-              >
-                <CalendarDays size={17} aria-hidden="true" />
-                Período
-              </button>
-            </div>
             <p className="mt-3 text-xs leading-5 text-muted">
               {periodLabel} · Somente transações confirmadas até hoje.
               Pendências e datas futuras ficam fora dos indicadores.
             </p>
-            {usageError ? (
+            {view === 'usage' && (usageError ? (
               <div
                 role="alert"
                 className="mt-5 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-foreground"
@@ -369,9 +346,9 @@ export function CategoriesPage() {
                   onMetricChange={setMetric}
                 />
               </>
-            )}
+            ))}
 
-            <section aria-labelledby="category-list-title" className="mt-7">
+            {view === 'manage' && <section aria-labelledby="category-list-title" className="mt-5">
               <div className="mb-4">
                 <h2
                   id="category-list-title"
@@ -381,8 +358,7 @@ export function CategoriesPage() {
                   {type === 'despesa' ? 'despesa' : 'receita'}
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-muted">
-                  Personalize nome, ícone e cor. Categorias com lançamentos
-                  conservam o tipo e não podem ser excluídas.
+                  As categorias iniciais estão prontas para usar. Personalize nome, ícone e cor quando quiser. Categorias com lançamentos conservam o tipo e não podem ser excluídas.
                 </p>
               </div>
               <div className="mb-4 grid gap-3 min-[600px]:grid-cols-[minmax(0,1fr)_minmax(12rem,0.6fr)]">
@@ -544,7 +520,7 @@ export function CategoriesPage() {
                   )}
                 </ul>
               )}
-            </section>
+            </section>}
           </>
         )
       )}

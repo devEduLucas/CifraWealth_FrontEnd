@@ -138,6 +138,11 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
   await expect(summary).toContainText('1.130,00');
   await expect(ranking.getByRole('link')).toHaveCount(5);
   await expect(ranking.getByRole('link').first()).toContainText('Moradia');
+  await expect(page.getByRole('list', { name: 'Lista de categorias' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Por quantidade', exact: true }).click();
+  await expect(ranking.getByRole('link').first()).toContainText('Alimentação');
+  await expect(ranking.getByRole('link').first()).toContainText('3 lançamentos');
+  await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
   const list = page.getByRole('list', { name: 'Lista de categorias' });
   await expect(list.getByRole('listitem')).toHaveCount(8);
   await expect(
@@ -146,18 +151,13 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
   await expect(
     list.getByRole('listitem').filter({ hasText: 'Somente pendentes' }),
   ).toContainText('não confirmados');
-  await page
-    .getByRole('button', { name: 'Por quantidade', exact: true })
-    .click();
-  await expect(ranking.getByRole('link').first()).toContainText('Alimentação');
-  await expect(ranking.getByRole('link').first()).toContainText(
-    '3 lançamentos',
-  );
   await page.getByLabel('Ordenar categorias').selectOption('count');
   await expect(list.getByRole('listitem').first()).toContainText('Alimentação');
   await page.getByLabel('Buscar categorias').fill('alimentacao');
   await expect(list.getByRole('listitem')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Análise', exact: true }).click();
   await expect(summary).toContainText('1.130,00');
+  await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
   await page.getByLabel('Buscar categorias').fill('');
   await page.screenshot({
     path: testInfo.outputPath('categorias-escuro.png'),
@@ -168,12 +168,10 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
     path: testInfo.outputPath('categorias-claro.png'),
     fullPage: true,
   });
-  await page
-    .getByRole('group', { name: 'Tipo das categorias' })
-    .getByRole('button', { name: 'Receitas', exact: true })
-    .click();
-  await expect(summary).toContainText('2.000,00');
+  await page.getByLabel('Tipo das categorias', { exact: true }).selectOption('receita');
   await expect(list.getByRole('listitem')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Análise', exact: true }).click();
+  await expect(summary).toContainText('2.000,00');
   await page
     .getByRole('button', { name: 'Ocultar valores', exact: true })
     .click();
@@ -312,11 +310,7 @@ test('personaliza ícone e cor, persiste na API e protege categorias vinculadas'
   await dialog.getByLabel('Tipo', { exact: true }).selectOption('receita');
   await dialog.getByRole('button', { name: 'Salvar', exact: true }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(
-    page
-      .getByRole('group', { name: 'Tipo das categorias' })
-      .getByRole('button', { name: 'Receitas', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('Tipo das categorias', { exact: true })).toHaveValue('receita');
   await row
     .getByRole('button', {
       name: 'Excluir categoria Viagem personalizada',
@@ -328,10 +322,7 @@ test('personaliza ícone e cor, persiste na API e protege categorias vinculadas'
     .getByRole('button', { name: 'Confirmar exclusão', exact: true })
     .click();
   await expect(row).toHaveCount(0);
-  await page
-    .getByRole('group', { name: 'Tipo das categorias' })
-    .getByRole('button', { name: 'Despesas', exact: true })
-    .click();
+  await page.getByLabel('Tipo das categorias', { exact: true }).selectOption('despesa');
   row = page
     .getByRole('list', { name: 'Lista de categorias' })
     .getByRole('listitem')
@@ -395,6 +386,7 @@ test('falha parcial preserva gerenciamento e textos extremos cabem em 320px com 
   await page.getByRole('button', { name: 'Maior', exact: true }).click();
   await page.getByRole('button', { name: /^Alto contraste/ }).click();
   await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
