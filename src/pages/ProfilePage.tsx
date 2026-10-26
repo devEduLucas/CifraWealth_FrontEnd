@@ -346,6 +346,14 @@ export function ProfilePage() {
             personalize seu espaço.
           </p>
         </header>
+        <nav aria-label="Seções do perfil" className="mt-4 flex flex-wrap gap-2">
+          {[
+            ['#profile-personal', 'Dados pessoais'],
+            ['#profile-financial', 'Resumo financeiro'],
+            ['#profile-appearance', 'Aparência'],
+            ['#profile-account', 'Conta'],
+          ].map(([href, label]) => <a key={href} href={href} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-foreground transition-colors hover:bg-elevated">{label}</a>)}
+        </nav>
         {loading && (
           <p role="status" className="mt-4 text-sm text-muted">
             Carregando perfil...
@@ -389,8 +397,9 @@ export function ProfilePage() {
         )}
 
         <section
+          id="profile-personal"
           aria-label="Seu perfil"
-          className="mt-6 overflow-hidden rounded-2xl border border-line bg-surface shadow-sm"
+          className="mt-5 scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-surface shadow-sm"
         >
           <div className="relative h-28 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-600 sm:h-32">
             {user?.capa_perfil && (
@@ -509,7 +518,8 @@ export function ProfilePage() {
             </p>
           </section>
           <section
-            className="rounded-2xl border border-line bg-surface p-5 sm:p-6"
+            id="profile-appearance"
+            className="scroll-mt-24 rounded-2xl border border-line bg-surface p-5 sm:p-6"
             aria-labelledby="profile-theme-title"
           >
             <h2
@@ -534,44 +544,29 @@ export function ProfilePage() {
                   onClick={() => setPreference(value)}
                   className={`relative flex min-w-0 items-center gap-3 rounded-xl border p-3 text-left transition-colors min-[440px]:flex-col min-[440px]:items-start min-[440px]:gap-2 ${preference === value ? 'border-accent bg-accent/10 ring-1 ring-accent/40' : 'border-line bg-elevated hover:bg-hover'}`}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="relative flex h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-line p-1.5 min-[440px]:h-16 min-[440px]:w-full"
-                    style={{
-                      background:
-                        value === 'dark'
-                          ? '#111d30'
-                          : value === 'light'
-                            ? '#f5f8fc'
-                            : 'linear-gradient(110deg, #f5f8fc 50%, #111d30 50%)',
-                    }}
-                  >
+                  <span aria-hidden="true" className="relative flex h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-line p-1.5 min-[440px]:h-16 min-[440px]:w-full"
+                    style={{ background: value === 'dark' ? '#111d30' : value === 'light' ? '#f5f8fc' : 'linear-gradient(110deg, #f5f8fc 50%, #111d30 50%)' }}>
                     <span className="w-1/5 rounded-sm bg-blue-500/25" />
                     <span className="ml-1.5 flex flex-1 flex-col gap-1">
                       <span className="h-1.5 w-2/3 rounded-full bg-blue-500/40" />
-                      <span className="flex flex-1 gap-1">
-                        <span className="flex-1 rounded bg-blue-500/15" />
-                        <span className="flex-1 rounded bg-cyan-500/20" />
-                      </span>
+                      <span className="flex flex-1 gap-1"><span className="flex-1 rounded bg-blue-500/15" /><span className="flex-1 rounded bg-cyan-500/20" /></span>
                     </span>
-                    {preference === value && (
-                      <span className="absolute right-1 top-1 rounded-full bg-accent p-0.5 text-on-accent">
-                        <Check size={12} />
-                      </span>
-                    )}
+                    {preference === value && <span className="absolute right-1 top-1 rounded-full bg-accent p-0.5 text-on-accent"><Check size={12} /></span>}
                   </span>
-                  <span className="flex items-center gap-2">
+                  <span className="flex flex-1 flex-col gap-1">
+                    <span className="flex items-center gap-1.5">
                     <Icon
                       size={16}
                       aria-hidden="true"
                       className="text-accent-ink"
                     />
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className="text-xs font-semibold text-foreground sm:text-sm">
                       {title}
                     </span>
-                  </span>
-                  <span className="hidden text-xs leading-5 text-muted min-[440px]:inline">
+                    </span>
+                  <span className="text-xs leading-5 text-muted">
                     {description}
+                  </span>
                   </span>
                 </button>
               ))}
@@ -605,20 +600,18 @@ export function ProfilePage() {
               <span className="sr-only">(abre em nova aba)</span>
             </Link>
             <Link
-              to="/home#como-funciona"
-              target="_blank"
-              rel="noopener noreferrer"
+              to="/help?section=profile"
               className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent-ink underline"
             >
               <CircleHelp size={17} aria-hidden="true" />
-              Como usar a CifraWealth{' '}
-              <span className="sr-only">(abre em nova aba)</span>
+              Ajuda com o perfil
             </Link>
           </div>
         </section>
 
         <section
-          className="mt-6 flex flex-col gap-5 rounded-2xl border border-line bg-surface p-5 sm:p-6"
+          id="profile-account"
+          className="mt-6 flex scroll-mt-24 flex-col gap-5 rounded-2xl border border-line bg-surface p-5 sm:p-6"
           aria-labelledby="profile-account-title"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
