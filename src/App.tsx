@@ -12,6 +12,7 @@ import { TransactionsPage } from './pages/TransactionsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ReportsPage } from './pages/ReportsPage';
 import { GoalsPage } from './pages/GoalsPage';
+import { HelpPage } from './pages/HelpPage';
 import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { InformationPage } from './pages/InformationPage';
@@ -32,7 +33,7 @@ function RouteChangeAnnouncer() {
   const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
-    const titles: Record<string, string> = { '/': 'Início', '/home': 'Início', '/login': 'Entrar', '/register': 'Criar conta', '/forgot-password': 'Recuperar senha', '/reset-password': 'Redefinir senha', '/verify-email': 'Confirmar e-mail', '/dashboard': 'Dashboard', '/transactions': 'Transações', '/categories': 'Categorias', '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil', '/termos-de-uso': 'Termos de uso', '/politica-de-privacidade': 'Privacidade' };
+    const titles: Record<string, string> = { '/': 'Início', '/home': 'Início', '/login': 'Entrar', '/register': 'Criar conta', '/forgot-password': 'Recuperar senha', '/reset-password': 'Redefinir senha', '/verify-email': 'Confirmar e-mail', '/dashboard': 'Visão geral', '/transactions': 'Transações', '/categories': 'Categorias', '/goals': 'Metas', '/reports': 'Relatórios', '/profile': 'Perfil', '/help': 'Ajuda', '/termos-de-uso': 'Termos de uso', '/politica-de-privacidade': 'Privacidade' };
     const title = pathname.startsWith('/goals/') ? 'Detalhes da meta' : titles[pathname.replace(/\/+$/, '') || '/'] ?? 'CifraWealth';
     document.title = `${title} | CifraWealth`;
     if (previousPath.current === pathname) return;
@@ -46,7 +47,7 @@ function RouteChangeAnnouncer() {
 function AppRoutes() {
   const { pathname } = useLocation();
   useSessionUser();
-  const hasAppHeader = pathname.startsWith('/goals/') || ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile'].includes(pathname.replace(/\/+$/, ''));
+  const hasAppHeader = pathname.startsWith('/goals/') || ['/dashboard', '/transactions', '/categories', '/goals', '/reports', '/profile', '/help'].includes(pathname.replace(/\/+$/, ''));
   return (
     <>
       <a href="#conteudo-principal" className="skip-link">Pular para o conteúdo principal</a>
@@ -102,6 +103,7 @@ function AppRoutes() {
         />
 
         {/* Rotas Protegidas da Plataforma */}
+        <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
         <Route path="/goals/:goalId" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
         <Route
           path="/dashboard"

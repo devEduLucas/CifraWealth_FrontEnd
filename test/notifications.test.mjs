@@ -17,17 +17,26 @@ test('lembretes incluem vencidas, hoje e os próximos sete dias na virada do mê
     goal(8, '2026-10-28', { valor_atual: 1000 }),
   ], [], '2026-10-29');
   assert.deepEqual(items.map(({ id, tone }) => ({ id, tone })), [
-    { id: 'goal-1', tone: 'danger' }, { id: 'goal-2', tone: 'warning' }, { id: 'goal-3', tone: 'warning' },
+    { id: 'goal-1', tone: 'warning' }, { id: 'goal-2', tone: 'warning' }, { id: 'goal-3', tone: 'warning' },
   ]);
   assert.match(items[0].description, /28\/10\/2026/);
   assert.match(items[1].description, /hoje/);
-  assert.equal(items[2].to, '/goals?contribute=3');
+  assert.equal(items[2].to, '/goals/3');
 });
 
 test('transações pendentes são agrupadas e confirmadas não geram alerta', () => {
   assert.deepEqual(buildNotifications([], [{ status: 'confirmada' }], '2026-10-29'), []);
-  const pending = buildNotifications([], [{ status: 'pendente' }, { status: 'confirmada' }, { status: 'pendente' }], '2026-10-29');
+  const pending = buildNotifications([], [
+    { status: 'pendente', data_transacao: '2026-10-28' },
+    { status: 'confirmada', data_transacao: '2026-10-29' },
+    { status: 'pendente', data_transacao: '2026-10-29' },
+    { status: 'pendente', data_transacao: '2026-11-01' },
+  ], '2026-10-29');
   assert.equal(pending.length, 1);
   assert.equal(pending[0].title, '2 transações pendentes');
-  assert.equal(pending[0].to, '/transactions');
+  assert.equal(pending[0].to, '/transactions?situacao=pendente&fim=2026-10-29');
+});
+
+test('aviso de pendências não inclui datas futuras que a lista apresenta como previstas', () => {
+  assert.deepEqual(buildNotifications([], [{ status: 'pendente', data_transacao: '2026-11-01' }], '2026-10-29'), []);
 });

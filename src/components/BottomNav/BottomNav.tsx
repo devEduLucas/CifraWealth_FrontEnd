@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import type { NavItem } from '../../types/dashboard.types';
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+  { key: 'dashboard', label: 'Visão geral', path: '/dashboard', icon: 'dashboard' },
   { key: 'transactions', label: 'Transações', path: '/transactions', icon: 'transactions' },
   { key: 'categories', label: 'Categorias', path: '/categories', icon: 'categories' },
   { key: 'goals', label: 'Metas', path: '/goals', icon: 'goals' },
