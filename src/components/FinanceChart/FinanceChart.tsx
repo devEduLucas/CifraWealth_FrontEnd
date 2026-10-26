@@ -5,7 +5,7 @@ import { useChartWidth } from '../../hooks/useChartWidth';
 
 interface FinanceChartProps {
   data: ChartPoint[];
-  year: number;
+  year: number | string;
   subtitle: string;
 }
 
@@ -14,24 +14,10 @@ const PADDING_X = 12;
 const PADDING_TOP = 16;
 const PADDING_BOTTOM = 28;
 
-function buildSmoothPath(points: { x: number; y: number }[]): string {
+function buildPath(points: { x: number; y: number }[]): string {
   if (points.length < 2) return '';
-
-  let d = `M ${points[0].x},${points[0].y}`;
-  for (let i = 0; i < points.length - 1; i += 1) {
-    const p0 = points[i === 0 ? i : i - 1];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
-
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
-  }
-  return d;
+  // Straight segments preserve the reported values without inventing extrema.
+  return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x},${point.y}`).join(' ');
 }
 
 export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
@@ -41,7 +27,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const dataDescriptionId = useId();
 
   const allValues = data.flatMap((point) => [point.receitas, point.despesas]);
-  const hasData = data.length >= 2 && allValues.some((value) => value > 0);
+  const hasData = data.length > 0 && allValues.some((value) => value > 0);
   const maxValue = Math.max(...allValues, 1) * 1.15;
   const minValue = 0;
 
@@ -49,7 +35,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const usableHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM;
 
   function xFor(index: number): number {
-    if (data.length <= 1) return PADDING_X;
+    if (data.length <= 1) return WIDTH / 2;
     return PADDING_X + (index / (data.length - 1)) * usableWidth;
   }
 
@@ -60,8 +46,8 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
   const receitasPoints = data.map((point, index) => ({ x: xFor(index), y: yFor(point.receitas) }));
   const despesasPoints = data.map((point, index) => ({ x: xFor(index), y: yFor(point.despesas) }));
 
-  const receitasLine = buildSmoothPath(receitasPoints);
-  const despesasLine = buildSmoothPath(despesasPoints);
+  const receitasLine = buildPath(receitasPoints);
+  const despesasLine = buildPath(despesasPoints);
   const receitasArea = receitasLine
     ? `${receitasLine} L ${receitasPoints[receitasPoints.length - 1].x},${HEIGHT - PADDING_BOTTOM} L ${receitasPoints[0].x},${HEIGHT - PADDING_BOTTOM} Z`
     : '';
@@ -119,6 +105,10 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
             <path d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
             <path d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
             <path d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 4" />
+            {data.length === 1 && <>
+              <circle cx={receitasPoints[0].x} cy={receitasPoints[0].y} r="4" fill="var(--chart-income)" />
+              <circle cx={despesasPoints[0].x} cy={despesasPoints[0].y} r="4" fill="var(--chart-expense)" />
+            </>}
           </>}
 
           {activeX !== null && (

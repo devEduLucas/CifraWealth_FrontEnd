@@ -14,17 +14,17 @@ export function TransactionList({ transactions, valuesVisible = true }: Transact
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-foreground">Últimas Transações</h2>
-        <Link to="/transactions" className="text-xs font-medium text-accent-ink hover:underline">
+        <h2 className="text-base font-semibold text-foreground">Últimas movimentações</h2>
+        <Link to="/transactions" className="inline-flex min-h-11 items-center text-xs font-medium text-accent-ink hover:underline">
           Ver todas →
         </Link>
       </div>
 
       {transactions.length === 0 ? (
         <div className="mt-6 flex flex-col items-center gap-2 py-6 text-center">
-          <p className="text-sm text-muted">Nenhuma transação registrada ainda.</p>
-          <Link to="/transactions" className="text-xs font-medium text-accent-ink hover:underline">
-            Adicionar transação
+          <p className="text-sm text-muted">Nenhuma movimentação confirmada até hoje.</p>
+          <Link to="/transactions" className="inline-flex min-h-11 items-center text-xs font-medium text-accent-ink hover:underline">
+            Consultar registros e pendências
           </Link>
         </div>
       ) : (
@@ -39,7 +39,7 @@ export function TransactionList({ transactions, valuesVisible = true }: Transact
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
                   style={{ backgroundColor: `${color}26`, color }}
                 >
-                  <Tag size={17} />
+                  <Tag size={17} aria-hidden="true" />
                 </span>
 
                 <div className="min-w-0 flex-1">

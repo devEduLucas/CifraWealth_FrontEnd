@@ -13,7 +13,8 @@ const months = Array.from({ length: 6 }, (_, index) => {
 });
 const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-async function openDashboard(page: Page, empty = false) {
+async function openDashboard(page: Page, empty = false, onlyCurrentMonth = false, zeroesBeforeLastMonth = false) {
+  await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, (route) => route.abort());
   await page.addInitScript(() => {
     localStorage.setItem('cifrawealth:token', 'chart-review-local-fixture');
     localStorage.setItem('cifrawealth:user', JSON.stringify({
@@ -26,8 +27,12 @@ async function openDashboard(page: Page, empty = false) {
     let body: unknown = [];
     if (url.pathname === '/api/dashboard') {
       body = { saldo: 6807.3, total_receitas: 7422.36, total_despesas: 615.06, por_categoria: [] };
+    } else if (url.pathname === '/api/transactions' && url.searchParams.get('limit') === '1') {
+      // An established account can have no recent confirmed entries.
+      body = [{ id_transacao: 1, id_categoria: 1, valor: 1, tipo: 'receita', descricao: 'Registro pendente', data_transacao: '2026-01-01', status: 'pendente' }];
     } else if (url.pathname === '/api/reports/monthly') {
-      body = empty ? [] : months.filter((month) => month.mes.startsWith(url.searchParams.get('ano')!));
+      const chartMonths = zeroesBeforeLastMonth ? months.map((month, index) => index < months.length - 1 ? { ...month, total_receitas: 0, total_despesas: 0, saldo: 0 } : month) : months;
+      body = empty ? [] : (onlyCurrentMonth ? chartMonths.slice(-1) : chartMonths).filter((month) => month.mes.startsWith(url.searchParams.get('ano')!));
     }
     await route.fulfill({ status: 200, json: body });
   });
@@ -66,4 +71,29 @@ test('gráfico aceita resposta mensal vazia sem interromper o dashboard', async 
   await page.getByText('Ver dados do gráfico', { exact: true }).click();
   await expect(page.getByText('Nenhum mês disponível neste período.', { exact: true })).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test('primeiro mês com valores tem gráfico e dados sem mensagem de ausência de registros', async ({ page }) => {
+  await openDashboard(page, false, true);
+  await expect(page.getByRole('img', { name: 'Evolução de receitas e despesas' })).toBeVisible();
+  await expect(page.getByText('Sem movimentações neste período.', { exact: true })).toHaveCount(0);
+  await page.getByText('Ver dados do gráfico', { exact: true }).click();
+  const table = page.getByRole('table', { name: /Receitas e despesas por mês/ });
+  await expect(table.getByRole('row')).toHaveCount(2);
+  await expect(table.getByRole('cell').first()).toHaveText(currency.format(months[months.length - 1].total_receitas));
+});
+
+test('meses zerados seguidos de receita não criam um trecho negativo no gráfico', async ({ page }) => {
+  await openDashboard(page, false, false, true);
+  const lines = page.getByRole('img', { name: 'Evolução de receitas e despesas' }).locator('path[fill="none"]');
+  await expect(lines).toHaveCount(2);
+  for (const line of await lines.all()) {
+    const geometry = await line.evaluate((element) => {
+      const path = element as SVGPathElement;
+      const start = path.getPointAtLength(0);
+      const box = path.getBBox();
+      return { zeroBaseline: start.y, lowestPoint: box.y + box.height };
+    });
+    expect(geometry.lowestPoint).toBeLessThanOrEqual(geometry.zeroBaseline + 0.01);
+  }
 });
