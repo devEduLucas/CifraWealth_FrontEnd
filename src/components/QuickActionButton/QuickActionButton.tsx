@@ -7,11 +7,12 @@ interface QuickActionButtonProps {
   iconClassName: string;
   to?: string;
   onClick?: () => void;
+  tone?: 'income' | 'expense';
 }
 
-export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick }: QuickActionButtonProps) {
+export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick, tone }: QuickActionButtonProps) {
   const className =
-    'group flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl border border-accent/25 bg-surface px-3 py-3 text-left text-sm font-semibold text-foreground transition-colors hover:border-accent hover:bg-accent/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
+    'finance-tint group flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold text-foreground transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
 
   const content = (
     <>
@@ -25,14 +26,14 @@ export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClic
 
   if (to) {
     return (
-      <Link to={to} className={className}>
+      <Link to={to} data-tone={tone} className={className}>
         {content}
       </Link>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button type="button" onClick={onClick} data-tone={tone} className={className}>
       {content}
     </button>
   );
