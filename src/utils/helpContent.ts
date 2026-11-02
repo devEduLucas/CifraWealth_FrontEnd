@@ -16,7 +16,7 @@ export const HELP_SECTIONS = [
     steps: [
       'Em “Nova Transação”, escolha receita ou despesa, informe valor, descrição, categoria e data.',
       'Registros confirmados até hoje entram no saldo. Pendentes aguardam sua confirmação; datas futuras aparecem como previstas.',
-      'Busque pela descrição ou categoria. Em “Filtros”, selecione período e situação e conclua em “Aplicar filtros”.',
+      'Na visão compacta, toque no lançamento para ver detalhes, editar, confirmar ou excluir. Use “Filtros” para escolher período e situação.',
     ],
     note: 'Os totais acompanham os filtros e incluem todas as páginas de resultados. Editar ou excluir um registro atualiza os resumos.',
     action: 'Nova transação', to: '/transactions?new=1',
@@ -25,9 +25,9 @@ export const HELP_SECTIONS = [
     id: 'categories', path: '/categories', label: 'Categorias',
     title: 'Organize seus registros por categoria',
     steps: [
-      'Você pode usar as categorias iniciais desde o primeiro registro, sem configurar nada antes.',
-      'Em “Análise”, consulte as categorias por valor ou quantidade. Use o seletor de despesas/receitas e escolha o período.',
-      'Em “Minhas categorias”, crie ou edite suas categorias. Uma categoria de receita é usada em receitas; uma de despesa, em despesas.',
+      'Em “Minhas categorias”, escolha Despesas ou Receitas para consultar, criar e editar suas categorias.',
+      'Use “Todas as categorias” para voltar e escolher o outro tipo.',
+      'Em “Análise”, compare receitas e despesas do mesmo período ou selecione um tipo para conferir seu ranking.',
     ],
     note: 'As análises consideram registros confirmados no período. Uma categoria sem uso não significa erro ou configuração incompleta.',
     action: 'Gerenciar categorias', to: '/categories?view=manage',

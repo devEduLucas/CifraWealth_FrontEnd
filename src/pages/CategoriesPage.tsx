@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ArrowUpRight,
-  Pencil,
-  Plus,
-  Search,
-  Tag,
-  Trash2,
-  X,
-} from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Plus, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import {
   api,
   ApiError,
@@ -21,41 +13,46 @@ import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { Button } from '../components/Button/Button';
-import { Input } from '../components/Input/Input';
-import { Select } from '../components/Select/Select';
 import { ConfirmDialog } from '../components/ConfirmDialog/ConfirmDialog';
 import { FinancialPrivacyButton } from '../components/FinancialPrivacyButton/FinancialPrivacyButton';
 import {
   CategoryFormModal,
   type CategoryFormValues,
 } from '../components/CategoryFormModal/CategoryFormModal';
-import { CategoryIcon } from '../components/CategoryIcon/CategoryIcon';
-import { CategoryUsageChart } from '../components/CategoryUsageChart/CategoryUsageChart';
 import { CategoryPeriodModal } from '../components/CategoryPeriodModal/CategoryPeriodModal';
 import { CategoryToolbar } from '../components/CategoryToolbar/CategoryToolbar';
+import { CategoryCollections } from '../components/CategoryCollections/CategoryCollections';
+import { CategoryManager } from '../components/CategoryManager/CategoryManager';
+import { CategoryAnalysis } from '../components/CategoryAnalysis/CategoryAnalysis';
 import {
   buildCategoryUsage,
-  categoryUsageSummary,
   orderCategoryUsage,
-  categoryTransactionsLink,
   type CategoryPeriod,
   type CategoryOrder,
   type CategoryMetric,
 } from '../utils/categoryUsage';
-import { categoryColor } from '../utils/categoryAppearance';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatDate } from '../utils/format';
 import { localDateOnly } from '../utils/reports';
 import { transactionDateRange } from '../utils/transactions';
 
 export function CategoriesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const view = searchParams.get('view') === 'manage' ? 'manage' : 'usage';
+  const view = searchParams.get('view') === 'usage' ? 'usage' : 'manage';
+  const selectedType = searchParams.get('tipo') === 'receita' ? 'receita' : searchParams.get('tipo') === 'despesa' ? 'despesa' : null;
+  const type: CategoryType = selectedType ?? 'despesa';
   function changeView(next: 'usage' | 'manage') {
-    setSearchParams((previous) => {
-      const updated = new URLSearchParams(previous);
-      updated.set('view', next);
-      return updated;
-    }, { replace: true });
+    const updated = new URLSearchParams(searchParams);
+    updated.set('view', next);
+    updated.delete('tipo');
+    setSearch('');
+    setSearchParams(updated);
+  }
+  function changeType(next: CategoryType | null) {
+    const updated = new URLSearchParams(searchParams);
+    if (next) updated.set('tipo', next);
+    else updated.delete('tipo');
+    setSearch('');
+    setSearchParams(updated);
   }
   const user = useSessionUser();
   const fullName = user
@@ -71,7 +68,6 @@ export function CategoriesPage() {
   const [categoriesAvailable, setCategoriesAvailable] = useState(false);
   const [usageAvailable, setUsageAvailable] = useState(false);
   const [notice, setNotice] = useState('');
-  const [type, setType] = useState<CategoryType>('despesa');
   const [metric, setMetric] = useState<CategoryMetric>('amount');
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState<CategoryOrder>('name');
@@ -127,13 +123,9 @@ export function CategoriesPage() {
     () => buildCategoryUsage(categories, transactions, period, today),
     [categories, transactions, period, today],
   );
-  const summary = useMemo(
-    () => categoryUsageSummary(usage, type),
-    [usage, type],
-  );
   const visibleCategories = useMemo(
     () =>
-      orderCategoryUsage(usage, type, usageAvailable ? order : 'name', search),
+      orderCategoryUsage(usage, type, 'name', search).sort((a, b) => usageAvailable && order === 'count' ? b.historyCount - a.historyCount || a.category.nome.localeCompare(b.category.nome, 'pt-BR') : 0),
     [usage, type, order, search, usageAvailable],
   );
   const usageById = new Map(
@@ -171,9 +163,11 @@ export function CategoriesPage() {
             )
           : [...old, result],
       );
-      setType(result.tipo);
+      const updated = new URLSearchParams(searchParams);
+      updated.set('view', 'manage');
+      updated.set('tipo', result.tipo);
+      setSearchParams(updated);
       setSearch('');
-      changeView('manage');
       setModalOpen(false);
       setNotice(
         editing
@@ -218,7 +212,6 @@ export function CategoriesPage() {
     <DashboardLayout userName={fullName}>
       <PageHeader
         title="Categorias"
-        subtitle="Entenda para onde vai seu dinheiro e organize cada tipo de movimentação."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <FinancialPrivacyButton />
@@ -234,13 +227,13 @@ export function CategoriesPage() {
       />
       <CategoryToolbar
         view={view}
-        type={type}
+        type={selectedType}
         periodLabel={periodLabel}
         currentMonth={period.start === today.slice(0, 7) + '-01' && period.end === today}
         periodOpen={periodOpen}
         disabled={loading || !categoriesAvailable}
         onViewChange={changeView}
-        onTypeChange={(next) => { setType(next); setSearch(''); }}
+        onTypeChange={changeType}
         onPeriodOpen={() => setPeriodOpen(true)}
       />
       {notice && (
@@ -274,256 +267,13 @@ export function CategoriesPage() {
           </button>
         </div>
       )}
-      {loading ? (
-        <p role="status" className="text-sm text-muted">
-          Carregando categorias...
-        </p>
-      ) : (
-        categoriesAvailable && (
-          <>
-            <p className="mt-3 text-xs leading-5 text-muted">
-              {periodLabel} · Somente transações confirmadas até hoje.
-              Pendências e datas futuras ficam fora dos indicadores.
-            </p>
-            {view === 'usage' && (usageError ? (
-              <div
-                role="alert"
-                className="mt-5 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-foreground"
-              >
-                <p>{usageError}</p>
-                <button
-                  type="button"
-                  onClick={loadData}
-                  className="mt-2 min-h-11 font-semibold text-accent-ink underline"
-                >
-                  Tentar novamente
-                </button>
-              </div>
-            ) : (
-              <>
-                <section
-                  aria-label="Resumo das categorias"
-                  className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3"
-                >
-                  <div className="col-span-2 flex min-w-0 flex-wrap items-baseline justify-between gap-2 rounded-2xl border border-line bg-surface p-4 sm:col-span-1 sm:block">
-                    <p className="text-xs text-muted">
-                      {type === 'despesa'
-                        ? 'Total em despesas'
-                        : 'Total em receitas'}
-                    </p>
-                    <p className="max-w-full break-words text-2xl font-bold tabular-nums text-foreground sm:mt-2">
-                      {valuesVisible
-                        ? formatCurrency(summary.amount)
-                        : 'R$ ••••••'}
-                    </p>
-                  </div>
-                  <div className="min-w-0 rounded-2xl border border-line bg-surface p-3 sm:p-4">
-                    <p className="text-xs text-muted">
-                      Lançamentos confirmados
-                    </p>
-                    <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
-                      {summary.count}
-                    </p>
-                  </div>
-                  <div className="min-w-0 rounded-2xl border border-line bg-surface p-3 sm:p-4">
-                    <p className="text-xs text-muted">
-                      Categorias usadas no período
-                    </p>
-                    <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
-                      {summary.used}
-                      <span className="ml-2 text-sm font-medium text-muted">
-                        de {summary.total}
-                      </span>
-                    </p>
-                  </div>
-                </section>
-                <CategoryUsageChart
-                  items={usage}
-                  type={type}
-                  metric={metric}
-                  period={period}
-                  valuesVisible={valuesVisible}
-                  onMetricChange={setMetric}
-                />
-              </>
-            ))}
-
-            {view === 'manage' && <section aria-labelledby="category-list-title" className="mt-5">
-              <div className="mb-4">
-                <h2
-                  id="category-list-title"
-                  className="text-lg font-bold text-foreground"
-                >
-                  Suas categorias de{' '}
-                  {type === 'despesa' ? 'despesa' : 'receita'}
-                </h2>
-                <p className="mt-1 text-xs leading-5 text-muted">
-                  As categorias iniciais estão prontas para usar. Personalize nome, ícone e cor quando quiser. Categorias com lançamentos conservam o tipo e não podem ser excluídas.
-                </p>
-              </div>
-              <div className="mb-4 grid gap-3 min-[600px]:grid-cols-[minmax(0,1fr)_minmax(12rem,0.6fr)]">
-                <Input
-                  label="Buscar categorias"
-                  icon={<Search size={18} />}
-                  placeholder="Nome da categoria"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-                <Select
-                  label="Ordenar categorias"
-                  value={usageAvailable ? order : 'name'}
-                  onChange={(event) =>
-                    setOrder(event.target.value as CategoryOrder)
-                  }
-                >
-                  <option value="name">Nome: A–Z</option>
-                  <option value="amount" disabled={!usageAvailable}>
-                    Maior valor
-                  </option>
-                  <option value="count" disabled={!usageAvailable}>
-                    Mais utilizadas
-                  </option>
-                </Select>
-              </div>
-              <p
-                role="status"
-                aria-live="polite"
-                className="mb-4 text-xs text-muted"
-              >
-                {visibleCategories.length}{' '}
-                {visibleCategories.length === 1
-                  ? 'categoria encontrada'
-                  : 'categorias encontradas'}
-                {search ? ' na busca' : ''}
-              </p>
-              {visibleCategories.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-line-strong bg-surface p-6 text-center">
-                  <Tag
-                    size={25}
-                    aria-hidden="true"
-                    className="mx-auto text-subtle"
-                  />
-                  <p className="mt-3 text-sm text-muted">
-                    {search
-                      ? 'Nenhuma categoria encontrada com esse nome.'
-                      : `Nenhuma categoria de ${type === 'despesa' ? 'despesa' : 'receita'} cadastrada ainda.`}
-                  </p>
-                  {search ? (
-                    <Button
-                      variant="ghost"
-                      onClick={() => setSearch('')}
-                      className="mt-3"
-                    >
-                      Limpar busca
-                    </Button>
-                  ) : (
-                    <Button onClick={() => openModal()} className="mt-4">
-                      Criar primeira categoria
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <ul
-                  aria-label="Lista de categorias"
-                  className="grid grid-cols-1 gap-3 lg:grid-cols-2"
-                >
-                  {visibleCategories.map(
-                    ({ category, amount, count, historyCount }) => (
-                      <li
-                        key={category.id_categoria}
-                        className="min-w-0 rounded-2xl border border-line bg-surface p-4 sm:p-5"
-                      >
-                        <div className="flex min-w-0 items-start gap-3">
-                          <CategoryIcon
-                            icon={category.icone}
-                            color={category.cor}
-                            type={category.tipo}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="break-words text-base font-semibold text-foreground">
-                              {category.nome}
-                            </p>
-                            <p className="mt-1 inline-flex items-center gap-2 text-xs text-muted">
-                              <span
-                                aria-hidden="true"
-                                className="h-2.5 w-2.5 rounded-full"
-                                style={{
-                                  backgroundColor: categoryColor(
-                                    category.cor,
-                                    type,
-                                  ),
-                                }}
-                              />
-                              {type === 'receita' ? 'Receita' : 'Despesa'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <p className="break-words text-xl font-bold tabular-nums text-foreground">
-                            {!usageAvailable
-                              ? 'Uso indisponível'
-                              : valuesVisible
-                                ? formatCurrency(amount)
-                                : 'R$ ••••••'}
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-muted">
-                            {!usageAvailable
-                              ? 'Tente carregar novamente para consultar os indicadores.'
-                              : count
-                                ? `${count} ${count === 1 ? 'lançamento confirmado' : 'lançamentos confirmados'} no período`
-                                : 'Sem uso neste período'}
-                          </p>
-                          {usageAvailable &&
-                            count === 0 &&
-                            historyCount > 0 && (
-                              <p className="mt-1 text-xs leading-5 text-muted">
-                                Possui lançamentos fora do período ou não
-                                confirmados.
-                              </p>
-                            )}
-                        </div>
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-                          <Link
-                            to={categoryTransactionsLink(category, period)}
-                            aria-label={`Ver transações de ${category.nome} no período selecionado`}
-                            className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-accent-ink hover:underline"
-                          >
-                            Ver transações
-                            <ArrowUpRight size={16} aria-hidden="true" />
-                          </Link>
-                          <div className="flex gap-1">
-                            <button
-                              type="button"
-                              aria-label={`Editar categoria ${category.nome}`}
-                              title={`Editar ${category.nome}`}
-                              onClick={() => openModal(category)}
-                              className="flex h-11 w-11 items-center justify-center rounded-xl text-accent-ink hover:bg-elevated"
-                            >
-                              <Pencil size={17} aria-hidden="true" />
-                            </button>
-                            <button
-                              type="button"
-                              aria-label={`Excluir categoria ${category.nome}`}
-                              title={`Excluir ${category.nome}`}
-                              onClick={() => {
-                                setDeleteError(null);
-                                setDeleting(category);
-                              }}
-                              className="flex h-11 w-11 items-center justify-center rounded-xl text-muted hover:bg-danger/10 hover:text-danger"
-                            >
-                              <Trash2 size={17} aria-hidden="true" />
-                            </button>
-                          </div>
-                        </div>
-                      </li>
-                    ),
-                  )}
-                </ul>
-              )}
-            </section>}
-          </>
-        )
-      )}
+      {loading ? <p role="status" className="text-sm text-muted">Carregando categorias...</p> : categoriesAvailable && <>
+        {view === 'manage' ? selectedType ? <CategoryManager
+          type={selectedType} items={visibleCategories} search={search} order={order} usageAvailable={usageAvailable}
+          onSearch={setSearch} onOrder={setOrder} onBack={() => changeType(null)}
+          onEdit={openModal} onDelete={(category) => { setDeleteError(null); setDeleting(category); }}
+        /> : <CategoryCollections categories={categories} onSelect={changeType} /> : usageError ? <div role="alert" className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-foreground"><p>{usageError}</p><button type="button" onClick={loadData} className="mt-2 min-h-11 font-semibold text-accent-ink underline">Tentar novamente</button></div> : <CategoryAnalysis items={usage} type={selectedType} metric={metric} period={period} periodLabel={periodLabel} valuesVisible={valuesVisible} onMetricChange={setMetric} />}
+      </>}
       {periodOpen && (
         <CategoryPeriodModal
           period={period}

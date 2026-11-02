@@ -148,8 +148,8 @@ export function DashboardPage() {
         ) : <>
           {available.balance ? <BalanceCard total={saldo} valuesVisible={valuesVisible} /> : <p className="text-sm text-muted">Saldo indisponível no momento.</p>}
           <section aria-label="Registrar movimentação" className="mt-3 grid grid-cols-2 gap-3">
-            <QuickActionButton label="Registrar receita" icon={Plus} iconClassName="bg-positive/10 text-positive" to="/transactions?new=1&tipo=receita" />
-            <QuickActionButton label="Registrar despesa" icon={Minus} iconClassName="bg-danger/15 text-danger" to="/transactions?new=1&tipo=despesa" />
+            <QuickActionButton tone="income" label="Registrar receita" icon={Plus} iconClassName="bg-positive/10 text-positive" to="/transactions?new=1&tipo=receita" />
+            <QuickActionButton tone="expense" label="Registrar despesa" icon={Minus} iconClassName="bg-danger/15 text-danger" to="/transactions?new=1&tipo=despesa" />
           </section>
           {available.monthly && <section aria-labelledby="month-summary-title" className="mt-6">
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-1">
@@ -157,9 +157,9 @@ export function DashboardPage() {
               <p className="text-xs text-muted">Registros confirmados até hoje</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <SummaryCard compact label="Receitas" value={valuesVisible ? formatCurrency(receitasMes) : 'R$ ••••••'} icon={TrendingUp} iconClassName="bg-positive/10 text-positive" footnote="Entradas do mês" footnoteClassName="text-muted" />
-              <SummaryCard compact label="Despesas" value={valuesVisible ? formatCurrency(despesasMes) : 'R$ ••••••'} icon={TrendingDown} iconClassName="bg-danger/15 text-danger" footnote={valuesVisible && comparison ? comparison.text : 'Saídas do mês'} footnoteClassName={valuesVisible && comparison ? comparison.tone : 'text-muted'} />
-              <div className="col-span-2 sm:col-span-1"><SummaryCard compact label="Resultado do mês" value={valuesVisible ? formatCurrency(resultadoMes) : 'R$ ••••••'} icon={Clock} iconClassName="bg-info/15 text-info" footnote="Receitas menos despesas deste mês" footnoteClassName="text-muted" /></div>
+              <SummaryCard compact tone="income" label="Receitas" value={valuesVisible ? formatCurrency(receitasMes) : 'R$ ••••••'} icon={TrendingUp} iconClassName="bg-positive/10 text-positive" footnote="Entradas do mês" footnoteClassName="text-muted" />
+              <SummaryCard compact tone="expense" label="Despesas" value={valuesVisible ? formatCurrency(despesasMes) : 'R$ ••••••'} icon={TrendingDown} iconClassName="bg-danger/15 text-danger" footnote={valuesVisible && comparison ? comparison.text : 'Saídas do mês'} footnoteClassName={valuesVisible && comparison ? comparison.tone : 'text-muted'} />
+              <div className="col-span-2 sm:col-span-1"><SummaryCard compact tone="balance" label="Resultado do mês" value={valuesVisible ? formatCurrency(resultadoMes) : 'R$ ••••••'} icon={Clock} iconClassName="bg-info/15 text-info" footnote="Receitas menos despesas deste mês" footnoteClassName="text-muted" /></div>
             </div>
           </section>}
           <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-2">
