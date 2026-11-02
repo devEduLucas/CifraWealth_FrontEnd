@@ -119,13 +119,14 @@ test('perfil apresenta finanças reais, abre relatório do mês e salva capa pro
   await page.goto('/profile');
   const overview = page.getByRole('region', { name: 'Seu momento financeiro' });
   await expect(
-    overview.getByText('Receitas do mês', { exact: true }),
+    overview.getByText('Receitas', { exact: true }),
   ).toBeVisible();
   await expect(overview).toContainText('1.234,56');
   await expect(overview).toContainText('234,56');
   await expect(overview).toContainText('1.000,00');
   const goalsLink = overview.getByRole('link', { name: /1 meta em andamento/ });
-  await expect(goalsLink).toContainText('200,00 guardados');
+  await expect(goalsLink).toContainText('200,00');
+  await expect(goalsLink).toContainText('Guardado nas metas');
   await expect(goalsLink).toHaveAttribute('href', '/goals');
   await page.getByRole('navigation', { name: 'Seções do perfil' }).getByRole('link', { name: 'Aparência', exact: true }).click();
   await expect(page.locator('#profile-appearance')).toBeInViewport();
@@ -327,7 +328,7 @@ test('perfil mostra primeiro uso e permite tentar novamente quando só o resumo 
     .getByRole('button', { name: 'Tentar novamente', exact: true })
     .click();
   await expect(
-    overview.getByText('Seu próximo passo começa aqui:', { exact: false }),
+    overview.getByRole('link', { name: 'Registrar primeira movimentação', exact: true }),
   ).toBeVisible();
   await expect(overview.getByRole('alert')).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 568 });
