@@ -6,6 +6,8 @@ import {
   ArrowRightLeft,
   CalendarDays,
   Inbox,
+  LayoutGrid,
+  List,
   Plus,
   Search,
   SlidersHorizontal,
@@ -337,7 +339,6 @@ export function TransactionsPage() {
     <DashboardLayout userName={fullName}>
       <PageHeader
         title="Transações"
-        subtitle="Registre, encontre e acompanhe suas movimentações."
         action={
           <div className="flex flex-wrap items-center gap-2">
             <FinancialPrivacyButton />
@@ -390,6 +391,7 @@ export function TransactionsPage() {
                 icon: ArrowDownLeft,
                 tone: 'text-positive',
                 background: 'bg-positive/10',
+                panelTone: 'income',
               },
               {
                 label: 'Despesas confirmadas',
@@ -397,6 +399,7 @@ export function TransactionsPage() {
                 icon: ArrowUpRight,
                 tone: 'text-danger',
                 background: 'bg-danger/10',
+                panelTone: 'expense',
               },
               {
                 label: 'Resultado confirmado',
@@ -404,11 +407,13 @@ export function TransactionsPage() {
                 icon: ArrowRightLeft,
                 tone: summary.result < 0 ? 'text-danger' : 'text-foreground',
                 background: 'bg-accent/10',
+                panelTone: 'balance',
               },
-            ].map(({ label, amount, icon: Icon, tone, background }) => (
+            ].map(({ label, amount, icon: Icon, tone, background, panelTone }) => (
               <div
                 key={label}
-                className="min-w-0 rounded-2xl border border-line bg-surface p-2.5 sm:p-4"
+                data-tone={panelTone}
+                className="finance-tint min-w-0 rounded-2xl p-2.5 sm:p-4"
               >
                 <div className="flex items-center gap-2">
                   <span
@@ -519,8 +524,8 @@ export function TransactionsPage() {
         aria-labelledby="transaction-list-title"
         className="min-w-0 scroll-mt-28"
       >
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
+        <div className="mb-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full min-w-0 sm:w-auto sm:flex-1">
             <h2
               id="transaction-list-title"
               className="text-lg font-bold text-foreground"
@@ -539,9 +544,9 @@ export function TransactionsPage() {
                   : 'Não foi possível carregar o histórico.'}
             </p>
           </div>
-          {hasLoaded && filtered.length > 0 && <div role="group" aria-label="Densidade da lista" className="inline-flex rounded-xl border border-line bg-surface p-1">
-            <button type="button" aria-pressed={compact} onClick={() => changeDensity(true)} className={'min-h-11 rounded-lg px-3 text-xs font-semibold ' + (compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}>Compacta</button>
-            <button type="button" aria-pressed={!compact} onClick={() => changeDensity(false)} className={'min-h-11 rounded-lg px-3 text-xs font-semibold ' + (!compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}>Detalhada</button>
+          {hasLoaded && filtered.length > 0 && <div role="group" aria-label="Densidade da lista" className="inline-flex w-full shrink-0 rounded-xl border border-line bg-surface p-1 sm:w-auto">
+            <button type="button" aria-pressed={compact} onClick={() => changeDensity(true)} className={'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold sm:flex-none ' + (compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}><List size={16} aria-hidden="true" />Compacta</button>
+            <button type="button" aria-pressed={!compact} onClick={() => changeDensity(false)} className={'inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold sm:flex-none ' + (!compact ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated')}><LayoutGrid size={16} aria-hidden="true" />Detalhada</button>
           </div>}
         </div>
         <p className="sr-only mb-3 items-center gap-1.5 text-xs text-muted sm:not-sr-only sm:inline-flex">
@@ -596,6 +601,7 @@ export function TransactionsPage() {
                 today={today}
                 valuesVisible={valuesVisible}
                 compact={compact}
+                error={pageError}
                 busyId={busyId}
                 onEdit={openModal}
                 onDelete={(item) => {

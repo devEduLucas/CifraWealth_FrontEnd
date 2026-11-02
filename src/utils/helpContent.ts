@@ -16,7 +16,7 @@ export const HELP_SECTIONS = [
     steps: [
       'Em “Nova Transação”, escolha receita ou despesa, informe valor, descrição, categoria e data.',
       'Registros confirmados até hoje entram no saldo. Pendentes aguardam sua confirmação; datas futuras aparecem como previstas.',
-      'Busque pela descrição ou categoria. Em “Filtros”, selecione período e situação e conclua em “Aplicar filtros”.',
+      'Na visão compacta, toque no lançamento para ver detalhes, editar, confirmar ou excluir. Use “Filtros” para escolher período e situação.',
     ],
     note: 'Os totais acompanham os filtros e incluem todas as páginas de resultados. Editar ou excluir um registro atualiza os resumos.',
     action: 'Nova transação', to: '/transactions?new=1',

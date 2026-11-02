@@ -38,7 +38,7 @@ test.afterAll(async () => {
   } } finally { await prisma.$disconnect(); }
 });
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript((saved) => { localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user)); },auth);
+  await page.addInitScript((saved) => { localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));localStorage.setItem('cifrawealth:transaction-density','detailed'); },auth);
 });
 
 test('dinheiro, edição, previsão, confirmação, busca e exclusão protegida', async ({ page, request }) => {

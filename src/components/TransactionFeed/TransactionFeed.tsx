@@ -9,7 +9,8 @@ import {
   Tag,
   Trash2,
 } from 'lucide-react';
-import type { CategoryResponse, TransactionResponse } from '../../lib/api';
+import type { TransactionFeedProps } from './TransactionFeed.types';
+import { CompactTransactionFeed } from './CompactTransactionFeed';
 import { formatCurrency } from '../../utils/format';
 import {
   transactionDayLabel,
@@ -23,25 +24,17 @@ export function TransactionFeed({
   today,
   valuesVisible,
   compact = true,
+  error = null,
   busyId,
   onEdit,
   onDelete,
   onConfirm,
-}: {
-  transactions: TransactionResponse[];
-  categories: CategoryResponse[];
-  today: string;
-  valuesVisible: boolean;
-  compact?: boolean;
-  busyId: number | null;
-  onEdit: (item: TransactionResponse) => void;
-  onDelete: (item: TransactionResponse) => void;
-  onConfirm: (item: TransactionResponse) => void;
-}) {
+}: TransactionFeedProps) {
+  if (compact) return <CompactTransactionFeed transactions={transactions} categories={categories} today={today} valuesVisible={valuesVisible} error={error} busyId={busyId} onEdit={onEdit} onDelete={onDelete} onConfirm={onConfirm} />;
   const names = new Map(
     categories.map((category) => [category.id_categoria, category.nome]),
   );
-  const days = new Map<string, TransactionResponse[]>();
+  const days = new Map<string, typeof transactions>();
   for (const item of transactions) {
     const group = days.get(item.data_transacao) ?? [];
     group.push(item);
@@ -49,7 +42,7 @@ export function TransactionFeed({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="detailed-transaction-feed">
       {[...days].map(([date, items]) => (
         <section key={date} aria-label={transactionDayLabel(date, today)}>
           <div className="mb-3 flex items-center gap-3">
@@ -72,18 +65,18 @@ export function TransactionFeed({
               return (
                 <li
                   key={item.id_transacao}
-                  className={`transaction-entry min-w-0 rounded-2xl border border-l-4 ${compact ? 'px-3 py-2.5 sm:px-4' : 'p-4 sm:px-5'} ${income ? 'border-positive/20 border-l-positive bg-positive/5' : 'border-danger/20 border-l-danger bg-danger/5'}`}
+                  className={`transaction-entry min-w-0 rounded-2xl border border-l-4 p-4 sm:px-5 ${income ? 'border-positive/20 border-l-positive bg-positive/5' : 'border-danger/20 border-l-danger bg-danger/5'}`}
                 >
-                  <div className={`grid min-w-0 md:grid-cols-[minmax(0,1fr)_auto] md:items-center ${compact ? 'gap-1' : 'gap-3'}`}>
+                  <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                     <div className="flex min-w-0 items-start gap-3">
                       <span
                         aria-hidden="true"
-                        className={`mt-0.5 shrink-0 items-center justify-center rounded-xl ${compact ? 'hidden h-8 w-8 sm:flex' : 'flex h-10 w-10'} ${income ? 'bg-positive/15 text-positive' : 'bg-danger/10 text-danger'}`}
+                        className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${income ? 'bg-positive/15 text-positive' : 'bg-danger/10 text-danger'}`}
                       >
                         <TypeIcon size={21} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className={compact ? 'flex flex-wrap items-baseline justify-between gap-x-4' : ''}>
+                        <div>
                         <p className="break-words text-sm font-semibold leading-6 text-foreground sm:text-base">
                           {item.descricao}
                         </p>
@@ -91,14 +84,14 @@ export function TransactionFeed({
                           aria-label={
                             valuesVisible ? undefined : 'Valor oculto'
                           }
-                          className={`break-words font-bold tabular-nums tracking-tight ${compact ? 'text-base sm:text-lg' : 'mt-0.5 text-xl'} ${!valuesVisible ? 'text-muted' : income ? 'text-positive' : 'text-danger'}`}
+                          className={`mt-0.5 break-words text-xl font-bold tabular-nums tracking-tight ${!valuesVisible ? 'text-muted' : income ? 'text-positive' : 'text-danger'}`}
                         >
                           {valuesVisible
                             ? `${income ? '+' : '−'}${formatCurrency(item.valor)}`
                             : 'R$ ••••••'}
                         </p>
                         </div>
-                        <div className={`flex flex-wrap items-center gap-x-3 text-xs leading-5 ${compact ? 'mt-1 gap-y-1' : 'mt-2 gap-y-2'}`}>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-5">
                           <span
                             className={`font-semibold ${income ? 'text-positive' : 'text-danger'}`}
                           >
@@ -125,7 +118,7 @@ export function TransactionFeed({
                                 : 'Confirmada'}
                           </span>
                         </div>
-                        {!compact && status !== 'confirmada' && (
+                        {status !== 'confirmada' && (
                           <p className="mt-2 text-xs leading-5 text-muted">
                             {status === 'prevista'
                               ? 'Fora do saldo atual até a data e a confirmação.'
@@ -134,7 +127,7 @@ export function TransactionFeed({
                         )}
                       </div>
                     </div>
-                    <div className={`flex flex-wrap items-center justify-end gap-1 ${compact ? '' : 'border-t border-line/60 pt-2 md:border-0 md:pt-0'}`}>
+                    <div className="flex flex-wrap items-center justify-end gap-1 border-t border-line/60 pt-2 md:border-0 md:pt-0">
                       {item.status === 'pendente' && status !== 'prevista' && (
                         <Button
                           variant="secondary"

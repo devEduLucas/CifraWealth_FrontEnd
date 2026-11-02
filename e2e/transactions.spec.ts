@@ -108,6 +108,7 @@ test.beforeEach(async ({ page }) => {
     if (!sessionStorage.getItem('transactions-fixture')) {
       localStorage.setItem('cifrawealth:token', saved.token);
       localStorage.setItem('cifrawealth:user', JSON.stringify(saved.user));
+      localStorage.setItem('cifrawealth:transaction-density', 'detailed');
       sessionStorage.setItem('transactions-fixture', 'true');
     }
   }, auth);
