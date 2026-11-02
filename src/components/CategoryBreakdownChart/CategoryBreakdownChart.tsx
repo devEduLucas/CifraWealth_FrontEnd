@@ -23,14 +23,13 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
   });
 
   return (
-    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <section aria-label="Despesas por Categoria" className="flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <h2 className="text-base font-semibold text-foreground">Despesas por Categoria</h2>
-      <p className="mt-0.5 text-xs text-muted">Distribuição do período</p>
 
       {hasData ? (
-        <div className="mt-5 flex flex-col items-center gap-6 sm:flex-row">
+        <div className="mt-5 flex flex-1 flex-col items-center justify-center gap-5">
           <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
-            <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
+            <svg aria-hidden="true" width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
               <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" stroke="var(--chart-grid)" strokeWidth={STROKE} />
               {segments.map((segment) => (
                 <circle
@@ -52,27 +51,24 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
             </div>
           </div>
 
-          <ul className="flex flex-1 flex-col gap-2.5 self-stretch">
+          <ul className="flex min-w-0 flex-col gap-3 self-stretch">
             {data.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 text-sm">
-                <span className="flex items-center gap-2 text-secondary">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.cor }} />
-                  {item.nome} · {formatCurrency(item.total)}
+              <li key={item.id} className="flex min-w-0 items-start justify-between gap-3 text-sm">
+                <span className="flex min-w-0 items-start gap-2 text-secondary">
+                  <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.cor }} />
+                  <span className="min-w-0"><span className="block break-words font-medium">{item.nome}</span><span className="mt-0.5 block font-semibold tabular-nums text-foreground">{formatCurrency(item.total)}</span></span>
                 </span>
-                <span className="font-semibold text-foreground">{item.percentual.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
+                <span className="shrink-0 font-semibold tabular-nums text-foreground">{item.percentual.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</span>
               </li>
             ))}
           </ul>
         </div>
       ) : (
-        <div className="mt-6 flex flex-col items-center gap-2 py-8 text-center">
-          <span className="h-16 w-16 rounded-full border-2 border-dashed border-line-strong" />
+        <div className="mt-6 flex min-h-48 flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
+          <span aria-hidden="true" className="h-16 w-16 rounded-full border-2 border-dashed border-danger/40 bg-danger/10" />
           <p className="mt-2 text-sm font-medium text-secondary">Nenhuma despesa confirmada neste período.</p>
-          <p className="text-xs text-subtle">
-            Registre uma despesa ou selecione outras datas para ver a distribuição.
-          </p>
         </div>
       )}
-    </div>
+    </section>
   );
 }

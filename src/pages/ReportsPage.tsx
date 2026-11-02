@@ -4,7 +4,7 @@ import { api, ApiError } from '../lib/api';
 import { useSessionUser } from '../hooks/useSessionUser';
 import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
 import { FinancialPrivacyButton } from '../components/FinancialPrivacyButton/FinancialPrivacyButton';
-import { EyeOff } from 'lucide-react';
+import { ArrowRight, EyeOff, ListFilter } from 'lucide-react';
 import { isDemoMode } from '../lib/config';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { ReportPeriodFilter } from '../components/ReportPeriodFilter/ReportPeriodFilter';
@@ -99,7 +99,7 @@ export function ReportsPage() {
   return (
     <DashboardLayout userName={fullName}>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><h1 className="text-2xl font-bold text-foreground">Relatórios</h1><p className="mt-1 text-sm text-muted">Acompanhe receitas, despesas e saldo a partir das suas transações confirmadas.</p></div>
+        <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
         <div className="flex flex-wrap items-center gap-3"><FinancialPrivacyButton /><ReportPeriodFilter value={period} onChange={changePeriod} disabled={exporting} /><ReportExportButton onExport={report && !loading && !error ? exportPdf : undefined} onExportCsv={report && !loading && !error ? () => downloadReport(report) : undefined} exporting={exporting} /></div>
       </div>
       {!valuesVisible && <p className="mt-3 text-xs leading-5 text-muted">Valores ocultos nesta tela. Os arquivos PDF e CSV incluem os valores completos.</p>}
@@ -111,7 +111,7 @@ export function ReportsPage() {
           {filterError && <p role="alert" className="w-full text-sm text-danger">{filterError}</p>}
         </form>
       )}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted">Período aplicado: {label} · Comparação com o período anterior de mesma duração.</p><button type="button" disabled={loading || exporting} onClick={() => setRetry((value) => value + 1)} className="text-sm font-semibold text-accent-ink disabled:opacity-40">Atualizar relatório</button></div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-muted" title="Comparação com o período anterior de mesma duração.">Período aplicado: {label}</p><button type="button" disabled={loading || exporting} onClick={() => setRetry((value) => value + 1)} className="min-h-11 text-sm font-semibold text-accent-ink disabled:opacity-40">Atualizar relatório</button></div>
       {exporting && <p role="status" className="mt-4 text-sm text-muted">Preparando o PDF completo de {label}...</p>}
       {exportError && <p role="alert" className="mt-4 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm text-danger">{exportError}</p>}
       {loading && <p role="status" className="mt-8 text-sm text-muted">Carregando relatório...</p>}
@@ -122,13 +122,22 @@ export function ReportsPage() {
             <button key={item.value} type="button" aria-pressed={view === item.value} onClick={() => setView(item.value)} className={`min-h-11 rounded-lg px-4 text-sm font-semibold ${view === item.value ? 'bg-accent/10 text-accent-ink' : 'text-muted hover:bg-elevated'}`}>{item.label}</button>
           ))}
         </div>
-        {report.transactions.length === 0 && <div className="mt-6 rounded-xl border border-line p-4 text-sm text-muted">Nenhuma transação confirmada neste período. <Link to="/transactions" className="font-semibold text-accent-ink">Registrar transação</Link> ou selecione outras datas.</div>}
+        {report.transactions.length === 0 && <div data-tone="balance" className="finance-tint mt-6 rounded-xl p-4 text-sm text-secondary">Nenhuma transação confirmada neste período. <Link to="/transactions?new=1" className="font-semibold text-accent-ink hover:underline">Registrar transação</Link> ou selecione outras datas.</div>}
         <div className="mt-6"><ReportSummaryCards summary={report.summary} valuesVisible={valuesVisible} /></div>
         {view === 'overview' ? <>
-          <div className="mt-6 grid grid-cols-1 items-start gap-4 xl:grid-cols-[1.4fr_1fr]">{valuesVisible ? <><FinancialEvolutionChart data={report.evolution} periodLabel={label} /><CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} /></> : <><HiddenReportPanel title="Receitas, despesas e saldo" /><HiddenReportPanel title="Despesas por Categoria" /></>}</div>
-          <button type="button" onClick={() => setView('details')} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink underline">Ver histórico e transações detalhadas</button>
+          <div data-testid="report-overview-grid" className="mt-6 grid min-w-0 grid-cols-1 items-stretch gap-4 xl:grid-cols-[1.4fr_1fr]">
+            {valuesVisible ? <>
+              <FinancialEvolutionChart data={report.evolution} periodLabel={label} />
+              <CategoryBreakdownChart data={report.categoryBreakdown} total={report.summary.despesas} />
+              <ReportInsightsPanel insights={report.insights} compact className="xl:col-start-2 xl:row-start-2" />
+            </> : <><HiddenReportPanel title="Receitas, despesas e saldo" /><HiddenReportPanel title="Despesas por Categoria" /></>}
+            <button type="button" data-tone="balance" onClick={() => setView('details')} className={'finance-tint group flex min-h-24 min-w-0 items-center gap-3 rounded-2xl p-5 text-left transition-shadow sm:p-6 xl:col-start-1 xl:row-start-2 ' + (!valuesVisible ? 'xl:col-span-2' : '')}>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent-ink"><ListFilter size={22} aria-hidden="true" /></span>
+              <span className="min-w-0 flex-1 text-sm font-semibold text-accent-ink sm:text-base">Ver histórico e transações detalhadas</span>
+              <ArrowRight size={20} aria-hidden="true" className="shrink-0 text-accent-ink" />
+            </button>
+          </div>
         </> : <>
-          <p className="mt-4 text-sm text-muted">Consulte os lançamentos e compare os meses do período. O PDF inclui todas as análises, independentemente da visualização aberta.</p>
           <div id="transacoes-detalhadas" className="mt-5 min-w-0"><ReportTransactionsTable key={report.dataInicio + report.dataFim} items={report.transactions} valuesVisible={valuesVisible} /></div>
           <div className="mt-6"><ReportsHistoryTable items={report.history} onView={viewMonth} valuesVisible={valuesVisible} /></div>
           <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">{valuesVisible ? <><MonthlyComparisonChart data={report.monthlyComparison} /><ReportInsightsPanel insights={report.insights} /></> : <><HiddenReportPanel title="Comparativo Mensal" /><HiddenReportPanel title="Insights Financeiros" /></>}</div>
