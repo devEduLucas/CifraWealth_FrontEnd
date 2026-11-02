@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { ArrowUpRight, BarChart3, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CategoryType } from '../../lib/api';
@@ -27,30 +28,27 @@ export function CategoryUsageChart({
   valuesVisible: boolean;
   onMetricChange: (metric: CategoryMetric) => void;
 }) {
+  const titleId = useId();
   const ranking = rankCategoryUsage(items, type, metric);
   return (
     <section
-      aria-labelledby="category-ranking-title"
+      aria-labelledby={titleId}
       className="mt-5 rounded-2xl border border-line bg-surface p-4 sm:p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2
-            id="category-ranking-title"
+            id={titleId}
             className="text-lg font-bold text-foreground"
           >
             {metric === 'count'
-              ? 'Categorias mais usadas'
+              ? type === 'despesa' ? 'Despesas mais frequentes' : 'Receitas mais frequentes'
               : type === 'despesa'
                 ? 'Onde você mais gastou'
                 : 'De onde vieram suas receitas'}
           </h2>
           <p className="mt-1 text-xs leading-5 text-muted">
-            As cinco principais ·{' '}
-            {metric === 'amount'
-              ? 'participação no valor total'
-              : 'participação na quantidade de lançamentos'}{' '}
-            do período.
+            Top 5 {type === 'despesa' ? 'despesas' : 'receitas'}
           </p>
         </div>
         <div
@@ -82,9 +80,6 @@ export function CategoryUsageChart({
           <p className="text-sm font-semibold text-foreground">
             Valores e gráfico ocultos
           </p>
-          <p className="text-xs leading-5 text-muted">
-            Use “Mostrar valores” para consultar a distribuição das categorias.
-          </p>
         </div>
       ) : ranking.length === 0 ? (
         <div className="flex min-h-48 flex-col items-center justify-center gap-3 py-8 text-center">
@@ -94,10 +89,7 @@ export function CategoryUsageChart({
               ? 'Nenhuma despesa confirmada neste período.'
               : 'Nenhuma receita confirmada neste período.'}
           </p>
-          <p className="max-w-md text-xs leading-5 text-muted">
-            Suas categorias estão prontas para usar em “Minhas categorias”.
-            Registre uma transação ou selecione outro período para ver o gráfico.
-          </p>
+          <Link to={'/transactions?new=1&tipo=' + type} className="inline-flex min-h-11 items-center text-sm font-semibold text-accent-ink hover:underline">Registrar {type === 'despesa' ? 'despesa' : 'receita'}</Link>
         </div>
       ) : (
         <div className="mt-5 space-y-2" data-testid="category-ranking">
@@ -162,12 +154,6 @@ export function CategoryUsageChart({
           ))}
         </div>
       )}
-      <p className="mt-4 border-t border-line pt-4 text-xs leading-5 text-muted">
-        Toque em uma categoria para conferir as transações que compõem esse
-        resultado. Os percentuais consideram todas as categorias de{' '}
-        {type === 'despesa' ? 'despesa' : 'receita'}, incluindo as que estão
-        fora das cinco principais.
-      </p>
     </section>
   );
 }

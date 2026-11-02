@@ -132,7 +132,7 @@ test.afterAll(async () => {
 test('ranking por valor e frequência distingue categorias, preserva as sem uso e respeita a privacidade', async ({
   page,
 }, testInfo) => {
-  await page.goto('/categories');
+  await page.goto('/categories?view=usage&tipo=despesa');
   const summary = page.getByRole('region', { name: 'Resumo das categorias' });
   const ranking = page.getByTestId('category-ranking');
   await expect(summary).toContainText('1.130,00');
@@ -143,14 +143,15 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
   await expect(ranking.getByRole('link').first()).toContainText('Alimentação');
   await expect(ranking.getByRole('link').first()).toContainText('3 lançamentos');
   await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
+  await page.getByRole('button', { name: 'Ver categorias de despesas', exact: true }).click();
   const list = page.getByRole('list', { name: 'Lista de categorias' });
   await expect(list.getByRole('listitem')).toHaveCount(8);
   await expect(
     list.getByRole('listitem').filter({ hasText: 'Sem movimento' }),
-  ).toContainText('Sem uso neste período');
+  ).toContainText('0 lançamentos');
   await expect(
     list.getByRole('listitem').filter({ hasText: 'Somente pendentes' }),
-  ).toContainText('não confirmados');
+  ).toContainText('1 lançamento');
   await page.getByLabel('Ordenar categorias').selectOption('count');
   await expect(list.getByRole('listitem').first()).toContainText('Alimentação');
   await page.getByLabel('Buscar categorias').fill('alimentacao');
@@ -158,6 +159,7 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
   await page.getByRole('button', { name: 'Análise', exact: true }).click();
   await expect(summary).toContainText('1.130,00');
   await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
+  await page.getByRole('button', { name: 'Ver categorias de despesas', exact: true }).click();
   await page.getByLabel('Buscar categorias').fill('');
   await page.screenshot({
     path: testInfo.outputPath('categorias-escuro.png'),
@@ -168,7 +170,8 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
     path: testInfo.outputPath('categorias-claro.png'),
     fullPage: true,
   });
-  await page.getByLabel('Tipo das categorias', { exact: true }).selectOption('receita');
+  await page.getByRole('button', { name: 'Todas as categorias', exact: true }).click();
+  await page.getByRole('button', { name: 'Ver categorias de receitas', exact: true }).click();
   await expect(list.getByRole('listitem')).toHaveCount(1);
   await page.getByRole('button', { name: 'Análise', exact: true }).click();
   await expect(summary).toContainText('2.000,00');
@@ -182,14 +185,14 @@ test('ranking por valor e frequência distingue categorias, preserva as sem uso 
     page.getByRole('button', { name: 'Mostrar valores', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText('Valores e gráfico ocultos', { exact: true }),
+    page.getByText('Valores e gráfico ocultos', { exact: true }).first(),
   ).toBeVisible();
 });
 
 test('período cancela rascunho, valida datas e abre transações da categoria com filtros persistentes', async ({
   page,
 }) => {
-  await page.goto('/categories');
+  await page.goto('/categories?view=usage&tipo=despesa');
   const opener = page.getByRole('button', {
     name: 'Alterar período das categorias',
     exact: true,
@@ -310,7 +313,7 @@ test('personaliza ícone e cor, persiste na API e protege categorias vinculadas'
   await dialog.getByLabel('Tipo', { exact: true }).selectOption('receita');
   await dialog.getByRole('button', { name: 'Salvar', exact: true }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByLabel('Tipo das categorias', { exact: true })).toHaveValue('receita');
+  await expect(page.getByRole('heading', { name: 'Categorias de receita', exact: true })).toBeVisible();
   await row
     .getByRole('button', {
       name: 'Excluir categoria Viagem personalizada',
@@ -322,7 +325,8 @@ test('personaliza ícone e cor, persiste na API e protege categorias vinculadas'
     .getByRole('button', { name: 'Confirmar exclusão', exact: true })
     .click();
   await expect(row).toHaveCount(0);
-  await page.getByLabel('Tipo das categorias', { exact: true }).selectOption('despesa');
+  await page.getByRole('button', { name: 'Todas as categorias', exact: true }).click();
+  await page.getByRole('button', { name: 'Ver categorias de despesas', exact: true }).click();
   row = page
     .getByRole('list', { name: 'Lista de categorias' })
     .getByRole('listitem')
@@ -353,7 +357,7 @@ test('falha parcial preserva gerenciamento e textos extremos cabem em 320px com 
       body: JSON.stringify({ message: 'Falha temporária de uso.' }),
     }),
   );
-  await page.goto('/categories');
+  await page.goto('/categories?view=usage&tipo=despesa');
   await expect(page.getByRole('alert')).toContainText(
     'Você ainda pode gerenciar',
   );
@@ -387,11 +391,13 @@ test('falha parcial preserva gerenciamento e textos extremos cabem em 320px com 
   await page.getByRole('button', { name: /^Alto contraste/ }).click();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Minhas categorias', exact: true }).click();
+  await page.getByRole('button', { name: 'Ver categorias de despesas', exact: true }).click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.getByRole('button', { name: 'Análise', exact: true }).click();
   await page
     .getByRole('button', {
       name: 'Alterar período das categorias',
