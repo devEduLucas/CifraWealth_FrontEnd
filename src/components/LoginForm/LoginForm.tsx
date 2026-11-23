@@ -35,6 +35,7 @@ export function LoginForm() {
         onSubmit={handleSubmit(() => navigate('/dashboard', { replace: true }))}
         noValidate
       >
+        <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col border-0 p-0 gap-4">
         <Input
           label="E-mail"
           type="email"
@@ -70,7 +71,8 @@ export function LoginForm() {
         <PrimaryButton disabled={!isValid || submitting}>
           {submitting ? 'Entrando...' : 'Entrar'}
         </PrimaryButton>
-      </form>
+        </fieldset>
+            </form>
 
       <div className="my-6 flex items-center gap-4">
         <span className="h-px flex-1 bg-line" />
