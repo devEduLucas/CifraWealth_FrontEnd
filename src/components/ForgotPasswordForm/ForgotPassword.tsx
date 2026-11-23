@@ -78,6 +78,7 @@ export function ForgotPasswordForm() {
       )}
 
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit()} noValidate>
+        <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0 transition-opacity disabled:opacity-60">
         <Input
           label="E-mail"
           type="email"
@@ -93,6 +94,7 @@ export function ForgotPasswordForm() {
         <PrimaryButton disabled={!isValid || submitting}>
           {submitting ? 'Enviando e-mail...' : 'Enviar e-mail'}
         </PrimaryButton>
+        </fieldset>
       </form>
 
       <div className="mt-6 flex items-center justify-center">
