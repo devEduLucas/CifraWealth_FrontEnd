@@ -102,6 +102,7 @@ export function ResetPasswordForm() {
       )}
 
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit()} noValidate>
+        <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0 transition-opacity disabled:opacity-60">
         <div>
           <PasswordInput
             id="reset-password"
@@ -134,6 +135,7 @@ export function ResetPasswordForm() {
         <PrimaryButton disabled={!isValid || submitting}>
           {submitting ? 'Salvando nova senha...' : 'Salvar nova senha'}
         </PrimaryButton>
+        </fieldset>
       </form>
 
       <div className="mt-6 flex items-center justify-center">
