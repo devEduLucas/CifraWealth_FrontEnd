@@ -154,6 +154,7 @@ export function RegisterForm() {
             onSubmit={handleSubmit(handleRegistrationSent)}
             noValidate
           >
+        <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col border-0 p-0 gap-3">
             <Input
               label="Nome completo"
               icon={<User size={18} />}
@@ -230,7 +231,8 @@ export function RegisterForm() {
             <PrimaryButton disabled={!isValid || submitting}>
               {submitting ? 'Criando conta...' : 'Criar conta'}
             </PrimaryButton>
-          </form>
+        </fieldset>
+                </form>
 
           <div className="auth-divider my-3 flex items-center gap-4">
             <span className="h-px flex-1 bg-line" />
