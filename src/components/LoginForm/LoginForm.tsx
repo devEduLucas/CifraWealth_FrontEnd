@@ -11,7 +11,7 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const accountNotice = (state as { accountNotice?: unknown } | null)?.accountNotice;
-  const { data, errors, touched, setField, setFieldTouched, handleSubmit, isValid, submitting, submitError } =
+  const { data, errors, touched, setField, setFieldTouched, handleSubmit, submitting, submitError } =
     useLoginForm();
 
   const [googleError, setGoogleError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export function LoginForm() {
           type="email"
           icon={<Mail size={18} />}
           placeholder="seu@email.com"
-          autoComplete="off"
+          autoComplete="username"
           value={data.email}
           onChange={(event) => setField('email', event.target.value)}
           onBlur={() => setFieldTouched('email')}
@@ -52,7 +52,7 @@ export function LoginForm() {
           <PasswordInput
             label="Senha"
             placeholder="Sua senha"
-            autoComplete="off"
+            autoComplete="current-password"
             value={data.password}
             onChange={(event) => setField('password', event.target.value)}
             onBlur={() => setFieldTouched('password')}
@@ -68,7 +68,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        <PrimaryButton disabled={!isValid || submitting}>
+        <PrimaryButton disabled={submitting}>
           {submitting ? 'Entrando...' : 'Entrar'}
         </PrimaryButton>
         </fieldset>
@@ -83,7 +83,7 @@ export function LoginForm() {
       <div className="flex min-h-12 w-full items-center justify-center overflow-hidden">
         <div ref={googleButtonRef} className="w-full max-w-[400px]" />
       </div>
-      {googleError && <p className="mt-2 text-center text-xs text-danger">{googleError}</p>}
+      {googleError && <p role="alert" className="mt-2 text-center text-xs text-danger">{googleError}</p>}
 
       <p className="mt-6 text-center text-sm text-subtle">
         Não possui conta?{' '}

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useForgotPasswordForm } from '../../hooks/useForgotPasswordForm';
@@ -18,6 +19,15 @@ export function ForgotPasswordForm() {
     handleSubmit,
     reset,
   } = useForgotPasswordForm();
+  const successHeadingRef = useRef<HTMLHeadingElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const wasSubmitted = useRef(false);
+
+  useEffect(() => {
+    if (isSubmitted) successHeadingRef.current?.focus();
+    else if (wasSubmitted.current) emailInputRef.current?.focus();
+    wasSubmitted.current = isSubmitted;
+  }, [isSubmitted]);
 
   // Tela de Sucesso após envio das instruções
   if (isSubmitted) {
@@ -28,8 +38,8 @@ export function ForgotPasswordForm() {
             <CheckCircle2 size={32} />
           </div>
 
-          <h1 className="text-2xl font-bold text-foreground">Verifique seu e-mail</h1>
-          <p className="mt-2 text-sm text-secondary leading-relaxed">
+          <h1 ref={successHeadingRef} tabIndex={-1} className="text-2xl font-bold text-foreground">Verifique seu e-mail</h1>
+          <p role="status" className="mt-2 text-sm text-secondary leading-relaxed">
             Se houver uma conta com senha cadastrada para{' '}
             <strong className="text-foreground font-semibold">{data.email}</strong>, você receberá as instruções de recuperação.
           </p>
@@ -80,6 +90,7 @@ export function ForgotPasswordForm() {
       <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit()} noValidate>
         <fieldset disabled={submitting} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0 transition-opacity disabled:opacity-60">
         <Input
+          ref={emailInputRef}
           label="E-mail"
           type="email"
           icon={<Mail size={18} />}

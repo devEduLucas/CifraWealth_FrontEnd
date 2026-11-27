@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { LoginFormData, LoginFormErrors } from '../types/form.types';
 import { validateLoginForm } from '../utils/validation';
@@ -14,14 +14,16 @@ type TouchedState = Partial<Record<keyof LoginFormData, boolean>>;
 
 export function useLoginForm() {
   const [data, setData] = useState<LoginFormData>(initialData);
-  const [errors, setErrors] = useState<LoginFormErrors>({});
+  const errors = useMemo<LoginFormErrors>(() => validateLoginForm(data), [data]);
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   const setField = useCallback(
     <K extends keyof LoginFormData>(field: K, value: LoginFormData[K]) => {
       setData((prev) => ({ ...prev, [field]: value }));
+      setSubmitError(null);
     },
     []
   );
@@ -30,19 +32,21 @@ export function useLoginForm() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  const validate = useCallback(() => {
-    const nextErrors = validateLoginForm(data);
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  }, [data]);
+  const isValid = Object.keys(errors).length === 0;
 
   const handleSubmit = useCallback(
-    (onSuccess: () => void) => (event: FormEvent) => {
+    (onSuccess: () => void) => (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (submittingRef.current) return;
       setTouched({ email: true, password: true });
       setSubmitError(null);
-      if (!validate()) return;
+      if (!isValid) {
+        const form = event.currentTarget;
+        window.requestAnimationFrame(() => form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
+        return;
+      }
 
+      submittingRef.current = true;
       setSubmitting(true);
       api
         .login(data)
@@ -53,12 +57,13 @@ export function useLoginForm() {
         .catch((error: unknown) => {
           setSubmitError(error instanceof ApiError ? error.message : 'Erro de conexão com o servidor.');
         })
-        .finally(() => setSubmitting(false));
+        .finally(() => {
+          submittingRef.current = false;
+          setSubmitting(false);
+        });
     },
-    [data, validate]
+    [data, isValid]
   );
-
-  const isValid = data.email.trim().length > 0 && data.password.length > 0;
 
   return {
     data,

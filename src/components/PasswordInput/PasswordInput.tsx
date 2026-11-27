@@ -6,10 +6,11 @@ interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
   label: string;
   error?: string;
   helperText?: string;
+  reserveErrorSpace?: boolean;
 }
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  function PasswordInput({ label, error, helperText, id, className, 'aria-describedby': describedBy, 'aria-invalid': ariaInvalid, ...rest }, ref) {
+  function PasswordInput({ label, error, helperText, reserveErrorSpace = false, id, className, 'aria-describedby': describedBy, 'aria-invalid': ariaInvalid, ...rest }, ref) {
     const [visible, setVisible] = useState(false);
     const generatedId = useId();
     const inputId = id ?? generatedId;
@@ -51,8 +52,8 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             {helperText}
           </p>
         )}
-        {error && (
-          <p id={errorId} role="alert" className="text-xs text-danger">
+        {(error || reserveErrorSpace) && (
+          <p id={errorId} role={error ? 'alert' : undefined} aria-hidden={error ? undefined : true} className="min-h-4 text-xs text-danger">
             {error}
           </p>
         )}

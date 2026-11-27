@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { RegisterFormData, RegisterFormErrors } from '../types/form.types';
 import { validateRegisterForm } from '../utils/validation';
@@ -16,14 +16,16 @@ type TouchedState = Partial<Record<keyof RegisterFormData, boolean>>;
 
 export function useRegisterForm() {
   const [data, setData] = useState<RegisterFormData>(initialData);
-  const [errors, setErrors] = useState<RegisterFormErrors>({});
+  const errors = useMemo<RegisterFormErrors>(() => validateRegisterForm(data), [data]);
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   const setField = useCallback(
     <K extends keyof RegisterFormData>(field: K, value: RegisterFormData[K]) => {
       setData((prev) => ({ ...prev, [field]: value }));
+      setSubmitError(null);
     },
     []
   );
@@ -32,15 +34,13 @@ export function useRegisterForm() {
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  const validate = useCallback(() => {
-    const nextErrors = validateRegisterForm(data);
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  }, [data]);
+  const isValid = Object.keys(errors).length === 0;
+  const validate = useCallback(() => isValid, [isValid]);
 
   const handleSubmit = useCallback(
-    (onSuccess: (email: string) => void) => (event: FormEvent) => {
+    (onSuccess: (email: string) => void) => (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (submittingRef.current) return;
       setTouched({
         fullName: true,
         email: true,
@@ -49,8 +49,13 @@ export function useRegisterForm() {
         acceptTerms: true,
       });
       setSubmitError(null);
-      if (!validate()) return;
+      if (!isValid) {
+        const form = event.currentTarget;
+        window.requestAnimationFrame(() => form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
+        return;
+      }
 
+      submittingRef.current = true;
       setSubmitting(true);
       api
         .register({ fullName: data.fullName, email: data.email, password: data.password })
@@ -58,17 +63,13 @@ export function useRegisterForm() {
         .catch((error: unknown) => {
           setSubmitError(error instanceof ApiError ? error.message : 'Erro de conexão com o servidor.');
         })
-        .finally(() => setSubmitting(false));
+        .finally(() => {
+          submittingRef.current = false;
+          setSubmitting(false);
+        });
     },
-    [data, validate]
+    [data, isValid]
   );
-
-  const isValid =
-    isRequiredValid(data.fullName) &&
-    isRequiredValid(data.email) &&
-    data.password.length >= 8 &&
-    data.password === data.confirmPassword &&
-    data.acceptTerms;
 
   return {
     data,
@@ -82,8 +83,4 @@ export function useRegisterForm() {
     submitting,
     submitError,
   };
-}
-
-function isRequiredValid(value: string): boolean {
-  return value.trim().length > 0;
 }
