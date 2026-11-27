@@ -22,7 +22,7 @@ export function SummaryCard({
   tone,
 }: SummaryCardProps) {
   return (
-    <div data-tone={tone} className={(compact ? 'min-w-0 rounded-xl p-4 ' : 'rounded-2xl p-5 ') + (tone ? 'finance-tint' : compact ? 'bg-elevated/50' : 'border border-line bg-surface')}>
+    <div data-tone={tone} className={'finance-surface-enter ' + (compact ? 'min-w-0 rounded-xl p-4 ' : 'rounded-2xl p-5 ') + (tone ? 'finance-tint' : compact ? 'bg-elevated/50' : 'border border-line bg-surface')}>
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted">{label}</p>
         <span className={`flex h-9 w-9 items-center justify-center rounded-full ${iconClassName}`}>

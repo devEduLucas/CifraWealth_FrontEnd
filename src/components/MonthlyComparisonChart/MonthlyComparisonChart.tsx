@@ -2,6 +2,7 @@ import { useId } from 'react';
 import type { MonthlyComparisonPoint } from '../../types/reports.types';
 import { formatCurrency, niceMax } from '../../utils/validation';
 import { useChartWidth } from '../../hooks/useChartWidth';
+import { useChartMotion } from '../../hooks/useChartMotion';
 
 interface MonthlyComparisonChartProps {
   data: MonthlyComparisonPoint[];
@@ -21,6 +22,7 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
   const plotWidth = Math.max(width, data.length * MIN_MONTH_WIDTH + PADDING_LEFT + PADDING_RIGHT);
   const scrollable = plotWidth > width;
   const hasData = data.length > 0 && data.some((point) => point.receitas > 0 || point.despesas > 0);
+  useChartMotion(ref, JSON.stringify(data), hasData);
 
   const maxValue = niceMax(Math.max(...data.flatMap((point) => [point.receitas, point.despesas]), 0) * 1.15);
   const usableWidth = plotWidth - PADDING_LEFT - PADDING_RIGHT;
@@ -69,6 +71,8 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
               return (
                 <g key={point.mes}>
                   <rect
+                    data-chart-motion="bar"
+                    data-motion-index={index}
                     x={groupX - barWidth - 3}
                     y={receitasY}
                     width={barWidth}
@@ -77,6 +81,8 @@ export function MonthlyComparisonChart({ data }: MonthlyComparisonChartProps) {
                     fill="var(--chart-income)"
                   ><title>{point.mes + ' · Receitas: ' + formatCurrency(point.receitas)}</title></rect>
                   <rect
+                    data-chart-motion="bar"
+                    data-motion-index={index + 1}
                     x={groupX + 3}
                     y={despesasY}
                     width={barWidth}

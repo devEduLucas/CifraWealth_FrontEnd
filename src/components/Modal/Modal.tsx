@@ -34,7 +34,7 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/60 p-4"
+      className="finance-backdrop-enter fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/60 p-4"
       onMouseDown={close}
     >
       <div
@@ -44,7 +44,7 @@ export function Modal({
         aria-labelledby={titleId}
         aria-busy={saving}
         tabIndex={-1}
-        className={`max-h-[calc(100dvh-2rem)] w-full rounded-2xl border border-line bg-surface ${footer ? 'flex flex-col overflow-hidden' : 'overflow-y-auto p-5 sm:p-6'} ${size === 'lg' ? 'max-w-2xl' : 'max-w-md'} ${stickyHeader && !footer ? 'scroll-pt-24' : ''}`}
+        className={`finance-panel-enter max-h-[calc(100dvh-2rem)] w-full rounded-2xl border border-line bg-surface ${footer ? 'flex flex-col overflow-hidden' : 'overflow-y-auto p-5 sm:p-6'} ${size === 'lg' ? 'max-w-2xl' : 'max-w-md'} ${stickyHeader && !footer ? 'scroll-pt-24' : ''}`}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div

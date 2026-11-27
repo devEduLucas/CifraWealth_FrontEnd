@@ -12,7 +12,7 @@ interface QuickActionButtonProps {
 
 export function QuickActionButton({ label, icon: Icon, iconClassName, to, onClick, tone }: QuickActionButtonProps) {
   const className =
-    'finance-tint group flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold text-foreground transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
+    'finance-tint finance-surface-enter finance-interactive group flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
 
   const content = (
     <>

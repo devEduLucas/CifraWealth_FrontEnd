@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 import { ArrowUpRight, BarChart3, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { CategoryType } from '../../lib/api';
@@ -12,6 +12,7 @@ import {
 import { categoryColor } from '../../utils/categoryAppearance';
 import { formatCurrency } from '../../utils/format';
 import { CategoryIcon } from '../CategoryIcon/CategoryIcon';
+import { useChartMotion } from '../../hooks/useChartMotion';
 
 export function CategoryUsageChart({
   items,
@@ -29,9 +30,12 @@ export function CategoryUsageChart({
   onMetricChange: (metric: CategoryMetric) => void;
 }) {
   const titleId = useId();
+  const ref = useRef<HTMLElement>(null);
   const ranking = rankCategoryUsage(items, type, metric);
+  useChartMotion(ref, JSON.stringify([type, metric, period, ranking]), valuesVisible && ranking.length > 0);
   return (
     <section
+      ref={ref}
       aria-labelledby={titleId}
       className="mt-5 rounded-2xl border border-line bg-surface p-4 sm:p-6"
     >
@@ -124,6 +128,8 @@ export function CategoryUsageChart({
                   className="my-2 h-2 overflow-hidden rounded-full bg-hover"
                 >
                   <div
+                    data-chart-motion="progress"
+                    data-motion-index={index}
                     className="category-usage-bar h-full rounded-full"
                     style={{
                         width: `${item.share}%`,

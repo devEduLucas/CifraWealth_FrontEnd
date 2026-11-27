@@ -79,7 +79,7 @@ export function AppHeader({ userName }: AppHeaderProps) {
         </div>
       </div>
       {open && (
-        <section id="app-notifications" aria-labelledby="notifications-title" className="app-notifications absolute right-4 max-h-[calc(100dvh-180px)] w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-line bg-surface shadow-xl shadow-black/10 sm:right-6 lg:right-10">
+        <section id="app-notifications" aria-labelledby="notifications-title" className="app-notifications finance-popover-enter absolute right-4 max-h-[calc(100dvh-180px)] w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-line bg-surface shadow-xl shadow-black/10 sm:right-6 lg:right-10">
           <div className="flex items-start justify-between border-b border-line px-5 py-4">
             <div><h2 id="notifications-title" className="text-sm font-semibold text-foreground">Notificações</h2><p className="mt-1 text-xs text-muted">Metas e pendências para acompanhar.</p></div>
             <button ref={closeRef} type="button" aria-label="Fechar notificações" onClick={() => { setOpen(false); bellRef.current?.focus(); }} className="rounded-lg p-1 text-muted hover:bg-hover"><X size={17} /></button>
