@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { CalendarDays, SlidersHorizontal } from 'lucide-react';
 import type { CategoryResponse, TransactionResponse } from '../../lib/api';
 import {
@@ -19,6 +19,7 @@ export function TransactionFiltersModal({
   transactions,
   categories,
   today,
+  fetchCount,
   onClose,
   onApply,
 }: {
@@ -26,6 +27,7 @@ export function TransactionFiltersModal({
   transactions: TransactionResponse[];
   categories: CategoryResponse[];
   today: string;
+  fetchCount?: (filters: TransactionFilters) => Promise<number>;
   onClose: () => void;
   onApply: (filters: TransactionFilters) => void;
 }) {
@@ -36,7 +38,18 @@ export function TransactionFiltersModal({
     (category) => !draft.tipo || category.tipo === draft.tipo,
   );
   const invalidRange = validateTransactionDates(draft.start, draft.end);
-  const count = invalidRange
+  const [serverCount, setServerCount] = useState<number | null>(null);
+  const [countFailed, setCountFailed] = useState(false);
+  useEffect(() => {
+    if (!fetchCount || invalidRange) return;
+    let active = true;
+    setServerCount(null); setCountFailed(false);
+    const timer = window.setTimeout(() => {
+      fetchCount(draft).then((value) => { if (active) setServerCount(value); }).catch(() => { if (active) setCountFailed(true); });
+    }, 250);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [draft, fetchCount, invalidRange]);
+  const count = fetchCount ? serverCount : invalidRange
     ? null
     : selectTransactions(transactions, categories, draft, today).length;
 
@@ -239,8 +252,9 @@ export function TransactionFiltersModal({
           role="status"
           aria-live="polite"
         >
-          {count === null
+          {invalidRange
             ? 'Revise as datas para consultar os resultados.'
+            : count === null ? countFailed ? 'Aplique os filtros para tentar consultar os resultados novamente.' : 'Consultando resultados...'
             : `${count} ${count === 1 ? 'transação corresponde' : 'transações correspondem'} à seleção${draft.search ? ' e à busca atual' : ''}.`}
         </div>
       </form>

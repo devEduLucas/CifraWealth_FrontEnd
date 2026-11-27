@@ -2,6 +2,7 @@ import { useId } from 'react';
 import type { ReportEvolutionPoint } from '../../types/reports.types';
 import { formatCurrency } from '../../utils/validation';
 import { useChartWidth } from '../../hooks/useChartWidth';
+import { useChartMotion } from '../../hooks/useChartMotion';
 
 const HEIGHT = 280, LEFT = 56, RIGHT = 18, TOP = 18, BOTTOM = 36;
 const SERIES = [
@@ -26,6 +27,7 @@ export function FinancialEvolutionChart({ data, periodLabel }: { data: ReportEvo
   const x = (index: number) => data.length <= 1 ? (LEFT + width - RIGHT) / 2 : LEFT + index / (data.length - 1) * (width - LEFT - RIGHT);
   const ticks = Array.from({ length: 5 }, (_, index) => low + index / 4 * (high - low));
   const hasData = values.some((value) => value !== 0);
+  useChartMotion(ref, JSON.stringify(data), hasData);
   const labelStep = Math.max(1, Math.ceil(data.length / Math.max(2, Math.floor(width / 85))));
 
   return <section ref={ref} aria-labelledby={titleId} className="flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 sm:p-6">
@@ -44,9 +46,9 @@ export function FinancialEvolutionChart({ data, periodLabel }: { data: ReportEvo
         const slot = (width - LEFT - RIGHT) / 3;
         const center = LEFT + slot * (index + 0.5);
         const barWidth = Math.min(40, slot * 0.6);
-        return <g key={serie.key} data-series={serie.key}><rect x={center - barWidth / 2} y={Math.min(y(value), y(0))} width={barWidth} height={Math.max(1, Math.abs(y(value) - y(0)))} rx={3} fill={serie.color}><title>{serie.label + ': ' + formatCurrency(value)}</title></rect><text x={center} y={HEIGHT - 12} textAnchor="middle" fontSize={10} fill="var(--chart-label)">{serie.label}</text></g>;
+        return <g key={serie.key} data-series={serie.key}><rect data-chart-motion="bar" data-motion-index={index} data-motion-negative={value < 0} x={center - barWidth / 2} y={Math.min(y(value), y(0))} width={barWidth} height={Math.max(1, Math.abs(y(value) - y(0)))} rx={3} fill={serie.color}><title>{serie.label + ': ' + formatCurrency(value)}</title></rect><text x={center} y={HEIGHT - 12} textAnchor="middle" fontSize={10} fill="var(--chart-label)">{serie.label}</text></g>;
       }) : <>
-        {SERIES.map((serie) => <g key={serie.key} data-series={serie.key}><polyline fill="none" stroke={serie.color} strokeWidth={2} strokeDasharray={serie.dash} points={data.map((item, index) => x(index) + ',' + y(item[serie.key])).join(' ')} />{data.map((item, index) => <circle key={index} cx={x(index)} cy={y(item[serie.key])} r={3.5} fill={serie.color}><title>{item.mes + ' · ' + serie.label + ': ' + formatCurrency(item[serie.key])}</title></circle>)}</g>)}
+        {SERIES.map((serie, seriesIndex) => <g key={serie.key} data-series={serie.key}><polyline data-chart-motion="line" data-motion-index={seriesIndex} fill="none" stroke={serie.color} strokeWidth={2} strokeDasharray={serie.dash} points={data.map((item, index) => x(index) + ',' + y(item[serie.key])).join(' ')} />{data.map((item, index) => <circle key={index} data-chart-motion="point" data-motion-index={index} cx={x(index)} cy={y(item[serie.key])} r={3.5} fill={serie.color}><title>{item.mes + ' · ' + serie.label + ': ' + formatCurrency(item[serie.key])}</title></circle>)}</g>)}
         {data.map((item, index) => index % labelStep === 0 || index === data.length - 1 ? <text key={index} x={x(index)} y={HEIGHT - 12} textAnchor={index === 0 ? 'start' : index === data.length - 1 ? 'end' : 'middle'} fontSize={11} fill="var(--chart-label)">{item.mes}</text> : null)}
       </>}
     </svg> : <p className="flex min-h-48 flex-1 items-center justify-center py-6 text-center text-sm text-subtle">Sem movimentações confirmadas no período.</p>}

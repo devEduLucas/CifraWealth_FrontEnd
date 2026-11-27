@@ -2,6 +2,14 @@
 
 Aplicação de controle financeiro com React, TypeScript e Tailwind. Usa a API Express + Prisma + MySQL do diretório vizinho CifraWealth_BackEnd.
 
+## Carregamento e histórico
+
+As páginas são carregadas sob demanda. Durante a troca de rota há uma indicação de carregamento; se o arquivo da página falhar, uma tela permite recarregar. O tour acompanha o conteúdo que termina de carregar e mantém seu foco por teclado.
+
+Transações usa páginas de 20 registros e os totais completos calculados pela API, incluindo a prévia de contagem no modal de filtros. Categorias recebe os valores e contagens já agrupados, sem baixar o histórico de transações. A API nova é descrita no README do backend. Enquanto um backend antigo ainda retornar arrays, o site mantém o comportamento anterior; o modo de demonstração continua local. Publique também o backend para ativar a melhoria de consultas em produção.
+
+Em telas grandes a Ajuda mantém o botão no canto com uma faixa reservada fora dos dados. Em telas menores ele fica no cabeçalho, preservando a largura do conteúdo e a navegação por teclado.
+
 ## Executar
 
 1. Configure e inicie o backend conforme o README dele.
@@ -12,11 +20,23 @@ A variável VITE_API_URL define a URL da API: http://localhost:3000/api no desen
 
 Configure VITE_GOOGLE_CLIENT_ID com o mesmo identificador público usado pelo backend. Sem ele, o botão Google fica indisponível e o usuário pode entrar por e-mail/senha. Nunca coloque BREVO_API_KEY, JWT_SECRET ou EMAIL_VERIFICATION_SECRET no frontend: variáveis VITE_ são públicas no bundle.
 
+## Apresentação pela Vercel
+
+O site publicado e o ambiente local só compartilham os dados quando usam o mesmo backend. Para apresentar com persistência real, configure `VITE_API_URL` com a URL pública da API, mantenha `VITE_DEMO_MODE=false` e use uma conta demonstrativa confirmada nesse servidor. O backend oferece `npm run demo:seed` para adicionar seis meses de histórico fictício à própria conta, sem copiar o banco inteiro. Consulte `docs/demonstracao.md` no repositório do backend. Alterações no código e nas variáveis `VITE_` precisam de um novo deployment para aparecer no site publicado.
+
 ## Cadastro por e-mail
 
 O backend precisa ter a Brevo e os segredos configurados. Depois de cadastrar nome/e-mail/senha, abra o link recebido e informe a senha daquela tentativa para confirmar. Repetir um cadastro pendente após um minuto altera a senha e invalida os links anteriores; os links da versão antiga precisam ser reenviados. A página de confirmação permite solicitar outro link. Sem o provedor, cadastro e recuperação de senha informam indisponibilidade, inclusive em desenvolvimento. Consulte o README do backend para as variáveis necessárias.
 
 Em Esqueceu a senha?, solicite o link e defina uma nova senha pela mensagem recebida. O link dura uma hora e só pode ser utilizado uma vez; trocar a senha também encerra as sessões anteriores. O texto da solicitação não revela se um e-mail possui conta. As rotas de termos e privacidade ficam disponíveis no cadastro e na página inicial.
+
+## Tour e central de Ajuda
+
+No primeiro login de cada conta neste navegador, um convite opcional apresenta o tour guiado. A pessoa pode pular, sair com Escape ou avançar por oito etapas nas telas reais. O guia somente navega e explica: não abre formulários de criação, registra dinheiro, exporta arquivos ou muda as preferências de privacidade. Ao terminar ou sair, retorna ao ponto de partida. Voltar pelo navegador encerra o tour e respeita o destino escolhido.
+
+Em Ajuda, use **Iniciar tour guiado** para repetir a apresentação ou **Ver tour desta área** para conhecer um único assunto. O botão de interrogação no canto também oferece a ajuda e o tour da tela atual. A central reúne nove assuntos e 41 respostas, incluindo conta, acessibilidade e solução de problemas. A busca ignora acentos e abre a resposta selecionada; assunto, pesquisa e pergunta podem ser compartilhados pela URL.
+
+A preferência do convite fica separada por conta no navegador; ela não é sincronizada entre dispositivos. Se o armazenamento estiver indisponível, a dispensa funciona enquanto o aplicativo permanece aberto. Não é preciso alterar o backend, schema ou migrations para habilitar o guia. Veja [a implementação e os testes do tour](docs/tour-e-ajuda.md).
 
 ## Navegação e aparência
 

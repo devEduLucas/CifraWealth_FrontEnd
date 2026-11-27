@@ -2,6 +2,7 @@ import { useId, useRef, useState, type MouseEvent } from 'react';
 import type { ChartPoint } from '../../types/dashboard.types';
 import { formatCurrency } from '../../utils/validation';
 import { useChartWidth } from '../../hooks/useChartWidth';
+import { useChartMotion } from '../../hooks/useChartMotion';
 
 interface FinanceChartProps {
   data: ChartPoint[];
@@ -28,6 +29,7 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
 
   const allValues = data.flatMap((point) => [point.receitas, point.despesas]);
   const hasData = data.length > 0 && allValues.some((value) => value > 0);
+  useChartMotion(ref, JSON.stringify(data), hasData);
   const maxValue = Math.max(...allValues, 1) * 1.15;
   const minValue = 0;
 
@@ -102,12 +104,12 @@ export function FinanceChart({ data, year, subtitle }: FinanceChartProps) {
           </defs>
 
           {hasData && <>
-            <path d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
-            <path d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
-            <path d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 4" />
+            <path data-chart-motion="area" d={receitasArea} fill="url(#receitasGradient)" stroke="none" />
+            <path data-chart-motion="line" d={receitasLine} fill="none" stroke="var(--chart-income)" strokeWidth="2.5" strokeLinecap="round" />
+            <path data-chart-motion="line" data-motion-index="1" d={despesasLine} fill="none" stroke="var(--chart-expense)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 4" />
             {data.length === 1 && <>
-              <circle cx={receitasPoints[0].x} cy={receitasPoints[0].y} r="4" fill="var(--chart-income)" />
-              <circle cx={despesasPoints[0].x} cy={despesasPoints[0].y} r="4" fill="var(--chart-expense)" />
+              <circle data-chart-motion="point" cx={receitasPoints[0].x} cy={receitasPoints[0].y} r="4" fill="var(--chart-income)" />
+              <circle data-chart-motion="point" data-motion-index="1" cx={despesasPoints[0].x} cy={despesasPoints[0].y} r="4" fill="var(--chart-expense)" />
             </>}
           </>}
 

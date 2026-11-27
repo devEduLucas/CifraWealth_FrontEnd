@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { GoalViewModel } from '../../types/goals.types';
 import { GoalListCard } from '../GoalListCard/GoalListCard';
+import { preferredScrollBehavior } from '../../utils/motion';
 
 export function GoalCarousel({ goals, valuesVisible }: { goals: GoalViewModel[]; valuesVisible: boolean }) {
   const track = useRef<HTMLUListElement>(null);
@@ -23,7 +24,7 @@ export function GoalCarousel({ goals, valuesVisible }: { goals: GoalViewModel[];
     const element = track.current;
     if (!element) return;
     const distance = (element.firstElementChild?.getBoundingClientRect().width ?? element.clientWidth) + 16;
-    element.scrollBy({ left: distance * direction, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    element.scrollBy({ left: distance * direction, behavior: preferredScrollBehavior() });
   }
 
   return <section aria-label="Coleção de metas" className="min-w-0">
@@ -38,7 +39,7 @@ export function GoalCarousel({ goals, valuesVisible }: { goals: GoalViewModel[];
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget) return;
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowRight' ? 1 : -1); }
-        if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); event.currentTarget.scrollTo({ left: event.key === 'Home' ? 0 : event.currentTarget.scrollWidth }); }
+        if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); event.currentTarget.scrollTo({ left: event.key === 'Home' ? 0 : event.currentTarget.scrollWidth, behavior: preferredScrollBehavior() }); }
       }}
       className="goal-carousel flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain rounded-2xl pb-4 pt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
       {goals.map((goal) => <li key={goal.id} className="w-[min(82vw,20rem)] shrink-0 snap-start"><GoalListCard goal={goal} valuesVisible={valuesVisible} /></li>)}

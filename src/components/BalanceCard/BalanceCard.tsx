@@ -9,7 +9,7 @@ export function BalanceCard({ total, valuesVisible = true }: BalanceCardProps) {
   const amountLabel = valuesVisible ? formatCurrency(total) : 'R$ ••••••';
 
   return (
-    <section aria-label="Saldo acumulado dos registros" className="finance-hero rounded-2xl p-5 sm:p-6">
+    <section data-tour="dashboard-summary" aria-label="Saldo acumulado dos registros" className="finance-hero rounded-2xl p-5 sm:p-6">
       <p className="hero-muted text-sm font-medium">Saldo acumulado dos registros</p>
 
       <p aria-label={valuesVisible ? undefined : 'Saldo oculto'} style={{ fontSize: `clamp(1rem, calc((100vw - 6rem) / ${amountLabel.length * 0.65}), 2.75rem)` }} className={`mt-1 whitespace-nowrap font-bold tabular-nums tracking-tight ${valuesVisible && total < 0 ? 'hero-negative' : 'hero-ink'}`}>

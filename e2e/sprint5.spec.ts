@@ -54,8 +54,11 @@ test('confirmação de e-mail exige a senha e preserva erros para nova tentativa
   await expect(page.getByRole('alert')).toContainText('senha');
   await page.getByLabel('Senha cadastrada',{exact:true}).fill(password);
   await page.getByRole('button',{name:'Confirmar e-mail',exact:true}).click();
-  await expect(page.getByRole('link',{name:'Ir para entrar'})).toBeVisible();
+  await expect(page.getByRole('status').filter({hasText:'E-mail confirmado com sucesso!'})).toBeVisible();
+  const loginLink=page.getByRole('link',{name:'Entrar na minha conta',exact:true});
+  await expect(loginLink).toHaveAttribute('href','/login');
   expect(confirmations).toBe(2);
+  await loginLink.click();await expect(page).toHaveURL(/\/login$/);
 });
 
 test('transação e categoria mantêm o formulário e o foco em modais aninhados', async ({ page }) => {
@@ -127,8 +130,12 @@ test('relatórios reais, período personalizado, PDF, CSV e estados de erro', as
   await page.addInitScript((saved)=>{localStorage.setItem('cifrawealth:token',saved.token);localStorage.setItem('cifrawealth:user',JSON.stringify(saved.user));},auth);
   await page.goto('/reports');await page.getByLabel('Selecionar período do relatório').selectOption('custom');
   await page.getByLabel('Data inicial',{exact:true}).fill('2026-10-05');await page.getByLabel('Data final',{exact:true}).fill('2026-10-25');
-  await page.getByRole('button',{name:'Aplicar datas'}).click();await page.getByRole('button',{name:'Detalhamento',exact:true}).click();await expect(page.getByText('Compra do período',{exact:true})).toBeVisible();await expect(page.getByText('Salário do período',{exact:true})).toBeVisible();
-  await expect(page.getByText('Despesa fora do período',{exact:true})).toHaveCount(0);await expect(page.getByText('Despesa pendente',{exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Aplicar datas'}).click();await page.getByRole('button',{name:'Detalhamento',exact:true}).click();
+  // Responsive cells append date/category metadata; assert the accessible cell
+  // instead of requiring its entire DOM text to equal only the description.
+  const reportTransactions=page.getByRole('table',{name:'Transações detalhadas',exact:true});
+  await expect(reportTransactions.getByRole('cell',{name:/^Compra do período(?:\s|$)/})).toBeVisible();await expect(reportTransactions.getByRole('cell',{name:/^Salário do período(?:\s|$)/})).toBeVisible();
+  await expect(reportTransactions.getByRole('cell',{name:/^Despesa fora do período(?:\s|$)/})).toHaveCount(0);await expect(reportTransactions.getByRole('cell',{name:/^Despesa pendente(?:\s|$)/})).toHaveCount(0);
   await expect(page.getByText(/1[.]650,00/).first()).toBeVisible();await page.getByRole('button',{name:'Visão geral',exact:true}).click();await expect(page.getByRole('img',{name:'Evolução mensal de receitas, despesas e saldo'})).toBeVisible();await page.getByRole('button',{name:'Detalhamento',exact:true}).click();
   const download=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar PDF',exact:true}).click();const pdf=await download;expect(pdf.suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.pdf');expect((await readFile((await pdf.path())!)).subarray(0,5).toString()).toBe('%PDF-');
   const csvDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Baixar planilha CSV'}).click();expect((await csvDownload).suggestedFilename()).toBe('relatorio-2026-10-05-a-2026-10-25.csv');

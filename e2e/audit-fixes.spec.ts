@@ -87,18 +87,20 @@ test('metas diferenciam aporte, correção, retirada, detalhes e cancelamento', 
   await expect(page.getByRole('main').locator('input')).toHaveCount(0);
   options = await openGoalOptions(page);
   await options.getByRole('button', { name: 'Cancelar meta', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Meta cancelada');
+  await expect(page.getByRole('main').getByRole('status')).toContainText('Meta cancelada');
   options = await openGoalOptions(page);
   await options.getByRole('button', { name: 'Reativar meta', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Meta reativada');
+  await expect(page.getByRole('main').getByRole('status')).toContainText('Meta reativada');
   await expect(page.getByRole('button', { name: 'Guardar valor', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByText('40%', { exact: true }).first()).toBeVisible();
 });
 
-test('falha parcial do dashboard preserva o saldo e permite nova tentativa', async ({ page }) => {
+test('falha parcial do dashboard preserva o saldo e permite nova tentativa', async ({ page, request }) => {
+  const goal = await request.post(API + '/goals', { headers: headers(), data: { titulo: 'Meta do resumo parcial', valor_objetivo: 1000 } });
+  expect(goal.status()).toBe(201);
   await page.route('**/api/goals',route=>route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({message:'Falha temporária de metas'})}));await page.goto('/dashboard');await expect(page.getByRole('alert')).toContainText('Não foi possível carregar parte do seu resumo');await expect(page.getByText('Saldo acumulado dos registros',{exact:true})).toBeVisible();await expect(page.getByText('Metas indisponíveis no momento. Use “Tentar novamente” acima.',{exact:true})).toBeVisible();
-  await page.unroute('**/api/goals');await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(page.getByRole('alert')).toHaveCount(0);await expect(page.getByText('Meta ajustável',{exact:true})).toBeVisible();
+  await page.unroute('**/api/goals');await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(page.getByRole('alert')).toHaveCount(0);await expect(page.getByText('Meta do resumo parcial',{exact:true})).toBeVisible();
 });
 
 test('textos e valores máximos não causam rolagem horizontal da página', async ({ page, request }, testInfo) => {

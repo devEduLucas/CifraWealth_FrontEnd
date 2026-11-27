@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   ArrowDownLeft,
@@ -20,9 +20,11 @@ import {
   type CategoryType,
   type TransactionResponse,
 } from '../lib/api';
+import type { TransactionPage } from '../types/history.types';
 import { useSessionUser } from '../hooks/useSessionUser';
 import { formatCurrency, formatDate } from '../utils/format';
 import { localDateOnly } from '../utils/reports';
+import { preferredScrollBehavior } from '../utils/motion';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { Button } from '../components/Button/Button';
@@ -64,6 +66,8 @@ export function TransactionsPage() {
     ? (user.nome + ' ' + (user.sobrenome ?? '')).trim()
     : 'Usuário';
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
+  const [pageInfo, setPageInfo] = useState<TransactionPage | null>(null);
+  const legacyMode = useRef(false);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
@@ -115,32 +119,36 @@ export function TransactionsPage() {
   const loadVersion = useRef(0);
   const today = localDateOnly();
 
-  function loadData() {
+  const loadData = useCallback((background = false) => {
     const version = ++loadVersion.current;
-    setLoading(true);
+    if (!background) setLoading(true);
     setPageError(null);
-    Promise.all([api.listTransactions(), api.listCategories()])
-      .then(([items, cats]) => {
+    api.listCategories().then(async (cats) => {
+      const result = await api.getTransactionPage(cats, filters, page + 1, PAGE_SIZE, today);
         if (version === loadVersion.current) {
-          setTransactions(items);
+          legacyMode.current = Boolean(result.legacyItems);
+          setPageInfo(result.legacyItems ? null : result);
+          setTransactions(result.legacyItems ?? result.items);
           setCategories(cats);
           setHasLoaded(true);
         }
       })
       .catch((err: unknown) => {
-        if (version === loadVersion.current) setPageError(message(err));
+        if (version === loadVersion.current) { setPageError(message(err)); setHasLoaded(false); }
       })
       .finally(() => {
         if (version === loadVersion.current) setLoading(false);
       });
-  }
+  }, [filters, page, today]);
   function cancelLoad() {
     loadVersion.current++;
   }
   useEffect(() => {
-    loadData();
-    return cancelLoad;
-  }, []);
+    if (legacyMode.current) return;
+    setLoading(true);
+    const timer = window.setTimeout(() => loadData(), filters.search ? 200 : 0);
+    return () => { window.clearTimeout(timer); cancelLoad(); };
+  }, [loadData, filters.search]);
   useEffect(() => {
     if (loading || searchParams.get('new') !== '1') return;
     setDefaultTipo(
@@ -157,17 +165,20 @@ export function TransactionsPage() {
   }, [loading, searchParams, setSearchParams]);
 
   const filtered = useMemo(
-    () => selectTransactions(transactions, categories, filters, today),
-    [transactions, categories, filters, today],
+    () => pageInfo ? transactions : selectTransactions(transactions, categories, filters, today),
+    [pageInfo, transactions, categories, filters, today],
   );
   const summary = useMemo(
-    () => summarizeTransactions(filtered, today),
-    [filtered, today],
+    () => pageInfo?.summary ?? summarizeTransactions(filtered, today),
+    [pageInfo, filtered, today],
   );
   const filterCount = transactionFilterCount(filters);
   const hasFilters = filterCount > 0 || Boolean(filters.search);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, pageCount - 1);
+  const total = pageInfo?.total ?? filtered.length;
+  const hasHistory = pageInfo?.hasHistory ?? transactions.length > 0;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const currentPage = pageInfo ? pageInfo.page - 1 : Math.min(page, pageCount - 1);
+  const fetchFilterCount = useCallback((draft: TransactionFilters) => api.getTransactionPage(categories, draft, 1, 1, today).then((result) => result.total), [categories, today]);
   function applyFilters(next: TransactionFilters) {
     setFilters(next);
     setPage(0);
@@ -244,7 +255,7 @@ export function TransactionsPage() {
   ];
   function changePage(next: number) {
     setPage(next);
-    listRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    listRef.current?.scrollIntoView({ block: 'start', behavior: preferredScrollBehavior() });
   }
   function openModal(item: TransactionResponse | null = null) {
     setPageError(null);
@@ -270,6 +281,7 @@ export function TransactionsPage() {
           ? old.map((tx) => (tx.id_transacao === item.id_transacao ? item : tx))
           : [item, ...old],
       );
+      if (!legacyMode.current) loadData(true);
       setModalOpen(false);
       setNotice(
         editing
@@ -306,6 +318,7 @@ export function TransactionsPage() {
       setTransactions((old) =>
         old.filter((item) => item.id_transacao !== deleting.id_transacao),
       );
+      if (!legacyMode.current) loadData(true);
       setDeleting(null);
       setNotice('Transação excluída. O resumo foi atualizado.');
     } catch (err) {
@@ -327,6 +340,7 @@ export function TransactionsPage() {
           tx.id_transacao === confirmed.id_transacao ? confirmed : tx,
         ),
       );
+      if (!legacyMode.current) loadData(true);
       setNotice('Transação confirmada e incluída no saldo.');
     } catch (err) {
       setPageError(message(err));
@@ -340,7 +354,7 @@ export function TransactionsPage() {
       <PageHeader
         title="Transações"
         action={
-          <div className="flex flex-wrap items-center gap-2">
+          <div data-tour="transactions-actions" className="flex flex-wrap items-center gap-2">
             <FinancialPrivacyButton />
             <Button icon={Plus} onClick={() => openModal()}>
               Nova Transação
@@ -358,7 +372,7 @@ export function TransactionsPage() {
           <button
             type="button"
             className="mt-2 min-h-11 font-semibold underline"
-            onClick={loadData}
+            onClick={() => loadData()}
           >
             Tentar novamente
           </button>
@@ -454,6 +468,7 @@ export function TransactionsPage() {
             label="Buscar transações"
             icon={<Search size={18} />}
             placeholder="Descrição ou categoria"
+            maxLength={250}
             value={filters.search}
             onChange={(event) => {
               setFilters((old) => ({ ...old, search: event.target.value }));
@@ -540,7 +555,7 @@ export function TransactionsPage() {
               {loading
                 ? 'Carregando transações...'
                 : hasLoaded
-                  ? `${filtered.length} ${filtered.length === 1 ? 'transação encontrada' : 'transações encontradas'}${filterCount || filters.search ? ' com a seleção atual' : ' no histórico'}`
+                  ? `${total} ${total === 1 ? 'transação encontrada' : 'transações encontradas'}${filterCount || filters.search ? ' com a seleção atual' : ' no histórico'}`
                   : 'Não foi possível carregar o histórico.'}
             </p>
           </div>
@@ -570,21 +585,21 @@ export function TransactionsPage() {
               className="mx-auto text-subtle"
             />
             <h3 className="mt-4 text-base font-bold text-foreground">
-              {transactions.length
+              {hasHistory
                 ? 'Nenhuma transação encontrada com estes filtros.'
                 : 'Seu histórico começa no primeiro registro'}
             </h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-              {transactions.length
+              {hasHistory
                 ? 'Experimente outra descrição, categoria ou período para encontrar o lançamento.'
                 : 'Adicione uma receita ou despesa para acompanhar seu dinheiro por aqui.'}
             </p>
             <Button
               className="mt-5"
-              variant={transactions.length ? 'outline' : 'primary'}
-              onClick={transactions.length ? resetFilters : () => openModal()}
+              variant={hasHistory ? 'outline' : 'primary'}
+              onClick={hasHistory ? resetFilters : () => openModal()}
             >
-              {transactions.length
+              {hasHistory
                 ? 'Ver todas as transações'
                 : 'Registrar primeira transação'}
             </Button>
@@ -593,7 +608,7 @@ export function TransactionsPage() {
           hasLoaded && (
             <>
               <TransactionFeed
-                transactions={filtered.slice(
+                transactions={pageInfo ? filtered : filtered.slice(
                   currentPage * PAGE_SIZE,
                   (currentPage + 1) * PAGE_SIZE,
                 )}
@@ -616,8 +631,8 @@ export function TransactionsPage() {
               >
                 <span>
                   Mostrando {currentPage * PAGE_SIZE + 1}–
-                  {Math.min((currentPage + 1) * PAGE_SIZE, filtered.length)} de{' '}
-                  {filtered.length} · Página {currentPage + 1} de {pageCount}
+                  {Math.min((currentPage + 1) * PAGE_SIZE, total)} de{' '}
+                  {total} · Página {currentPage + 1} de {pageCount}
                 </span>
                 <div className="flex gap-2">
                   <Button
@@ -645,6 +660,7 @@ export function TransactionsPage() {
         <TransactionFiltersModal
           filters={filters}
           transactions={transactions}
+          fetchCount={pageInfo ? fetchFilterCount : undefined}
           categories={categories}
           today={today}
           onClose={() => setFiltersOpen(false)}

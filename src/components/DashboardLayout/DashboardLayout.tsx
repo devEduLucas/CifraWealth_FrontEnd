@@ -16,12 +16,12 @@ export function DashboardLayout({ userName, children }: DashboardLayoutProps) {
     <div data-sidebar-collapsed={sidebar.collapsed} className="app-shell min-h-screen bg-canvas text-foreground">
       <Sidebar userName={userName} collapsed={sidebar.collapsed} onToggle={sidebar.toggle} />
       <AppHeader userName={userName} />
-      <main id="conteudo-principal" tabIndex={-1} className="app-main min-w-0 px-4 pb-24 pt-[88px] sm:px-6 lg:pb-10 lg:pt-24">
+      <main id="conteudo-principal" tabIndex={-1} className="app-main min-w-0 px-4 pb-24 pt-[88px] sm:px-6 lg:pb-10 lg:pr-20 lg:pt-24">
         {children}
       </main>
 
       <BottomNav />
-      <HelpButton />
+      <div className="hidden lg:block"><HelpButton /></div>
     </div>
   );
 }

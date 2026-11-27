@@ -20,7 +20,6 @@ export function RegisterForm() {
     setField,
     setFieldTouched,
     handleSubmit,
-    isValid,
     submitting,
     submitError,
   } = useRegisterForm();
@@ -197,6 +196,7 @@ export function RegisterForm() {
 
             <PasswordInput
               label="Confirmar senha"
+              reserveErrorSpace
               placeholder="Repita sua senha"
               autoComplete="new-password"
               value={data.confirmPassword}
@@ -228,7 +228,7 @@ export function RegisterForm() {
               }
             />
 
-            <PrimaryButton disabled={!isValid || submitting}>
+            <PrimaryButton disabled={submitting}>
               {submitting ? 'Criando conta...' : 'Criar conta'}
             </PrimaryButton>
         </fieldset>

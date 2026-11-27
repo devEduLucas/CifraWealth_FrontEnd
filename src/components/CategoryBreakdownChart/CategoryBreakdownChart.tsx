@@ -1,5 +1,7 @@
+import { useRef } from 'react';
 import type { ReportCategoryBreakdownItem } from '../../types/reports.types';
 import { formatCurrency } from '../../utils/validation';
+import { useChartMotion } from '../../hooks/useChartMotion';
 
 interface CategoryBreakdownChartProps {
   data: ReportCategoryBreakdownItem[];
@@ -12,7 +14,9 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartProps) {
+  const ref = useRef<HTMLElement>(null);
   const hasData = data.length > 0 && total > 0;
+  useChartMotion(ref, JSON.stringify(data), hasData);
 
   let offset = 0;
   const segments = data.map((item) => {
@@ -23,7 +27,7 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
   });
 
   return (
-    <section aria-label="Despesas por Categoria" className="flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <section ref={ref} aria-label="Despesas por Categoria" className="flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <h2 className="text-base font-semibold text-foreground">Despesas por Categoria</h2>
 
       {hasData ? (
@@ -31,7 +35,7 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
           <div className="relative shrink-0" style={{ width: SIZE, height: SIZE }}>
             <svg aria-hidden="true" width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} className="-rotate-90">
               <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" stroke="var(--chart-grid)" strokeWidth={STROKE} />
-              {segments.map((segment) => (
+              <g data-chart-motion="donut">{segments.map((segment) => (
                 <circle
                   key={segment.id}
                   cx={SIZE / 2}
@@ -43,7 +47,7 @@ export function CategoryBreakdownChart({ data, total }: CategoryBreakdownChartPr
                   strokeDasharray={`${segment.dash} ${CIRCUMFERENCE - segment.dash}`}
                   strokeDashoffset={-segment.offset}
                 />
-              ))}
+              ))}</g>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-xs text-subtle">Total</p>

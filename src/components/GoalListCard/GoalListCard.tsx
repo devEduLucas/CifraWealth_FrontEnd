@@ -12,7 +12,7 @@ export function GoalListCard({ goal, valuesVisible = true }: { goal: GoalViewMod
   const progress = getGoalProgress(goal);
   const badge = getGoalStatusBadge(goal.status);
   const active = goal.status !== 'cancelada' && goal.status !== 'concluida';
-  return <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-accent/50">
+  return <article className="finance-surface-enter finance-interactive flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface hover:border-accent/50">
     <Link to={'/goals/' + goal.id} aria-label={'Ver meta ' + goal.titulo} className={'relative flex h-32 items-center justify-center overflow-hidden bg-gradient-to-br ' + COVERS[goal.id % COVERS.length]}>
       <span aria-hidden="true" className="absolute -right-5 -top-8 h-36 w-36 rounded-full border-[18px] border-white/15" />
       <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-surface/70 bg-surface/85 text-accent-ink shadow-sm"><Icon size={32} aria-hidden="true" /></span>

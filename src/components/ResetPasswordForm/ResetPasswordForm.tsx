@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { useResetPasswordForm } from '../../hooks/useResetPasswordForm';
@@ -24,7 +25,11 @@ export function ResetPasswordForm() {
     setFieldTouched,
     handleSubmit,
   } = useResetPasswordForm(token ?? undefined);
+  const successHeadingRef = useRef<HTMLHeadingElement>(null);
 
+  useEffect(() => {
+    if (isSuccess) successHeadingRef.current?.focus();
+  }, [isSuccess]);
 
   // Caso o usuário tente acessar sem um token na URL
   if (!token) {
@@ -64,8 +69,8 @@ export function ResetPasswordForm() {
           <CheckCircle2 size={32} />
         </div>
 
-        <h1 className="text-2xl font-bold text-foreground">Senha alterada com sucesso!</h1>
-        <p className="mt-2 text-sm text-secondary leading-relaxed">
+        <h1 ref={successHeadingRef} tabIndex={-1} className="text-2xl font-bold text-foreground">Senha alterada com sucesso!</h1>
+        <p role="status" className="mt-2 text-sm text-secondary leading-relaxed">
           Sua senha foi atualizada. Entre na sua conta usando a nova senha; seus registros continuam lá.
         </p>
 

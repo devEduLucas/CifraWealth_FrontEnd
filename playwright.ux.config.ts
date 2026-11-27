@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 // Browser regression checks with intercepted API responses: no database or email provider.
 export default defineConfig({
-  testDir: './e2e', testMatch: ['**/ux-first-use.spec.ts', '**/chart-review.spec.ts', '**/goals-report-ux.spec.ts', '**/goals-review.spec.ts'], fullyParallel: true,
+  testDir: './e2e', testMatch: ['**/ux-first-use.spec.ts', '**/chart-review.spec.ts', '**/goals-report-ux.spec.ts', '**/goals-review.spec.ts', '**/auth-validation.spec.ts', '**/financial-audit.spec.ts', '**/onboarding-help.spec.ts', '**/motion-polish.spec.ts', '**/history-performance.spec.ts'], fullyParallel: true,
   workers: 2, timeout: 30000,
   use: { baseURL: 'http://127.0.0.1:5182', channel: 'chrome', headless: true, reducedMotion: 'reduce', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [

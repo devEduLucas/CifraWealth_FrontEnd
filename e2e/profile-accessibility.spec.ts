@@ -425,14 +425,14 @@ test('perfil salva nome, avatar e capa na API, preserva rascunho após erro e pe
   await expect(dialog.getByLabel('Nome completo', { exact: true })).toHaveValue(
     'Perfil Nome Atualizado',
   );
-  await expect(
-    page.getByRole('banner', { name: 'Cabeçalho principal' }),
-  ).toContainText('Conta Perfil');
+  // The header names the current section. Check the persisted profile instead
+  // of the draft; it remains behind the inert modal after the rejected save.
+  const profileName = page.getByRole('region', { name: 'Seu perfil', includeHidden: true })
+    .getByRole('heading', { level: 2, includeHidden: true });
+  await expect(profileName).toHaveText('Conta Perfil');
   await save.click();
   await expect(dialog).toHaveCount(0);
-  await expect(
-    page.getByRole('banner', { name: 'Cabeçalho principal' }),
-  ).toContainText('Perfil Nome Atualizado');
+  await expect(profileName).toHaveText('Perfil Nome Atualizado');
   const snapshot = await request.get(API + '/users/me', {
     headers: { Authorization: `Bearer ${auth.token}` },
   });

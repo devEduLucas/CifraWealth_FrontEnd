@@ -17,7 +17,7 @@ const OPTIONS: { value: ReportPeriod; label: string }[] = [
 
 export function ReportPeriodFilter({ value, onChange, disabled = false }: ReportPeriodFilterProps) {
   return (
-    <div className="field-shell h-11">
+    <div data-tour="reports-period" className="field-shell h-11">
       <Calendar size={16} className="pointer-events-none absolute left-3.5 text-muted" />
       <select
         disabled={disabled}

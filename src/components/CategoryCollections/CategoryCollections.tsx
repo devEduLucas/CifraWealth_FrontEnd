@@ -3,14 +3,14 @@ import type { CategoryResponse, CategoryType } from '../../lib/api';
 import { CategoryIcon } from '../CategoryIcon/CategoryIcon';
 
 export function CategoryCollections({ categories, onSelect }: { categories: CategoryResponse[]; onSelect: (type: CategoryType) => void }) {
-  return <section aria-label="Escolha suas categorias" className="grid gap-4 sm:grid-cols-2">
+  return <section data-tour="categories-collections" aria-label="Escolha suas categorias" className="grid gap-4 sm:grid-cols-2">
     {([
       { type: 'despesa', title: 'Despesas', icon: ArrowUpRight, description: 'Para onde vai seu dinheiro' },
       { type: 'receita', title: 'Receitas', icon: ArrowDownLeft, description: 'De onde vem seu dinheiro' },
     ] as const).map(({ type, title, icon: Icon, description }) => {
       const items = categories.filter((category) => category.tipo === type);
       return <button key={type} type="button" data-kind={type} onClick={() => onSelect(type)} aria-label={`Ver categorias de ${type === 'despesa' ? 'despesas' : 'receitas'}`}
-        className="category-collection finance-hero group flex min-w-0 flex-col items-start rounded-2xl p-5 text-left sm:p-6">
+        className="category-collection finance-hero finance-surface-enter finance-interactive group flex min-w-0 flex-col items-start rounded-2xl p-5 text-left sm:p-6">
         <div className="mb-6 flex w-full items-center justify-between gap-3"><span className="hero-glass hero-ink flex h-12 w-12 items-center justify-center rounded-2xl border"><Icon size={25} aria-hidden="true" /></span><span className="hero-glass hero-ink rounded-full border px-3 py-1 text-xs font-medium">{items.length} {items.length === 1 ? 'categoria' : 'categorias'}</span></div>
         <span className="hero-ink block text-2xl font-bold">{title}</span>
         <p className="hero-muted mt-1 text-sm">{description}</p>

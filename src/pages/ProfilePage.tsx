@@ -398,6 +398,7 @@ export function ProfilePage() {
 
         <section
           id="profile-personal"
+          data-tour="profile-summary"
           aria-label="Seu perfil"
           className="mt-5 scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-surface shadow-sm"
         >
