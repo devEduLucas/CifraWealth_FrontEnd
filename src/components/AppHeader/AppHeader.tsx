@@ -8,6 +8,7 @@ import { localDateOnly } from '../../utils/reports';
 import { AccessibilityButton } from '../AccessibilityTools/AccessibilityTools';
 import { UserAvatar } from '../UserAvatar/UserAvatar';
 import { useSessionUser } from '../../hooks/useSessionUser';
+import { HelpButton } from '../HelpButton/HelpButton';
 
 const SECTION_NAMES: Record<string, string> = {
   '/dashboard': 'Visão geral', '/transactions': 'Transações', '/categories': 'Categorias',
@@ -64,7 +65,8 @@ export function AppHeader({ userName }: AppHeaderProps) {
           <p className="hidden text-[10px] font-medium uppercase tracking-[0.16em] text-subtle sm:block">Meu espaço</p>
           <p className="truncate text-sm font-semibold text-foreground sm:mt-0.5">{pathname.startsWith('/goals/') ? 'Minha meta' : SECTION_NAMES[pathname.replace(/\/+$/, '')] ?? 'CifraWealth'}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+        <div className="app-header-actions flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <div className="lg:hidden"><HelpButton placement="header" /></div>
           <AccessibilityButton />
           <button type="button" aria-label={themeLabel} title={themeLabel} onClick={() => { setOpen(false); toggleTheme(); }} className="flex h-10 items-center justify-center gap-2 rounded-xl border border-line px-2.5 text-muted transition-colors hover:bg-elevated hover:text-foreground sm:px-3">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}

@@ -116,6 +116,26 @@ test('categorias recebem estatísticas completas sem baixar transações e atual
   expect(reads.some((url) => url.pathname === '/api/transactions')).toBe(false);
 });
 
+test('ajuda fica fora do conteúdo financeiro e continua acessível em 320px', async ({ page }, info) => {
+  await setup(page);
+  if (info.project.name === 'mobile') await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('/profile');
+  await expect(page.getByText('R$ 1.000,00', { exact: true })).toBeVisible();
+  const help = page.getByRole('button', { name: 'Ajuda desta página', exact: true });
+  await expect(help).toBeVisible();
+  const button = (await help.boundingBox())!;
+  const main = (await page.getByRole('main').boundingBox())!;
+  if (info.project.name === 'desktop') {
+    const rightEdge = await page.getByRole('main').evaluate((element) => element.getBoundingClientRect().right - Number.parseFloat(getComputedStyle(element).paddingRight));
+    expect(button.x).toBeGreaterThan(rightEdge);
+  } else expect(button.y + button.height).toBeLessThan(main.y + 88);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await help.focus(); await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape'); await expect(help).toBeFocused();
+  await page.screenshot({ path: info.outputPath('perfil-ajuda-sem-sobreposicao.png') });
+});
+
 test('falha ao carregar uma página oferece recuperação e volta a funcionar ao recarregar', async ({ page }) => {
   await setup(page);
   const route = '**/src/pages/HelpPage.tsx*';

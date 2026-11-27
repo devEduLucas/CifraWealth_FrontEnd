@@ -197,6 +197,12 @@ html[data-a11y-high-contrast='true'] .category-collection::after { display: none
 .app-main { transition: margin-left 180ms ease; }
 .app-topbar { transition: left 180ms ease; }
 .app-help-button { bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+@media (max-width: 360px) {
+  .app-header-actions { gap: 4px; }
+  .app-header-actions > button, .app-header-actions > a, .app-header-actions > div > button {
+    width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding-inline: 0;
+  }
+}
 
 /* Brief, opt-in motion; labels and financial amounts never count up from zero. */
 @keyframes finance-surface-in { from { transform: translateY(4px); } to { transform: translateY(0); } }

@@ -5,7 +5,7 @@ import { Modal } from '../Modal/Modal';
 import { getHelpSection } from '../../utils/helpContent';
 import { useOnboarding } from '../../hooks/useOnboarding';
 
-export function HelpButton() {
+export function HelpButton({ placement = 'corner' }: { placement?: 'corner' | 'header' }) {
   const { pathname, search } = useLocation();
   const section = getHelpSection(pathname === '/help' ? new URLSearchParams(search).get('section') : pathname);
   const [open, setOpen] = useState(false);
@@ -18,7 +18,7 @@ export function HelpButton() {
       aria-label="Ajuda desta página"
       aria-haspopup="dialog"
       title="Ajuda desta página"
-      className="app-help-button fixed right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-line-strong bg-surface text-foreground shadow-lg shadow-black/15 transition-transform hover:scale-105 hover:bg-elevated active:scale-95 lg:right-5"
+      className={placement === 'header' ? 'flex h-10 w-10 items-center justify-center rounded-xl border border-line text-muted hover:bg-elevated hover:text-foreground' : 'app-help-button fixed right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-line-strong bg-surface text-foreground shadow-lg shadow-black/15 transition-transform hover:scale-105 hover:bg-elevated active:scale-95'}
     >
       <HelpCircle size={20} aria-hidden="true" />
     </button>
