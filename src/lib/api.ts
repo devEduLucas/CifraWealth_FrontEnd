@@ -1,6 +1,9 @@
 import { session } from './session';
 import type { DetailedReportResponse } from '../types/reports.types';
 import { API_URL, isDemoMode } from './config';
+import type { TransactionFilters } from '../utils/transactions';
+import type { CategoryPeriod } from '../utils/categoryUsage';
+import type { CategoryUsageStat, TransactionPage } from '../types/history.types';
 
 async function getDemoStore() {
   return (await import('./mockStore')).mockStore;
@@ -294,6 +297,30 @@ export const api = {
     return authRequest<TransactionResponse[]>(`/transactions${query ? `?${query}` : ''}`, {
       method: 'GET',
     });
+  },
+
+  async getTransactionPage(categories: CategoryResponse[], filters: TransactionFilters, page: number, pageSize: number, today: string): Promise<TransactionPage> {
+    const params = new URLSearchParams({ view: 'page', pageNumber: String(page), pageSize: String(pageSize), order: filters.order });
+    for (const [key, value] of Object.entries({ kind: filters.tipo, state: filters.status, category: filters.category, search: filters.search.trim(), start: filters.start, end: filters.end })) {
+      if (value) params.set(key, value);
+    }
+    const result = isDemoMode ? await (await getDemoStore()).listTransactions() : await authRequest<TransactionPage | TransactionResponse[]>('/transactions?' + params, { method: 'GET' });
+    if (!Array.isArray(result)) return result;
+    const { selectTransactions, summarizeTransactions } = await import('../utils/transactions');
+    const matching = selectTransactions(result, categories, filters, today);
+    const safePage = Math.min(page, Math.max(1, Math.ceil(matching.length / pageSize)));
+    return { items: matching.slice((safePage - 1) * pageSize, safePage * pageSize), total: matching.length, page: safePage, pageSize,
+      hasHistory: result.length > 0, summary: summarizeTransactions(matching, today), legacyItems: result };
+  },
+
+  async getCategoryUsage(period: CategoryPeriod, today: string): Promise<CategoryUsageStat[]> {
+    const params = new URLSearchParams({ view: 'usage' });
+    if (period.start) params.set('start', period.start);
+    if (period.end) params.set('end', period.end);
+    const result = isDemoMode ? await (await getDemoStore()).listCategories() : await authRequest<{ items: CategoryUsageStat[] } | CategoryResponse[]>('/categories?' + params, { method: 'GET' });
+    if (!Array.isArray(result)) return result.items;
+    const { buildCategoryUsage } = await import('../utils/categoryUsage');
+    return buildCategoryUsage(result, await api.listTransactions(), period, today).map((row) => ({ id_categoria: row.category.id_categoria, amount: row.amount, count: row.count, historyCount: row.historyCount }));
   },
 
   async createTransaction(input: TransactionInput): Promise<TransactionResponse> {

@@ -58,6 +58,64 @@ async function setup(page: Page) {
   return reads;
 }
 
+test('paginação usa totais completos e recua ao excluir a última linha da última página', async ({ page }) => {
+  const reads = await setup(page);
+  await page.goto('/transactions');
+  const pagination = page.getByRole('navigation', { name: 'Paginação das transações', exact: true });
+  await expect(page.getByRole('region', { name: 'Resumo das transações', exact: true })).toContainText('R$ 40,00');
+  await expect(page.locator('.transaction-entry')).toHaveCount(20);
+  await expect(pagination).toContainText('de 41 · Página 1 de 3');
+  for (let index = 0; index < 2; index++) {
+    await pagination.getByRole('button', { name: 'Próxima', exact: true }).click();
+    await expect(pagination).toContainText('Página ' + (index + 2) + ' de 3');
+  }
+  await expect(page.locator('.transaction-entry')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Ver detalhes de Lançamento 41', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Detalhes da transação', exact: true }).getByRole('button', { name: 'Excluir transação', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Excluir transação', exact: true }).getByRole('button', { name: 'Confirmar exclusão', exact: true }).click();
+  await expect(pagination).toContainText('de 40 · Página 2 de 2');
+  await expect(page.locator('.transaction-entry')).toHaveCount(20);
+  expect(reads.filter((url) => url.pathname === '/api/transactions').every((url) => Number(url.searchParams.get('pageSize')) <= 20)).toBe(true);
+});
+
+test('filtros contam lançamentos fora da página atual e respostas antigas não sobrescrevem a busca', async ({ page }) => {
+  await setup(page);
+  await page.goto('/transactions');
+  await expect(page.locator('.transaction-entry')).toHaveCount(20);
+  await page.getByRole('button', { name: 'Filtrar transações', exact: true }).click();
+  const modal = page.getByRole('dialog', { name: 'Filtrar transações', exact: true });
+  await modal.getByLabel('Filtrar situação', { exact: true }).selectOption('pendente');
+  await expect(modal).toContainText('1 transação corresponde à seleção');
+  await modal.getByRole('button', { name: 'Aplicar filtros', exact: true }).click();
+  await expect(page.locator('.transaction-entry')).toHaveCount(1);
+  await expect(page.locator('.transaction-entry')).toContainText('Lançamento 41');
+  await page.getByRole('button', { name: 'Remover filtro Pendentes', exact: true }).click();
+  await expect(page.locator('.transaction-entry')).toHaveCount(20);
+  const search = page.getByPlaceholder('Descrição ou categoria', { exact: true });
+  await search.fill('devagar');
+  await page.waitForRequest((request) => request.url().includes('search=devagar'));
+  await search.fill('inexistente');
+  await expect(page.getByText('Nenhuma transação encontrada com estes filtros.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ver todas as transações', exact: true })).toBeVisible();
+  await search.fill('');
+  await expect(page.locator('.transaction-entry')).toHaveCount(20);
+});
+
+test('categorias recebem estatísticas completas sem baixar transações e atualizam o período', async ({ page }) => {
+  const reads = await setup(page);
+  await page.goto('/categories?view=usage');
+  const summary = page.getByRole('region', { name: 'Resumo das categorias', exact: true });
+  await expect(summary).toContainText('R$ 4.000,00');
+  await expect(summary).toContainText('R$ 1.000,00');
+  await page.getByRole('button', { name: 'Alterar período das categorias', exact: true }).click();
+  const modal = page.getByRole('dialog');
+  await modal.getByRole('button', { name: 'Todo o período', exact: true }).click();
+  await modal.getByRole('button', { name: 'Aplicar período', exact: true }).click();
+  await expect(summary).toContainText('R$ 9.000,00');
+  await expect(summary).toContainText('R$ 2.000,00');
+  expect(reads.some((url) => url.pathname === '/api/transactions')).toBe(false);
+});
+
 test('falha ao carregar uma página oferece recuperação e volta a funcionar ao recarregar', async ({ page }) => {
   await setup(page);
   const route = '**/src/pages/HelpPage.tsx*';

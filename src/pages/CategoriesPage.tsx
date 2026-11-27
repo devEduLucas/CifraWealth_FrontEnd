@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -6,8 +6,8 @@ import {
   ApiError,
   type CategoryResponse,
   type CategoryType,
-  type TransactionResponse,
 } from '../lib/api';
+import type { CategoryUsageStat } from '../types/history.types';
 import { useSessionUser } from '../hooks/useSessionUser';
 import { useFinancialPrivacy } from '../hooks/useFinancialPrivacy';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
@@ -25,7 +25,6 @@ import { CategoryCollections } from '../components/CategoryCollections/CategoryC
 import { CategoryManager } from '../components/CategoryManager/CategoryManager';
 import { CategoryAnalysis } from '../components/CategoryAnalysis/CategoryAnalysis';
 import {
-  buildCategoryUsage,
   orderCategoryUsage,
   type CategoryPeriod,
   type CategoryOrder,
@@ -61,7 +60,7 @@ export function CategoriesPage() {
   const { valuesVisible } = useFinancialPrivacy();
   const today = localDateOnly();
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
-  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
+  const [statistics, setStatistics] = useState<CategoryUsageStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
   const [usageError, setUsageError] = useState<string | null>(null);
@@ -84,12 +83,12 @@ export function CategoriesPage() {
   const [deletingBusy, setDeletingBusy] = useState(false);
   const version = useRef(0);
 
-  function loadData() {
+  const loadData = useCallback(() => {
     const current = ++version.current;
     setLoading(true);
     setPageError(null);
     setUsageError(null);
-    Promise.allSettled([api.listCategories(), api.listTransactions()])
+    Promise.allSettled([api.listCategories(), api.getCategoryUsage(period, today)])
       .then(([cats, items]) => {
         if (current !== version.current) return;
         setCategoriesAvailable(cats.status === 'fulfilled');
@@ -101,7 +100,7 @@ export function CategoriesPage() {
               ? cats.reason.message
               : 'Não foi possível carregar suas categorias.',
           );
-        if (items.status === 'fulfilled') setTransactions(items.value);
+        if (items.status === 'fulfilled') setStatistics(items.value);
         else
           setUsageError(
             'Não foi possível carregar o uso das categorias. Você ainda pode gerenciar suas categorias.',
@@ -110,18 +109,24 @@ export function CategoriesPage() {
       .finally(() => {
         if (current === version.current) setLoading(false);
       });
-  }
+  }, [period, today]);
   function cancelLoad() {
     version.current++;
   }
   useEffect(() => {
     loadData();
     return cancelLoad;
-  }, []);
+  }, [loadData]);
 
   const usage = useMemo(
-    () => buildCategoryUsage(categories, transactions, period, today),
-    [categories, transactions, period, today],
+    () => {
+      const byId = new Map(statistics.map((item) => [item.id_categoria, item]));
+      return categories.map((category) => {
+        const row = byId.get(category.id_categoria);
+        return { category, amount: row?.amount ?? 0, count: row?.count ?? 0, historyCount: row?.historyCount ?? 0 };
+      });
+    },
+    [categories, statistics],
   );
   const visibleCategories = useMemo(
     () =>
