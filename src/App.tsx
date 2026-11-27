@@ -18,6 +18,7 @@ import { DemoBanner } from './components/DemoBanner/DemoBanner';
 import { InformationPage } from './pages/InformationPage';
 import { AccessibilityButton, AccessibilityProvider } from './components/AccessibilityTools/AccessibilityTools';
 import { useSessionUser } from './hooks/useSessionUser';
+import { OnboardingProvider } from './components/Onboarding/OnboardingProvider';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace state={{ accountNotice: session.getEndNotice() }} />;
@@ -165,7 +166,7 @@ function AppRoutes() {
 }
 
 export function App() {
-  return <AccessibilityProvider><AppRoutes /></AccessibilityProvider>;
+  return <AccessibilityProvider><OnboardingProvider><AppRoutes /></OnboardingProvider></AccessibilityProvider>;
 }
 
 export default App;

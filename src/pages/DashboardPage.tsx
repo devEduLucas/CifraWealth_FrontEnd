@@ -134,11 +134,11 @@ export function DashboardPage() {
       </div>}
       {!loading && <>
         {firstUse ? (
-          <section aria-labelledby="first-record-title" className="rounded-2xl border border-accent/25 bg-surface p-5 sm:p-8">
+          <section data-tour="dashboard-summary" aria-labelledby="first-record-title" className="rounded-2xl border border-accent/25 bg-surface p-5 sm:p-8">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent-ink"><Plus size={24} aria-hidden="true" /></span>
             <h2 id="first-record-title" className="mt-4 text-2xl font-bold text-foreground">Seu controle começa com o primeiro registro</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-secondary">Adicione uma receita ou despesa. Depois, seu saldo, resumo do mês e movimentações aparecem aqui, organizados automaticamente.</p>
-            <Link to="/transactions?new=1" className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-on-accent hover:bg-accent-hover">Registrar primeira movimentação <ArrowRight size={17} aria-hidden="true" /></Link>
+            <Link data-tour="dashboard-actions" to="/transactions?new=1" className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-on-accent hover:bg-accent-hover">Registrar primeira movimentação <ArrowRight size={17} aria-hidden="true" /></Link>
             <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-muted"><CheckCircle2 size={16} aria-hidden="true" className="shrink-0 text-positive" />Suas categorias já estão prontas para usar. Você pode personalizá-las quando quiser.</p>
             <div className="mt-6 grid gap-4 border-t border-line pt-5 sm:grid-cols-3">
               {[['1. Registre', 'Informe o valor, a data e a categoria.'], ['2. Confira', 'Acompanhe os registros confirmados no seu resumo.'], ['3. Planeje', 'Crie uma meta quando fizer sentido para você.']].map(([title, description]) => <div key={title}><h3 className="text-sm font-semibold text-foreground">{title}</h3><p className="mt-1 text-xs leading-relaxed text-muted">{description}</p></div>)}
@@ -147,7 +147,7 @@ export function DashboardPage() {
           </section>
         ) : <>
           {available.balance ? <BalanceCard total={saldo} valuesVisible={valuesVisible} /> : <p className="text-sm text-muted">Saldo indisponível no momento.</p>}
-          <section aria-label="Registrar movimentação" className="mt-3 grid grid-cols-2 gap-3">
+          <section data-tour="dashboard-actions" aria-label="Registrar movimentação" className="mt-3 grid grid-cols-2 gap-3">
             <QuickActionButton tone="income" label="Registrar receita" icon={Plus} iconClassName="bg-positive/10 text-positive" to="/transactions?new=1&tipo=receita" />
             <QuickActionButton tone="expense" label="Registrar despesa" icon={Minus} iconClassName="bg-danger/15 text-danger" to="/transactions?new=1&tipo=despesa" />
           </section>

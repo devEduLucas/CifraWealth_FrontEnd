@@ -3,7 +3,7 @@ import type { CategoryResponse, CategoryType } from '../../lib/api';
 import { CategoryIcon } from '../CategoryIcon/CategoryIcon';
 
 export function CategoryCollections({ categories, onSelect }: { categories: CategoryResponse[]; onSelect: (type: CategoryType) => void }) {
-  return <section aria-label="Escolha suas categorias" className="grid gap-4 sm:grid-cols-2">
+  return <section data-tour="categories-collections" aria-label="Escolha suas categorias" className="grid gap-4 sm:grid-cols-2">
     {([
       { type: 'despesa', title: 'Despesas', icon: ArrowUpRight, description: 'Para onde vai seu dinheiro' },
       { type: 'receita', title: 'Receitas', icon: ArrowDownLeft, description: 'De onde vem seu dinheiro' },

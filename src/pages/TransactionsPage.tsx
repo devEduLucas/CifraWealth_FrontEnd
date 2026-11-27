@@ -341,7 +341,7 @@ export function TransactionsPage() {
       <PageHeader
         title="Transações"
         action={
-          <div className="flex flex-wrap items-center gap-2">
+          <div data-tour="transactions-actions" className="flex flex-wrap items-center gap-2">
             <FinancialPrivacyButton />
             <Button icon={Plus} onClick={() => openModal()}>
               Nova Transação
