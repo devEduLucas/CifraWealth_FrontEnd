@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 const dialogs: HTMLDivElement[] = [];
 let previousBodyOverflow = '';
 const inertElements = new Map<
@@ -60,7 +60,7 @@ export function useModalFocus(
   closeRef.current = onClose;
   const savingRef = useRef(saving);
   savingRef.current = saving;
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     const previousFocus =
       document.activeElement instanceof HTMLElement
@@ -96,6 +96,12 @@ export function useModalFocus(
       }
       const first = elements[0],
         last = elements[elements.length - 1];
+      // A heading with tabindex=-1 can receive initial focus, but has no tab stop.
+      if (!elements.includes(document.activeElement as HTMLElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
       if (
         event.shiftKey &&
         (document.activeElement === first ||
@@ -112,8 +118,18 @@ export function useModalFocus(
         first.focus();
       }
     };
+    const containFocus = () => {
+      if (dialogs[dialogs.length - 1] !== container || container.contains(document.activeElement)) return;
+      (focusableElements(container)[0] ?? container).focus({ preventScroll: true });
+    };
+    // Suspense or background updates can remove the previously focused route control.
+    const contentObserver = new MutationObserver(containFocus);
+    contentObserver.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('focusin', containFocus, true);
     document.addEventListener('keydown', handleKey, true);
     return () => {
+      contentObserver.disconnect();
+      document.removeEventListener('focusin', containFocus, true);
       document.removeEventListener('keydown', handleKey, true);
       const index = dialogs.indexOf(container);
       if (index >= 0) dialogs.splice(index, 1);

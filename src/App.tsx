@@ -1,24 +1,26 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Home } from './pages/Home';
-import { RegisterPage } from './pages/RegisterPage';
-import { VerifyEmailPage } from './pages/VerifyEmailPage';
-import { LoginPage } from './pages/LoginPage';
-import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
-import { ResetPasswordPage } from './pages/ResetPasswordPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { CategoriesPage } from './pages/CategoriesPage';
-import { TransactionsPage } from './pages/TransactionsPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { ReportsPage } from './pages/ReportsPage';
-import { GoalsPage } from './pages/GoalsPage';
-import { HelpPage } from './pages/HelpPage';
 import { session } from './lib/session';
 import { DemoBanner } from './components/DemoBanner/DemoBanner';
-import { InformationPage } from './pages/InformationPage';
 import { AccessibilityButton, AccessibilityProvider } from './components/AccessibilityTools/AccessibilityTools';
 import { useSessionUser } from './hooks/useSessionUser';
 import { OnboardingProvider } from './components/Onboarding/OnboardingProvider';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary/RouteErrorBoundary';
+
+const Home = lazy(() => import('./pages/Home').then((m) => ({ default: m.Home })));
+const RegisterPage = lazy(() => import('./pages/RegisterPage').then((m) => ({ default: m.RegisterPage })));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage').then((m) => ({ default: m.VerifyEmailPage })));
+const LoginPage = lazy(() => import('./pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const CategoriesPage = lazy(() => import('./pages/CategoriesPage').then((m) => ({ default: m.CategoriesPage })));
+const TransactionsPage = lazy(() => import('./pages/TransactionsPage').then((m) => ({ default: m.TransactionsPage })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
+const ReportsPage = lazy(() => import('./pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
+const GoalsPage = lazy(() => import('./pages/GoalsPage').then((m) => ({ default: m.GoalsPage })));
+const HelpPage = lazy(() => import('./pages/HelpPage').then((m) => ({ default: m.HelpPage })));
+const InformationPage = lazy(() => import('./pages/InformationPage').then((m) => ({ default: m.InformationPage })));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   return session.isAuthenticated() ? <>{children}</> : <Navigate to="/login" replace state={{ accountNotice: session.getEndNotice() }} />;
@@ -55,6 +57,8 @@ function AppRoutes() {
       {!hasAppHeader && <AccessibilityButton floating />}
       <RouteChangeAnnouncer />
       <DemoBanner />
+      <RouteErrorBoundary key={pathname}>
+      <Suspense fallback={<main id="conteudo-principal" tabIndex={-1} className="min-h-screen bg-canvas p-6 pt-24 text-foreground"><p role="status">Carregando página...</p></main>}>
       <Routes>
         {/* Raiz: Se autenticado vai para /dashboard, caso contrário exibe a Home */}
         <Route
@@ -161,6 +165,8 @@ function AppRoutes() {
           element={<Navigate to={session.isAuthenticated() ? '/dashboard' : '/'} replace />}
         />
       </Routes>
+      </Suspense>
+      </RouteErrorBoundary>
     </>
   );
 }
