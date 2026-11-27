@@ -197,6 +197,7 @@ html[data-a11y-high-contrast='true'] .category-collection::after { display: none
 .app-main { transition: margin-left 180ms ease; }
 .app-topbar { transition: left 180ms ease; }
 .app-help-button { bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+
 @media (min-width: 1024px) {
   .app-help-button { bottom: 1.25rem; }
 }
@@ -266,6 +267,7 @@ body {
   left: 0.75rem;
   z-index: 100;
   transform: translateY(calc(-100% - 1rem));
+  clip-path: inset(50%);
   border: 2px solid rgb(var(--color-accent-ink));
   border-radius: 0.75rem;
   background: rgb(var(--color-surface));
@@ -273,11 +275,12 @@ body {
   color: rgb(var(--color-foreground));
   font-size: 0.875rem;
   font-weight: 700;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
 }
 .skip-link:focus,
 .skip-link:focus-visible {
   transform: translateY(0);
+  clip-path: none;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
 }
 
 /* Estilos próprios do painel global de acessibilidade. */

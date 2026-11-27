@@ -23,6 +23,7 @@ import {
 import { useSessionUser } from '../hooks/useSessionUser';
 import { formatCurrency, formatDate } from '../utils/format';
 import { localDateOnly } from '../utils/reports';
+import { preferredScrollBehavior } from '../utils/motion';
 import { DashboardLayout } from '../components/DashboardLayout/DashboardLayout';
 import { PageHeader } from '../components/PageHeader/PageHeader';
 import { Button } from '../components/Button/Button';
@@ -244,7 +245,7 @@ export function TransactionsPage() {
   ];
   function changePage(next: number) {
     setPage(next);
-    listRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    listRef.current?.scrollIntoView({ block: 'start', behavior: preferredScrollBehavior() });
   }
   function openModal(item: TransactionResponse | null = null) {
     setPageError(null);
